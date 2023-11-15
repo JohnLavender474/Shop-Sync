@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "626113707097",
+    "firebase_url": "https://shopsync-7e92f-default-rtdb.firebaseio.com",
+    "project_id": "shopsync-7e92f",
+    "storage_bucket": "shopsync-7e92f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626113707097:android:dd8ea9ed7729e7a3f00548",
+        "android_client_info": {
+          "package_name": "edu.uga.cs.shopsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDESbvnRTJR9BMBXtOUUOcWnU2TExgqihU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
