@@ -6,4 +6,33 @@
     </style>
 
     <style name="Theme.ShopSync" parent="Base.Theme.ShopSync" />
+
+    <style name="LoginTheme" parent="FirebaseUI">
+
+        <!-- Background color of the login dialog -->
+        <item name="android:windowBackground">@color/white</item>
+
+        <item name="colorControlNormal">@color/green</item>
+
+        <item name="android:textColorHint">@color/green</item>
+
+        <!-- Underline and Hint of the edittext -->
+        <item name="colorControlActivated">@color/green_dark</item>
+
+        <!-- Top bar color of the login dialog -->
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+
+        <!-- Typed in text color into the edittext -->
+        <item name="android:textColorPrimary">@color/green_dark</item>
+
+        <item name="android:textColor">@color/green_dark</item>
+
+        <item name="android:textColorLink">@color/green_dark</item>
+
+        <!-- Remove the action bar from the login dialog -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+    </style>
 </resources>
