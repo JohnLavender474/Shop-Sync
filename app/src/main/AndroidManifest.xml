@@ -15,6 +15,14 @@
         android:theme="@style/Theme.ShopSync"
         tools:targetApi="31">
         <activity
+            android:name=".SignInActivity"
+            android:exported="false"
+            android:label="@string/title_activity_sign_in"
+            android:theme="@style/Theme.ShopSync" />
+        <activity
+            android:name=".RegistrationActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
