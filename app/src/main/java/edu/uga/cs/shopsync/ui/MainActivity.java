@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync;
+package edu.uga.cs.shopsync.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +18,8 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import edu.uga.cs.shopsync.R;
 
 /**
  * The main activity for the ShopSync app. This activity is the entry point for the app.
@@ -48,9 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
         Button signInButton = findViewById(R.id.sign_in_button);
         Button registerButton = findViewById(R.id.register_button);
+        Button forgotPasswordButton = findViewById(R.id.forgot_password_button);
 
         signInButton.setOnClickListener(this::onSignInButtonClick);
         registerButton.setOnClickListener(this::onRegisterButtonClick);
+        forgotPasswordButton.setOnClickListener(this::onForgotPasswordButtonClick);
     }
 
     /**
@@ -104,6 +108,18 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * This method is called when the user clicks the forgot password button. The forgot
+     * password button starts the forgot password process.
+     *
+     * @param view the view that was clicked
+     */
+    private void onForgotPasswordButtonClick(View view) {
+        Log.d(TAG, "MainActivity.onForgotPasswordButtonClick()");
+
+        // TODO: forgot password logic
     }
 
     @Override
