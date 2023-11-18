@@ -1,12 +1,12 @@
-package edu.uga.cs.shopsync;
+package edu.uga.cs.shopsync.ui;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import edu.uga.cs.shopsync.R;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -21,12 +21,7 @@ public class SignInActivity extends AppCompatActivity {
         editTextSignInPassword = findViewById(R.id.editTextSignInPassword);
         Button buttonSignIn = findViewById(R.id.buttonSignIn);
 
-        buttonSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signInUser();
-            }
-        });
+        buttonSignIn.setOnClickListener(v -> signInUser());
     }
 
     private void signInUser() {

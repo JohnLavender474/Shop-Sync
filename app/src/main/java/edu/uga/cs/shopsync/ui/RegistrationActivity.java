@@ -1,12 +1,13 @@
-package edu.uga.cs.shopsync;
+package edu.uga.cs.shopsync.ui;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import edu.uga.cs.shopsync.R;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -21,12 +22,7 @@ public class RegistrationActivity extends AppCompatActivity {
         editTextPassword = findViewById(R.id.editTextPassword);
         Button buttonRegister = findViewById(R.id.buttonRegister);
 
-        buttonRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerUser();
-            }
-        });
+        buttonRegister.setOnClickListener(v -> registerUser());
     }
 
     private void registerUser() {
@@ -34,15 +30,23 @@ public class RegistrationActivity extends AppCompatActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(RegistrationActivity.this, "Email or password cannot be empty", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegistrationActivity.this, "Email or password cannot be empty",
+                           Toast.LENGTH_LONG)
+                    .show();
             return;
         }
 
         if (MainActivity.users.containsKey(email)) {
-            Toast.makeText(RegistrationActivity.this, "User already exists", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegistrationActivity.this, "User already exists", Toast.LENGTH_LONG)
+                    .show();
         } else {
+            // TODO:
+            /*
             MainActivity.users.put(email, new User(email, password));
-            Toast.makeText(RegistrationActivity.this, "User registered successfully", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegistrationActivity.this, "User registered successfully",
+                           Toast.LENGTH_LONG)
+                    .show();
+             */
         }
     }
 }
