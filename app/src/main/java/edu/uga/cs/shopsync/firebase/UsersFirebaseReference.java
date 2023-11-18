@@ -75,10 +75,7 @@ public class UsersFirebaseReference {
     }
 
     /**
-     * Attempts to change the user's password. The user's old password must be provided in order to
-     * re-authenticate the user. If the re-authentication task fails, [onFailureToAuthenticate] is
-     * called. Otherwise, [onUpdatePasswordListener] is called when the update password task
-     * completes.
+     * Attempts to change the user's password.
      *
      * @param oldPassword              the user's old password
      * @param newPassword              the user's new password
@@ -92,21 +89,9 @@ public class UsersFirebaseReference {
         if (user == null) {
             throw new IllegalStateException("Cannot change password if user is not logged in");
         }
-        String email = user.getEmail();
-        if (email == null) {
-            throw new IllegalStateException("User email cannot be null");
-        }
-        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
-        user.reauthenticate(credential).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Task<Void> updatePasswordTask = user.updatePassword(newPassword);
-                if (onUpdatePasswordListener != null) {
-                    updatePasswordTask.addOnCompleteListener(onUpdatePasswordListener);
-                }
-            } else if (onFailureToAuthenticate != null) {
-                onFailureToAuthenticate.run();
-            }
-        });
+
+        reauthenticateAndUpdatePassword(user, oldPassword, newPassword, onUpdatePasswordListener,
+                                        onFailureToAuthenticate);
     }
 
     /**
@@ -157,6 +142,33 @@ public class UsersFirebaseReference {
      */
     public void signOut() {
         firebaseAuth.signOut();
+    }
+
+    private void reauthenticateAndUpdatePassword(FirebaseUser user, String oldPassword,
+                                                 String newPassword,
+                                                 @Nullable OnCompleteListener<Void> onUpdatePassword,
+                                                 @Nullable Runnable onFailureToAuthenticate) {
+        String email = user.getEmail();
+        if (email == null) {
+            throw new IllegalStateException("User email cannot be null");
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
+        user.reauthenticate(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                updatePassword(user, newPassword, onUpdatePassword);
+            } else if (onFailureToAuthenticate != null) {
+                onFailureToAuthenticate.run();
+            }
+        });
+    }
+
+    private void updatePassword(FirebaseUser user, String newPassword,
+                                @Nullable OnCompleteListener<Void> onUpdatePasswordListener) {
+        Task<Void> updatePasswordTask = user.updatePassword(newPassword);
+        if (onUpdatePasswordListener != null) {
+            updatePasswordTask.addOnCompleteListener(onUpdatePasswordListener);
+        }
     }
 
 }

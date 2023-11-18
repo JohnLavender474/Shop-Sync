@@ -1,26 +1,37 @@
 package edu.uga.cs.shopsync.models;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PurchasedItemModel {
 
-    private String id = "";
+    private String uid = "";
     private String userId = "";
     private String itemId = "";
 
     public PurchasedItemModel() {
     }
 
-    public PurchasedItemModel(String id, String userId, String itemId) {
-        this.id = id;
+    public PurchasedItemModel(String uid, String userId, String itemId) {
+        this.uid = uid;
         this.userId = userId;
         this.itemId = itemId;
     }
 
-    public String getId() {
-        return id;
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", uid);
+        map.put("userId", userId);
+        map.put("itemId", itemId);
+        return map;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUserId() {
