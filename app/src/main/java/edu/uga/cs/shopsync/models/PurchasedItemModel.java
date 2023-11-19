@@ -6,23 +6,23 @@ import java.util.Map;
 public class PurchasedItemModel {
 
     private String uid = "";
-    private String userId = "";
-    private String itemId = "";
+    private String userUid = "";
+    private String itemUid = "";
 
     public PurchasedItemModel() {
     }
 
-    public PurchasedItemModel(String uid, String userId, String itemId) {
+    public PurchasedItemModel(String uid, String userUid, String itemUid) {
         this.uid = uid;
-        this.userId = userId;
-        this.itemId = itemId;
+        this.userUid = userUid;
+        this.itemUid = itemUid;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", uid);
-        map.put("userId", userId);
-        map.put("itemId", itemId);
+        map.put("userUid", userUid);
+        map.put("itemUid", itemUid);
         return map;
     }
 
@@ -34,19 +34,19 @@ public class PurchasedItemModel {
         this.uid = uid;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUserUid() {
+        return userUid;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserUid(String userUid) {
+        this.userUid = userUid;
     }
 
-    public String getItemId() {
-        return itemId;
+    public String getItemUid() {
+        return itemUid;
     }
 
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
+    public void setItemUid(String itemUid) {
+        this.itemUid = itemUid;
     }
 }

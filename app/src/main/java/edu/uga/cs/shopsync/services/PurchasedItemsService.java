@@ -1,37 +1,32 @@
-package edu.uga.cs.shopsync.firebase;
+package edu.uga.cs.shopsync.services;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.firebase.PurchasedItemsFirebaseReference;
 import edu.uga.cs.shopsync.models.PurchasedItemModel;
 
 /**
- * Provides methods to modify the purchased_items collection.
+ * Service class for purchased items.
  */
 @Singleton
-public class PurchasedItemsFirebaseReference {
+public class PurchasedItemsService {
 
-    private static final String PURCHASED_ITEMS_COLLECTION = "purchased_items";
-    private static final String USER_ID_FIELD = "userId";
-    private static final String ITEM_ID_FIELD = "itemId";
+    private static final String TAG = "PurchasedItemsService";
 
-    private final DatabaseReference purchasedItemsCollection = FirebaseDatabase.getInstance()
-            .getReference(PURCHASED_ITEMS_COLLECTION);
+    private final PurchasedItemsFirebaseReference purchasedItemsFirebaseReference;
 
-    /**
-     * Constructs a new PurchasedItemsFirebaseReference. Empty constructor required for injection.
-     */
     @Inject
-    public PurchasedItemsFirebaseReference() {
+    public PurchasedItemsService(@NonNull PurchasedItemsFirebaseReference purchasedItemsFirebaseReference) {
+        this.purchasedItemsFirebaseReference = purchasedItemsFirebaseReference;
+        Log.d(TAG, "PurchasedItemsService: created");
     }
 
     /**
@@ -42,13 +37,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the purchased item model
      */
     public PurchasedItemModel addPurchasedItem(String userId, String itemId) {
-        String uid = purchasedItemsCollection.push().getKey();
-        if (uid == null) {
-            return null;
-        }
-        PurchasedItemModel newPurchasedItem = new PurchasedItemModel(uid, userId, itemId);
-        purchasedItemsCollection.child(uid).setValue(newPurchasedItem);
-        return newPurchasedItem;
+        return purchasedItemsFirebaseReference.addPurchasedItem(userId, itemId);
     }
 
     /**
@@ -58,7 +47,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the task that attempts to get the purchased item with the given uid
      */
     public Task<DataSnapshot> getPurchasedItemWithId(String itemId) {
-        return purchasedItemsCollection.child(itemId).get();
+        return purchasedItemsFirebaseReference.getPurchasedItemWithId(itemId);
     }
 
     /**
@@ -68,8 +57,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the task that attempts to get the purchased items with the given user id
      */
     public Task<DataSnapshot> getPurchasedItemsWithUserId(String userId) {
-        Query query = purchasedItemsCollection.orderByChild(USER_ID_FIELD).equalTo(userId);
-        return query.get();
+        return purchasedItemsFirebaseReference.getPurchasedItemsWithUserId(userId);
     }
 
     /**
@@ -79,8 +67,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the task that attempts to get the purchased items with the given item id
      */
     public Task<DataSnapshot> getPurchasedItemsWithItemId(String itemId) {
-        Query query = purchasedItemsCollection.orderByChild(ITEM_ID_FIELD).equalTo(itemId);
-        return query.get();
+        return purchasedItemsFirebaseReference.getPurchasedItemsWithItemId(itemId);
     }
 
     /**
@@ -90,13 +77,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the task that attempts to update the purchased item with the given purchased item
      */
     public Task<Void> updatePurchasedItem(PurchasedItemModel updatedPurchasedItem) {
-        String itemId = updatedPurchasedItem.getUid();
-        Map<String, Object> purchasedItemValues = updatedPurchasedItem.toMap();
-
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + itemId, purchasedItemValues);
-
-        return purchasedItemsCollection.updateChildren(childUpdates);
+        return purchasedItemsFirebaseReference.updatePurchasedItem(updatedPurchasedItem);
     }
 
     /**
@@ -106,7 +87,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the task that attempts to delete the purchased item with the given item id
      */
     public Task<Void> deletePurchasedItem(String itemId) {
-        return purchasedItemsCollection.child(itemId).removeValue();
+        return purchasedItemsFirebaseReference.deletePurchasedItem(itemId);
     }
 }
 

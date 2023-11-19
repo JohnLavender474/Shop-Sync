@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.firebase;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -15,18 +17,31 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import edu.uga.cs.shopsync.models.UserProfileModel;
 
 /**
  * Provides methods to modify the firebase auth instance and the user profile collection.
  */
+@Singleton
 public class UsersFirebaseReference {
 
+    private static final String TAG = "UsersFirebaseReference";
     private static final String USER_PROFILES_COLLECTION = "user_profiles";
 
     private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private final DatabaseReference usersCollection = FirebaseDatabase.getInstance()
             .getReference(USER_PROFILES_COLLECTION);
+
+    /**
+     * Constructs a new UsersFirebaseReference. Empty constructor required for injection.
+     */
+    @Inject
+    public UsersFirebaseReference() {
+        Log.d(TAG, "UsersFirebaseReference: created");
+    }
 
     /**
      * Adds a value event listener.
