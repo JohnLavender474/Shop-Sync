@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.ui;
 
+import static edu.uga.cs.shopsync.TemporaryStuff.users;
+
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,7 +38,7 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        if (MainActivity.users.containsKey(email)) {
+        if (users.containsKey(email)) {
             Toast.makeText(RegistrationActivity.this, "User already exists", Toast.LENGTH_LONG)
                     .show();
         } else {

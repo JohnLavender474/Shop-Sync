@@ -5,26 +5,48 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.ApplicationGraphSingleton;
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.models.UserProfileModel;
 import edu.uga.cs.shopsync.services.UsersService;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private final UsersService usersService;
+
     private EditText loginEmailEditText;
     private EditText loginPasswordEditText;
-    public static final Map<String, UserProfileModel> users = new HashMap<>();
+
+    /**
+     * Default constructor. Uses the singleton instance of the application graph. This should be
+     * used in production.
+     */
+    public MainActivity() {
+        this(ApplicationGraphSingleton.getInstance());
+    }
+
+    /**
+     * Package-private constructor for testing only.
+     *
+     * @param applicationGraph the application graph
+     */
+    MainActivity(ApplicationGraph applicationGraph) {
+        this(applicationGraph.usersService());
+    }
+
+    /**
+     * Package-private constructor for testing only.
+     *
+     * @param usersService the users service
+     */
+    MainActivity(UsersService usersService) {
+        this.usersService = usersService;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,28 +71,4 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
-
-    private void onSignInButtonClick() {
-        String email = loginEmailEditText.getText().toString().trim();
-        String password = loginPasswordEditText.getText().toString().trim();
-
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(MainActivity.this, "Email or password cannot be empty",
-                           Toast.LENGTH_LONG)
-                    .show();
-            return;
-        }
-
-        // TODO:
-        /*
-        User user = users.get(email);
-        if (user != null && user.getPassword().equals(password)) {
-            Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(MainActivity.this, "Invalid email or password", Toast.LENGTH_SHORT)
-                    .show();
-        }
-         */
-    }
-
 }

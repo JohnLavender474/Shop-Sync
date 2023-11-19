@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,7 +37,7 @@ public class UsersService {
      *
      * @param valueEventListener the value event listener.
      */
-    public void addValueEventListener(ValueEventListener valueEventListener) {
+    public void addValueEventListener(@NonNull ValueEventListener valueEventListener) {
         usersFirebaseReference.addValueEventListener(valueEventListener);
     }
 
@@ -49,7 +48,7 @@ public class UsersService {
      * @param password the user's password
      * @param nickname the user's nickname
      */
-    public Task<AuthResult> createUser(String email, String password, String nickname) {
+    public @NonNull Task<AuthResult> createUser(String email, String password, String nickname) {
         return usersFirebaseReference.createUser(email, password, nickname);
     }
 
@@ -59,7 +58,7 @@ public class UsersService {
      * @param email    the user's email address
      * @param password the user's password
      */
-    public Task<AuthResult> signInUser(String email, String password) {
+    public @NonNull Task<AuthResult> signInUser(String email, String password) {
         return usersFirebaseReference.signInUser(email, password);
     }
 
@@ -78,8 +77,8 @@ public class UsersService {
      * @param onUpdatePasswordListener the listener for when the update password task completes
      * @param onFailureToAuthenticate  the listener for if the authentication task fails
      */
-    public void changeUserPassword(String oldPassword, String newPassword,
-                                   @Nullable OnCompleteListener<Void> onUpdatePasswordListener,
+    public void changeUserPassword(@NonNull String oldPassword, @NonNull String newPassword,
+                                   @Nullable Runnable onUpdatePasswordListener,
                                    @Nullable Runnable onFailureToAuthenticate) {
         usersFirebaseReference.changeUserPassword(oldPassword, newPassword,
                                                   onUpdatePasswordListener,
@@ -101,7 +100,7 @@ public class UsersService {
      * @param userUid the user's unique id.
      * @return the task that fetches the user profile.
      */
-    public @NonNull Task<DataSnapshot> getUserProfileWithUid(String userUid) {
+    public @NonNull Task<DataSnapshot> getUserProfileWithUid(@NonNull String userUid) {
         return usersFirebaseReference.getUserProfileWithUid(userUid);
     }
 

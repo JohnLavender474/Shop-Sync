@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -31,16 +30,30 @@ public class UsersFirebaseReference {
     private static final String TAG = "UsersFirebaseReference";
     private static final String USER_PROFILES_COLLECTION = "user_profiles";
 
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private final DatabaseReference usersCollection = FirebaseDatabase.getInstance()
-            .getReference(USER_PROFILES_COLLECTION);
+    private final FirebaseAuth firebaseAuth;
+    private final DatabaseReference usersCollection;
 
     /**
-     * Constructs a new UsersFirebaseReference. Empty constructor required for injection.
+     * Constructs a new UsersFirebaseReference. Empty constructor required for injection. Uses the
+     * default firebase auth instance and the user_profiles collection.
      */
     @Inject
     public UsersFirebaseReference() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        usersCollection = FirebaseDatabase.getInstance().getReference(USER_PROFILES_COLLECTION);
         Log.d(TAG, "UsersFirebaseReference: created");
+    }
+
+    /**
+     * Package-private constructor for testing only. Uses the given firebase auth instance and the
+     * user_profiles collection.
+     *
+     * @param firebaseAuth    the firebase auth instance
+     * @param usersCollection the user_profiles collection
+     */
+    UsersFirebaseReference(FirebaseAuth firebaseAuth, DatabaseReference usersCollection) {
+        this.firebaseAuth = firebaseAuth;
+        this.usersCollection = usersCollection;
     }
 
     /**
@@ -87,26 +100,6 @@ public class UsersFirebaseReference {
      */
     public @NonNull Task<AuthResult> signInUser(String email, String password) {
         return firebaseAuth.signInWithEmailAndPassword(email, password);
-    }
-
-    /**
-     * Attempts to change the user's password.
-     *
-     * @param oldPassword              the user's old password
-     * @param newPassword              the user's new password
-     * @param onUpdatePasswordListener the listener for when the update password task completes
-     * @param onFailureToAuthenticate  the listener for if the authentication task fails
-     */
-    public void changeUserPassword(String oldPassword, String newPassword,
-                                   @Nullable OnCompleteListener<Void> onUpdatePasswordListener,
-                                   @Nullable Runnable onFailureToAuthenticate) {
-        FirebaseUser user = getCurrentFirebaseUser();
-        if (user == null) {
-            throw new IllegalStateException("Cannot change password if user is not logged in");
-        }
-
-        reauthenticateAndUpdatePassword(user, oldPassword, newPassword, onUpdatePasswordListener,
-                                        onFailureToAuthenticate);
     }
 
     /**
@@ -159,30 +152,106 @@ public class UsersFirebaseReference {
         firebaseAuth.signOut();
     }
 
-    private void reauthenticateAndUpdatePassword(FirebaseUser user, String oldPassword,
-                                                 String newPassword,
-                                                 @Nullable OnCompleteListener<Void> onUpdatePassword,
-                                                 @Nullable Runnable onFailureToAuthenticate) {
+    /**
+     * Attempts to delete the current user.
+     *
+     * @param password  the user's password
+     * @param onFailure the runnable for if the task fails
+     */
+    public void deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
+                           @Nullable Runnable onFailure) {
+        FirebaseUser user = getCurrentFirebaseUser();
+        if (user == null) {
+            throw new IllegalStateException("Cannot delete user if user is not logged in");
+        }
+
+        reauthenticateAndRun(user, password, () -> deleteUser(user, onSuccess, onFailure), null);
+    }
+
+    /**
+     * Attempts to change the user's password.
+     *
+     * @param oldPassword              the user's old password
+     * @param newPassword              the user's new password
+     * @param onUpdatePasswordListener the listener for when the update password task completes
+     * @param onFailureToAuthenticate  the listener for if the authentication task fails
+     */
+    public void changeUserPassword(@NonNull String oldPassword, @NonNull String newPassword,
+                                   @Nullable Runnable onUpdatePasswordListener,
+                                   @Nullable Runnable onFailureToAuthenticate) {
+        FirebaseUser user = getCurrentFirebaseUser();
+        if (user == null) {
+            throw new IllegalStateException("Cannot change password if user is not logged in");
+        }
+
+        reauthenticateAndUpdatePassword(user, oldPassword, newPassword, onUpdatePasswordListener,
+                                        onFailureToAuthenticate);
+    }
+
+    /**
+     * Package-private method that can be overridden for testing purposes. Returns the credential
+     * for the email and password. Uses {@link EmailAuthProvider#getCredential(String, String)}
+     * by default.
+     *
+     * @param email    the email
+     * @param password the password
+     * @return the credential for the email and password
+     */
+    AuthCredential getCredential(String email, String password) {
+        return EmailAuthProvider.getCredential(email, password);
+    }
+
+    private void deleteUser(@NonNull FirebaseUser user, @Nullable Runnable onSuccess,
+                            @Nullable Runnable onFailure) {
+        user.delete().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // remove the user account and profile
+                usersCollection.child(user.getUid()).removeValue();
+                Log.d(TAG, "User account and profile deleted.");
+
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
+            } else if (onFailure != null) {
+                onFailure.run();
+            }
+        });
+    }
+
+    private void reauthenticateAndRun(@NonNull FirebaseUser user, @NonNull String password,
+                                      @Nullable Runnable onSuccess, @Nullable Runnable onFailure) {
         String email = user.getEmail();
         if (email == null) {
             throw new IllegalStateException("User email cannot be null");
         }
 
-        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
+        AuthCredential credential = getCredential(email, password);
         user.reauthenticate(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                updatePassword(user, newPassword, onUpdatePassword);
-            } else if (onFailureToAuthenticate != null) {
-                onFailureToAuthenticate.run();
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
+            } else if (onFailure != null) {
+                onFailure.run();
             }
         });
     }
 
+    private void reauthenticateAndUpdatePassword(@NonNull FirebaseUser user,
+                                                 @NonNull String oldPassword,
+                                                 @NonNull String newPassword,
+                                                 @Nullable Runnable onUpdatePassword,
+                                                 @Nullable Runnable onFailureToAuthenticate) {
+        reauthenticateAndRun(user, oldPassword, () -> updatePassword(user, newPassword,
+                                                                     onUpdatePassword),
+                             onFailureToAuthenticate);
+    }
+
     private void updatePassword(FirebaseUser user, String newPassword,
-                                @Nullable OnCompleteListener<Void> onUpdatePasswordListener) {
+                                @Nullable Runnable onUpdatePassword) {
         Task<Void> updatePasswordTask = user.updatePassword(newPassword);
-        if (onUpdatePasswordListener != null) {
-            updatePasswordTask.addOnCompleteListener(onUpdatePasswordListener);
+        if (onUpdatePassword != null) {
+            updatePasswordTask.addOnCompleteListener(t -> onUpdatePassword.run());
         }
     }
 
