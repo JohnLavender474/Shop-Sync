@@ -1,11 +1,13 @@
 package edu.uga.cs.shopsync.models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ShopSyncModel {
 
-    private String id = "";
+    private String uid = "";
     private String name = "";
     private String description = "";
     private List<String> userUids = new ArrayList<>();
@@ -13,19 +15,28 @@ public class ShopSyncModel {
     public ShopSyncModel() {
     }
 
-    public ShopSyncModel(String id, String name, String description, List<String> userUids) {
-        this.id = id;
+    public ShopSyncModel(String uid, String name, String description, List<String> userUids) {
+        this.uid = uid;
         this.name = name;
         this.description = description;
         this.userUids = userUids;
     }
 
-    public String getId() {
-        return id;
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("uid", uid);
+        result.put("name", name);
+        result.put("description", description);
+        result.put("userUids", userUids);
+        return result;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getName() {

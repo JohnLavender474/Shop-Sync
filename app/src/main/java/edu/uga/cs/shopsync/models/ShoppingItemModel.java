@@ -1,30 +1,40 @@
 package edu.uga.cs.shopsync.models;
 
-import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShoppingItemModel {
 
-    private String id = "";
+    private String uid = "";
     private String name = "";
     private long quantity = 0;
-    private BigDecimal pricePerUnit = BigDecimal.ZERO;
+    private double pricePerUnit = 0;
 
     public ShoppingItemModel() {
     }
 
-    public ShoppingItemModel(String id, String name, long quantity, BigDecimal pricePerUnit) {
-        this.id = id;
+    public ShoppingItemModel(String uid, String name, long quantity, double pricePerUnit) {
+        this.uid = uid;
         this.name = name;
         this.quantity = quantity;
         this.pricePerUnit = pricePerUnit;
     }
 
-    public String getId() {
-        return id;
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", uid);
+        map.put("name", name);
+        map.put("quantity", quantity);
+        map.put("pricePerUnit", pricePerUnit);
+        return map;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getName() {
@@ -43,11 +53,11 @@ public class ShoppingItemModel {
         this.quantity = quantity;
     }
 
-    public BigDecimal getPricePerUnit() {
+    public double getPricePerUnit() {
         return pricePerUnit;
     }
 
-    public void setPricePerUnit(BigDecimal pricePerUnit) {
+    public void setPricePerUnit(double pricePerUnit) {
         this.pricePerUnit = pricePerUnit;
     }
 }
