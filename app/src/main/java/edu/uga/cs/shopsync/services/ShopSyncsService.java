@@ -1,38 +1,34 @@
-package edu.uga.cs.shopsync.firebase;
+package edu.uga.cs.shopsync.services;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.firebase.ShopSyncsFirebaseReference;
 import edu.uga.cs.shopsync.models.ShopSyncModel;
 
 /**
- * Provides methods to modify the shop_syncs collection.
+ * Service class for shop syncs.
  */
 @Singleton
-public class ShopSyncsFirebaseReference {
+public class ShopSyncsService {
 
-    private static final String SHOP_SYNCS_COLLECTION = "shop_syncs";
-    private static final String USER_UIDS_FIELD = "userUids";
+    private static final String TAG = "ShopSyncsService";
 
-    private final DatabaseReference shopSyncsCollection = FirebaseDatabase.getInstance()
-            .getReference(SHOP_SYNCS_COLLECTION);
+    private final ShopSyncsFirebaseReference shopSyncsFirebaseReference;
 
-    /**
-     * Constructs a new ShopSyncsFirebaseReference. Empty constructor required for injection.
-     */
     @Inject
-    public ShopSyncsFirebaseReference() {
+    public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference) {
+        this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
+        Log.d(TAG, "ShopSyncsService: created");
     }
 
     /**
@@ -44,7 +40,7 @@ public class ShopSyncsFirebaseReference {
      * @return the uid of the shop sync
      */
     public String addShopSync(String name, String description, String... userUids) {
-        return addShopSync(name, description, new ArrayList<>(List.of(userUids)));
+        return shopSyncsFirebaseReference.addShopSync(name, description, userUids);
     }
 
     /**
@@ -56,13 +52,7 @@ public class ShopSyncsFirebaseReference {
      * @return the uid of the shop sync
      */
     public String addShopSync(String name, String description, List<String> userUids) {
-        String uid = shopSyncsCollection.push().getKey();
-        if (uid == null) {
-            return null;
-        }
-        ShopSyncModel newShopSync = new ShopSyncModel(uid, name, description, userUids);
-        shopSyncsCollection.child(uid).setValue(newShopSync);
-        return uid;
+        return shopSyncsFirebaseReference.addShopSync(name, description, userUids);
     }
 
     /**
@@ -72,7 +62,7 @@ public class ShopSyncsFirebaseReference {
      * @return the task that attempts to get the shop sync with the given uid
      */
     public Task<DataSnapshot> getShopSyncWithUid(String uid) {
-        return shopSyncsCollection.child(uid).get();
+        return shopSyncsFirebaseReference.getShopSyncWithUid(uid);
     }
 
     /**
@@ -82,8 +72,7 @@ public class ShopSyncsFirebaseReference {
      * @return the task that attempts to get the shop syncs that contain the given user uid
      */
     public Task<DataSnapshot> getShopSyncsWithUserUid(String userUid) {
-        Query query = shopSyncsCollection.orderByChild(USER_UIDS_FIELD).equalTo(userUid);
-        return query.get();
+        return shopSyncsFirebaseReference.getShopSyncsWithUserUid(userUid);
     }
 
     /**
@@ -93,13 +82,7 @@ public class ShopSyncsFirebaseReference {
      * @return the task that attempts to update the shop sync
      */
     public Task<Void> updateShopSync(ShopSyncModel updatedShopSync) {
-        String shopSyncUid = updatedShopSync.getUid();
-        Map<String, Object> shopSyncValues = updatedShopSync.toMap();
-
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + shopSyncUid, shopSyncValues);
-
-        return shopSyncsCollection.updateChildren(childUpdates);
+        return shopSyncsFirebaseReference.updateShopSync(updatedShopSync);
     }
 
     /**
@@ -109,7 +92,7 @@ public class ShopSyncsFirebaseReference {
      * @return the task that attempts to delete the shop sync with the given uid
      */
     public Task<Void> deleteShopSync(String shopSyncUid) {
-        return shopSyncsCollection.child(shopSyncUid).removeValue();
+        return shopSyncsFirebaseReference.deleteShopSync(shopSyncUid);
     }
-
 }
+

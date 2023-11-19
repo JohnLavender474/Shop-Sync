@@ -1,34 +1,32 @@
-package edu.uga.cs.shopsync.firebase;
+package edu.uga.cs.shopsync.services;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.firebase.ShoppingItemsFirebaseReference;
 import edu.uga.cs.shopsync.models.ShoppingItemModel;
 
 /**
- * Provides methods to modify the shopping_items collection.
+ * Service class for shopping items.
  */
 @Singleton
-public class ShoppingItemsFirebaseReference {
+public class ShoppingItemsService {
 
-    private static final String SHOPPING_ITEMS_COLLECTION = "shopping_items";
+    private static final String TAG = "ShoppingItemsService";
 
-    private final DatabaseReference shoppingItemsCollection = FirebaseDatabase.getInstance()
-            .getReference(SHOPPING_ITEMS_COLLECTION);
+    private final ShoppingItemsFirebaseReference shoppingItemsFirebaseReference;
 
-    /**
-     * Constructs a new ShoppingItemsFirebaseReference. Empty constructor required for injection.
-     */
     @Inject
-    public ShoppingItemsFirebaseReference() {
+    public ShoppingItemsService(@NonNull ShoppingItemsFirebaseReference shoppingItemsFirebaseReference) {
+        this.shoppingItemsFirebaseReference = shoppingItemsFirebaseReference;
+        Log.d(TAG, "ShoppingItemsService: created");
     }
 
     /**
@@ -40,14 +38,7 @@ public class ShoppingItemsFirebaseReference {
      * @return the shopping item model
      */
     public ShoppingItemModel addShoppingItem(String name, long quantity, double pricePerUnit) {
-        String uid = shoppingItemsCollection.push().getKey();
-        if (uid == null) {
-            return null;
-        }
-        ShoppingItemModel newShoppingItem = new ShoppingItemModel(uid, name, quantity,
-                                                                  pricePerUnit);
-        shoppingItemsCollection.child(uid).setValue(newShoppingItem);
-        return newShoppingItem;
+        return shoppingItemsFirebaseReference.addShoppingItem(name, quantity, pricePerUnit);
     }
 
     /**
@@ -57,7 +48,7 @@ public class ShoppingItemsFirebaseReference {
      * @return the task that attempts to get the shopping item with the given uid
      */
     public Task<DataSnapshot> getShoppingItemWithId(String itemId) {
-        return shoppingItemsCollection.child(itemId).get();
+        return shoppingItemsFirebaseReference.getShoppingItemWithId(itemId);
     }
 
     /**
@@ -67,13 +58,7 @@ public class ShoppingItemsFirebaseReference {
      * @return the task that attempts to get the shopping items with the given price per unit
      */
     public Task<Void> updateShoppingItem(ShoppingItemModel updatedShoppingItem) {
-        String itemId = updatedShoppingItem.getUid();
-        Map<String, Object> shoppingItemValues = updatedShoppingItem.toMap();
-
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + itemId, shoppingItemValues);
-
-        return shoppingItemsCollection.updateChildren(childUpdates);
+        return shoppingItemsFirebaseReference.updateShoppingItem(updatedShoppingItem);
     }
 
     /**
@@ -83,7 +68,7 @@ public class ShoppingItemsFirebaseReference {
      * @return the task that attempts to delete the shopping item with the given uid
      */
     public Task<Void> deleteShoppingItem(String itemId) {
-        return shoppingItemsCollection.child(itemId).removeValue();
+        return shoppingItemsFirebaseReference.deleteShoppingItem(itemId);
     }
 }
 
