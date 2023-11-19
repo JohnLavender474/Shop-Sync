@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
-import edu.uga.cs.shopsync.DaggerApplicationGraph;
+import edu.uga.cs.shopsync.ApplicationGraphSingleton;
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.models.UserProfileModel;
 import edu.uga.cs.shopsync.services.UsersService;
@@ -32,10 +32,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // TODO: test application graph
-        ApplicationGraph applicationGraph = DaggerApplicationGraph.create();
+        ApplicationGraph applicationGraph = ApplicationGraphSingleton.getInstance();
         UsersService usersService1 = applicationGraph.usersService();
         UsersService usersService2 = applicationGraph.usersService();
-        Log.d(TAG, "Created two instances of UsersService: " + usersService1 + ", " + usersService2);
+        Log.d(TAG,
+              "Created two instances of UsersService: " + usersService1 + ", " + usersService2);
 
         Button registerButton = findViewById(R.id.register_button);
         Button signInButton = findViewById(R.id.sign_in_button);
