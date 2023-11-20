@@ -14,6 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShopSync"
         tools:targetApi="31">
+
+        <!-- Main Activity -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">
@@ -22,6 +24,37 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <!-- Registration Activity -->
+        <activity
+            android:name=".ui.RegistrationActivity"
+            android:parentActivityName=".ui.MainActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+        </activity>
+
+        <!-- Sign-in Activity -->
+        <activity
+            android:name=".ui.SignInActivity"
+            android:parentActivityName=".ui.MainActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+        </activity>
+
+        <!-- My Shop Syncs Activity -->
+        <activity
+            android:name=".ui.MyShopSyncsActivity"
+            android:parentActivityName=".ui.MainActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
         </activity>
     </application>
 

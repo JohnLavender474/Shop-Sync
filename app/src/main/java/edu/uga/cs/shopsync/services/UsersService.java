@@ -5,17 +5,22 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.function.Consumer;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.exceptions.IllegalNullValueException;
+import edu.uga.cs.shopsync.exceptions.TaskFailureException;
+import edu.uga.cs.shopsync.exceptions.UserAlreadyExistsException;
 import edu.uga.cs.shopsync.firebase.UsersFirebaseReference;
+import edu.uga.cs.shopsync.utils.ErrorHandle;
 
 /**
  * Service class for users.
@@ -38,19 +43,24 @@ public class UsersService {
      *
      * @param valueEventListener the value event listener.
      */
-    public void addValueEventListener(ValueEventListener valueEventListener) {
+    public void addValueEventListener(@NonNull ValueEventListener valueEventListener) {
         usersFirebaseReference.addValueEventListener(valueEventListener);
     }
 
     /**
      * Attempts to create a new user and add a user profile model to the user_profiles collection.
+     * If the task succeeds, the user is automatically signed in and the onSuccess runnable is
+     * run. If the task fails, the onFailure runnable is run. If either runnable is null, it is
+     * not run.
      *
      * @param email    the user's email address
+     * @param username the user's username
      * @param password the user's password
-     * @param nickname the user's nickname
      */
-    public Task<AuthResult> createUser(String email, String password, String nickname) {
-        return usersFirebaseReference.createUser(email, password, nickname);
+    public void createUser(@NonNull String email, @NonNull String username, @NonNull String password,
+                           @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError)
+    throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
+        usersFirebaseReference.createUser(email, username, password, onSuccess, onError);
     }
 
     /**
@@ -59,7 +69,7 @@ public class UsersService {
      * @param email    the user's email address
      * @param password the user's password
      */
-    public Task<AuthResult> signInUser(String email, String password) {
+    public @NonNull Task<AuthResult> signInUser(@NonNull String email, @NonNull String password) {
         return usersFirebaseReference.signInUser(email, password);
     }
 
@@ -78,8 +88,8 @@ public class UsersService {
      * @param onUpdatePasswordListener the listener for when the update password task completes
      * @param onFailureToAuthenticate  the listener for if the authentication task fails
      */
-    public void changeUserPassword(String oldPassword, String newPassword,
-                                   @Nullable OnCompleteListener<Void> onUpdatePasswordListener,
+    public void changeUserPassword(@NonNull String oldPassword, @NonNull String newPassword,
+                                   @Nullable Runnable onUpdatePasswordListener,
                                    @Nullable Runnable onFailureToAuthenticate) {
         usersFirebaseReference.changeUserPassword(oldPassword, newPassword,
                                                   onUpdatePasswordListener,
@@ -101,7 +111,7 @@ public class UsersService {
      * @param userUid the user's unique id.
      * @return the task that fetches the user profile.
      */
-    public @NonNull Task<DataSnapshot> getUserProfileWithUid(String userUid) {
+    public @NonNull Task<DataSnapshot> getUserProfileWithUid(@NonNull String userUid) {
         return usersFirebaseReference.getUserProfileWithUid(userUid);
     }
 
@@ -123,5 +133,17 @@ public class UsersService {
      */
     public @Nullable FirebaseUser getCurrentFirebaseUser() {
         return usersFirebaseReference.getCurrentFirebaseUser();
+    }
+
+    /**
+     * Attempts to delete the current user.
+     *
+     * @param password  the user's password
+     * @param onSuccess the runnable for if the task succeeds
+     * @param onFailure the runnable for if the task fails
+     */
+    public void deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
+                           @Nullable Runnable onFailure) {
+        usersFirebaseReference.deleteUser(password, onSuccess, onFailure);
     }
 }

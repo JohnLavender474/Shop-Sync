@@ -1,16 +1,45 @@
 package edu.uga.cs.shopsync.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import edu.uga.cs.shopsync.ApplicationGraphSingleton;
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.services.UsersService;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private EditText editTextSignInEmail, editTextSignInPassword;
+    private static final String TAG = "SignInActivity";
+
+    private final UsersService usersService;
+
+    private EditText editTextSignInEmail;
+    private EditText editTextSignInPassword;
+
+    /**
+     * Default constructor. Uses the singleton instance of the application graph for service
+     * dependencies. This should be used in production.
+     *
+     * @see ApplicationGraphSingleton
+     */
+    public SignInActivity() {
+        usersService = ApplicationGraphSingleton.getInstance().usersService();
+    }
+
+    /**
+     * Package-private constructor for testing only.
+     *
+     * @param usersService the users service
+     */
+    SignInActivity(UsersService usersService) {
+        this.usersService = usersService;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,17 +48,29 @@ public class SignInActivity extends AppCompatActivity {
 
         editTextSignInEmail = findViewById(R.id.editTextSignInEmail);
         editTextSignInPassword = findViewById(R.id.editTextSignInPassword);
+
         Button buttonSignIn = findViewById(R.id.buttonSignIn);
-
-        buttonSignIn.setOnClickListener(v -> signInUser());
+        buttonSignIn.setOnClickListener(v -> onSignInButtonClick());
     }
 
-    private void signInUser() {
-        String email = editTextSignInEmail.getText().toString().trim();
-        String password = editTextSignInPassword.getText().toString().trim();
+    private void onSignInButtonClick() {
+        String email = editTextSignInEmail.getText().toString();
+        String password = editTextSignInPassword.getText().toString();
 
-        // Validate input and perform sign-in using your mock database (HashMap)
-        // For example, check if the user exists in MainActivity.users HashMap
-        // ...
+        usersService.signInUser(email, password).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "signInUser: success");
+                Toast.makeText(getApplicationContext(), "Signed in user: " + email,
+                               Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(SignInActivity.this, MyShopSyncsActivity.class);
+                startActivity(intent);
+            } else {
+                Log.d(TAG, "signInUser: failure");
+                Toast.makeText(getApplicationContext(), "Sign in failed!", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
     }
+
 }
