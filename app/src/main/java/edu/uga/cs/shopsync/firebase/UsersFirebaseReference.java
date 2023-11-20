@@ -14,12 +14,21 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.exceptions.IllegalNullValueException;
+import edu.uga.cs.shopsync.exceptions.TaskFailureException;
+import edu.uga.cs.shopsync.exceptions.UserAlreadyExistsException;
 import edu.uga.cs.shopsync.models.UserProfileModel;
+import edu.uga.cs.shopsync.utils.ErrorHandle;
+import edu.uga.cs.shopsync.utils.ErrorType;
 
 /**
  * Provides methods to modify the firebase auth instance and the user profile collection.
@@ -29,6 +38,7 @@ public class UsersFirebaseReference {
 
     private static final String TAG = "UsersFirebaseReference";
     private static final String USER_PROFILES_COLLECTION = "user_profiles";
+    private static final String USER_EMAIL_FIELD = "email";
 
     private final FirebaseAuth firebaseAuth;
     private final DatabaseReference usersCollection;
@@ -67,28 +77,97 @@ public class UsersFirebaseReference {
 
     /**
      * Attempts to create a new user and add a user profile model to the user_profiles collection.
+     * If the username already exists, the task will fail. If the task succeeds, the user will be
+     * signed in automatically.
      *
-     * @param email    the user's email address
-     * @param password the user's password
-     * @param nickname the user's nickname
-     * @return the task that attempts to create a new user
+     * @param email     the user's email address
+     * @param username  the user's username
+     * @param password  the user's password
+     * @param onSuccess the runnable for if the task succeeds
      */
-    public @NonNull Task<AuthResult> createUser(String email, String password, String nickname) {
-        Task<AuthResult> task = firebaseAuth.createUserWithEmailAndPassword(email, password);
-        task.addOnCompleteListener(task1 -> {
-            if (task1.isSuccessful()) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null) {
+    public void createUser(String email, String username, String password,
+                           @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError) throws
+            TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
+        // query to check if a user profile already exists with the given email
+        Query query = usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(username);
+        Task<DataSnapshot> checkIfExistsTask = query.get();
+
+        checkIfExistsTask.addOnCompleteListener(_checkIfExistsTask -> {
+            if (_checkIfExistsTask.isSuccessful()) {
+                DataSnapshot dataSnapshot = _checkIfExistsTask.getResult();
+
+                // the data snapshot object should not be null
+                if (dataSnapshot == null) {
+                    Log.d(TAG, "createUser: task to check if username exists returned null " +
+                            "data snapshot");
+                    if (onError != null) {
+                        onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                       "Task to check if username exists " +
+                                                               "returned null data snapshot"));
+                    }
                     return;
                 }
-                String userUid = user.getUid();
-                String userEmail = user.getEmail();
-                UserProfileModel userProfileModel = new UserProfileModel(userUid, userEmail,
-                                                                         nickname);
-                usersCollection.child(userUid).setValue(userProfileModel);
+
+                // if the data snapshot exists, a user with the provided email already exists and
+                // the task should fail
+                if (dataSnapshot.exists()) {
+                    Log.d(TAG, "createUser: user already exists with the email: " + email);
+                    if (onError != null) {
+                        onError.accept(new ErrorHandle(ErrorType.USER_ALREADY_EXISTS, Map.of(
+                                "email", email), "User already exists with the email: " + email));
+                    }
+                    return;
+                }
+
+                // if the data snapshot does not exist, a user with the provided email does not
+                // exist and the task should proceed
+                Task<AuthResult> createUserTask =
+                        firebaseAuth.createUserWithEmailAndPassword(email, password);
+
+                createUserTask.addOnCompleteListener(_createUserTask -> {
+                    if (_createUserTask.isSuccessful()) {
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                        // the user should not be null after successful creation
+                        if (user == null) {
+                            throw new IllegalNullValueException("User should not be null after " + "successful creation");
+                        }
+
+                        // add the user profile to the user_profiles collection
+                        String userUid = user.getUid();
+                        String userEmail = user.getEmail();
+                        UserProfileModel userProfileModel = new UserProfileModel(userUid,
+                                                                                 userEmail,
+                                                                                 username);
+                        usersCollection.child(userUid).setValue(userProfileModel);
+
+                        Log.d(TAG, "createUser: created user with username " + username);
+
+                        // run the on success runnable if it is not null
+                        if (onSuccess != null) {
+                            onSuccess.run();
+                        }
+                    } else {
+                        // if the task to create the user fails, throw an exception
+                        Log.d(TAG,
+                              "createUser: failed to create user with username " + username + " " +
+                                      "-" + " " + _createUserTask.getException());
+                        if (onError != null) {
+                            onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                           "Failed to create user with " +
+                                                                   "username " + username));
+                        }
+                    }
+                });
+            } else {
+                Log.d(TAG,
+                      "createUser: task to check if username exists failed - " + _checkIfExistsTask.getException());
+                if (onError != null) {
+                    onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                   "Task to check if username exists failed"));
+                }
             }
         });
-        return task;
     }
 
     /**
@@ -123,8 +202,7 @@ public class UsersFirebaseReference {
 
     /**
      * Returns the task that fetches the user profile of the current user. Returns null if the
-     * current user is not signed
-     * in.
+     * current user is not signed in.
      *
      * @return the task that fetches the user profile of the current user.
      */
@@ -219,10 +297,11 @@ public class UsersFirebaseReference {
     }
 
     private void reauthenticateAndRun(@NonNull FirebaseUser user, @NonNull String password,
-                                      @Nullable Runnable onSuccess, @Nullable Runnable onFailure) {
+                                      @Nullable Runnable onSuccess, @Nullable Runnable onFailure) throws
+            IllegalNullValueException {
         String email = user.getEmail();
         if (email == null) {
-            throw new IllegalStateException("User email cannot be null");
+            throw new IllegalNullValueException("User email cannot be null");
         }
 
         AuthCredential credential = getCredential(email, password);

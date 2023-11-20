@@ -14,6 +14,14 @@
         android:inputType="textEmailAddress" />
 
     <EditText
+        android:id="@+id/editTextUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/username"
+        android:inputType="text" />
+
+    <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,7 +29,13 @@
         android:hint="@string/password"
         android:inputType="textPassword" />
 
-    <!-- Add other fields as needed -->
+    <EditText
+        android:id="@+id/editTextConfirmPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/confirm_password"
+        android:inputType="textPassword" />
 
     <Button
         android:id="@+id/buttonRegister"

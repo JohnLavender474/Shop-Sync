@@ -18,7 +18,7 @@ public interface ApplicationGraph {
     ShopSyncsFirebaseReference shopSyncsFirebaseReference();
 
     UsersFirebaseReference usersFirebaseReference();
-     */
+    */
 
     UsersService usersService();
 

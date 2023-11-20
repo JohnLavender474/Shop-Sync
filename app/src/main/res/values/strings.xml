@@ -48,4 +48,7 @@
     </string>
     <string name="password">Password</string>
     <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="my_shop_syncs">My Shop Syncs</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>

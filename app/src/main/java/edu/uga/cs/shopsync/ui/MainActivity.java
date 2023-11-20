@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,37 +15,6 @@ import edu.uga.cs.shopsync.services.UsersService;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-
-    private final UsersService usersService;
-
-    private EditText loginEmailEditText;
-    private EditText loginPasswordEditText;
-
-    /**
-     * Default constructor. Uses the singleton instance of the application graph. This should be
-     * used in production.
-     */
-    public MainActivity() {
-        this(ApplicationGraphSingleton.getInstance());
-    }
-
-    /**
-     * Package-private constructor for testing only.
-     *
-     * @param applicationGraph the application graph
-     */
-    MainActivity(ApplicationGraph applicationGraph) {
-        this(applicationGraph.usersService());
-    }
-
-    /**
-     * Package-private constructor for testing only.
-     *
-     * @param usersService the users service
-     */
-    MainActivity(UsersService usersService) {
-        this.usersService = usersService;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

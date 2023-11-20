@@ -7,16 +7,16 @@ public class UserProfileModel {
 
     private String userUid = "";
     private String email = "";
-    private String nickname = "";
+    private String username = "";
     private List<String> myShopSyncsUids = new ArrayList<>();
 
     public UserProfileModel() {
     }
 
-    public UserProfileModel(String userUid, String email, String nickname) {
+    public UserProfileModel(String userUid, String email, String username) {
         this.userUid = userUid;
         this.email = email;
-        this.nickname = nickname;
+        this.username = username;
     }
 
     public String getUserUid() {
@@ -35,12 +35,12 @@ public class UserProfileModel {
         this.email = email;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<String> getMyShopSyncsUids() {
