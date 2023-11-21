@@ -31,22 +31,7 @@ public class MyAccountActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_account);
 
-        if (!applicationGraph.usersService().isCurrentUserSignedIn()) {
-            Log.d(TAG, "onCreate: user not signed in, redirecting to main activity");
-
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-
-            return;
-        }
-
-        FirebaseUser currentUser = applicationGraph.usersService().getCurrentFirebaseUser();
-        if (currentUser == null) {
-            throw new IllegalStateException("Current user cannot be null at this point");
-        }
-        Log.d(TAG, "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
-                currentUser.getUid() + ")");
+        FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
 
         TextView emailTextView = findViewById(R.id.textViewEmail);
         TextView usernameTextView = findViewById(R.id.textViewUsername);

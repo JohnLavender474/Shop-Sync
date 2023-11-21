@@ -58,4 +58,6 @@
     <string name="actions">Actions</string>
     <string name="sign_out">Sign Out</string>
     <string name="change_password">Change Password</string>
+    <string name="view">View</string>
+    <string name="placeholder">Placeholder</string>
 </resources>

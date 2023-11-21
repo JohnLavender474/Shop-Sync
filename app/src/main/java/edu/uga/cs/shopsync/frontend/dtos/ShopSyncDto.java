@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.frontend.dtos;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,5 +52,12 @@ public class ShopSyncDto {
 
     public void setUsers(List<UserDto> users) {
         this.users = users;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ShopSyncDto{" + "uid=" + uid + ", name=" + name + ", description=" + description +
+                ", users=" + users + '}';
     }
 }
