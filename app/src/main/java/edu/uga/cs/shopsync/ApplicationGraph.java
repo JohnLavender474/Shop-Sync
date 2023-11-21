@@ -3,7 +3,7 @@ package edu.uga.cs.shopsync;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import edu.uga.cs.shopsync.services.UsersService;
+import edu.uga.cs.shopsync.backend.services.UsersService;
 
 @Component
 @Singleton

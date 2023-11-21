@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.services;
+package edu.uga.cs.shopsync.backend.services;
 
 import android.util.Log;
 
@@ -16,10 +16,10 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.exceptions.IllegalNullValueException;
-import edu.uga.cs.shopsync.exceptions.TaskFailureException;
-import edu.uga.cs.shopsync.exceptions.UserAlreadyExistsException;
-import edu.uga.cs.shopsync.firebase.UsersFirebaseReference;
+import edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference;
+import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
+import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
+import edu.uga.cs.shopsync.backend.exceptions.UserAlreadyExistsException;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 
 /**

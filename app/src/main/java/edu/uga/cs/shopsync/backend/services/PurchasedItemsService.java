@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.services;
+package edu.uga.cs.shopsync.backend.services;
 
 import android.util.Log;
 
@@ -10,8 +10,8 @@ import com.google.firebase.database.DataSnapshot;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.firebase.PurchasedItemsFirebaseReference;
-import edu.uga.cs.shopsync.models.PurchasedItemModel;
+import edu.uga.cs.shopsync.backend.firebase.PurchasedItemsFirebaseReference;
+import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 
 /**
  * Service class for purchased items.

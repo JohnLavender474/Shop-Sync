@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.ui;
+package edu.uga.cs.shopsync.frontend.activities;
 
 import android.content.Intent;
 import android.os.Bundle;

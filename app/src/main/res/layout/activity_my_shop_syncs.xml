@@ -9,4 +9,6 @@
         android:text="@string/my_shop_syncs">
     </TextView>
 
+
+
 </LinearLayout>

@@ -17,7 +17,7 @@
 
         <!-- Main Activity -->
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".frontend.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,53 +28,53 @@
 
         <!-- Registration Activity -->
         <activity
-            android:name=".ui.RegistrationActivity"
-            android:parentActivityName=".ui.MainActivity">
+            android:name=".frontend.activities.RegistrationActivity"
+            android:parentActivityName=".frontend.activities.MainActivity">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+                android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
         </activity>
 
         <!-- Sign-in Activity -->
         <activity
-            android:name=".ui.SignInActivity"
-            android:parentActivityName=".ui.MainActivity">
+            android:name=".frontend.activities.SignInActivity"
+            android:parentActivityName=".frontend.activities.MainActivity">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+                android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
         </activity>
 
         <!-- My Shop Syncs Activity -->
         <activity
-            android:name=".ui.MyShopSyncsActivity"
-            android:parentActivityName=".ui.MyAccountActivity">
+            android:name=".frontend.activities.MyShopSyncsActivity"
+            android:parentActivityName=".frontend.activities.MyAccountActivity">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+                android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
         </activity>
 
         <!-- My Account Activity -->
         <activity
-            android:name=".ui.MyAccountActivity"
-            android:parentActivityName=".ui.MainActivity">
+            android:name=".frontend.activities.MyAccountActivity"
+            android:parentActivityName=".frontend.activities.MainActivity">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+                android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
         </activity>
 
         <!-- Change Password Activity -->
         <activity
-            android:name=".ui.ChangePasswordActivity"
-            android:parentActivityName=".ui.MyAccountActivity">
+            android:name=".frontend.activities.ChangePasswordActivity"
+            android:parentActivityName=".frontend.activities.MyAccountActivity">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uga.cs.shopsync.ui.MyAccountActivity" />
+                android:value="edu.uga.cs.shopsync.frontend.activities.MyAccountActivity" />
         </activity>
 
     </application>
