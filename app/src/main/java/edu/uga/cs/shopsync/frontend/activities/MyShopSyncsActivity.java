@@ -126,6 +126,7 @@ public class MyShopSyncsActivity extends BaseActivity {
         // set up the recycler view
         List<ShopSyncModel> shopSyncs = new ArrayList<>();
         RecyclerView recyclerView = findViewById(R.id.recyclerViewShopSyncs);
+
         ShopSyncsRecyclerViewAdapter adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

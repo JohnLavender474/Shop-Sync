@@ -87,6 +87,7 @@ public class RegistrationActivity extends BaseActivity {
             }
             applicationGraph.shopSyncsService().addShopSync("Test ShopSync", "Test ShopSync " +
                     "Description", UtilMethods.mutableListOf(currentUser.getUid()));
+
             /* --- */
 
 
