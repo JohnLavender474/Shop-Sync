@@ -7,21 +7,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.function.Consumer;
 
-import edu.uga.cs.shopsync.ApplicationGraphSingleton;
+import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.services.UsersService;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.ErrorType;
 
-public class RegistrationActivity extends AppCompatActivity {
+public class RegistrationActivity extends BaseActivity {
 
     private static final String TAG = "RegistrationActivity";
-
-    private final UsersService usersService;
 
     private EditText editTextEmail;
     private EditText editTextUsername;
@@ -29,11 +24,11 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText editTextConfirmPassword;
 
     public RegistrationActivity() {
-        usersService = ApplicationGraphSingleton.getInstance().usersService();
+        super();
     }
 
-    RegistrationActivity(UsersService usersService) {
-        this.usersService = usersService;
+    RegistrationActivity(ApplicationGraph applicationGraph) {
+        super(applicationGraph);
     }
 
     @Override
@@ -68,7 +63,8 @@ public class RegistrationActivity extends AppCompatActivity {
                            Toast.LENGTH_LONG).show();
 
             Intent intent = new Intent(RegistrationActivity.this,
-                                       MyShopSyncsActivity.class);
+                                       MyAccountActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         };
 
@@ -89,6 +85,6 @@ public class RegistrationActivity extends AppCompatActivity {
             Toast.makeText(RegistrationActivity.this, message, Toast.LENGTH_LONG).show();
         };
 
-        usersService.createUser(email, username, password, onSuccess, onFailure);
+        applicationGraph.usersService().createUser(email, username, password, onSuccess, onFailure);
     }
 }

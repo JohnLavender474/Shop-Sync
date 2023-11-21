@@ -50,12 +50,33 @@
         <!-- My Shop Syncs Activity -->
         <activity
             android:name=".ui.MyShopSyncsActivity"
+            android:parentActivityName=".ui.MyAccountActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uga.cs.shopsync.ui.MainActivity" />
+        </activity>
+
+        <!-- My Account Activity -->
+        <activity
+            android:name=".ui.MyAccountActivity"
             android:parentActivityName=".ui.MainActivity">
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.ui.MainActivity" />
         </activity>
+
+        <!-- Change Password Activity -->
+        <activity
+            android:name=".ui.ChangePasswordActivity"
+            android:parentActivityName=".ui.MyAccountActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uga.cs.shopsync.ui.MyAccountActivity" />
+        </activity>
+
     </application>
 
 </manifest>

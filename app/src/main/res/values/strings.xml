@@ -51,4 +51,11 @@
     <string name="username">Username</string>
     <string name="my_shop_syncs">My Shop Syncs</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="logout">logout\t\t\t\t\t</string>
+    <string name="my_account">My Account</string>
+    <string name="email_in_table">Email:</string>
+    <string name="username_in_table">Username:</string>
+    <string name="actions">Actions</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="change_password">Change Password</string>
 </resources>
