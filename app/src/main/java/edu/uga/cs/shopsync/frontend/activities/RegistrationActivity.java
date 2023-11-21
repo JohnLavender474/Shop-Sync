@@ -15,6 +15,7 @@ import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.ErrorType;
+import edu.uga.cs.shopsync.utils.UtilMethods;
 
 /**
  * Activity for registering a new user.
@@ -85,7 +86,8 @@ public class RegistrationActivity extends BaseActivity {
                 throw new IllegalStateException("User is not signed in");
             }
             applicationGraph.shopSyncsService().addShopSync("Test ShopSync", "Test ShopSync " +
-                    "Description", currentUser.getUid());
+                    "Description", UtilMethods.mutableListOf(currentUser.getUid()));
+
             /* --- */
 
 

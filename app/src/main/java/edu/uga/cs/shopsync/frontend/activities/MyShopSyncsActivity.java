@@ -32,8 +32,8 @@ public class MyShopSyncsActivity extends BaseActivity {
     /**
      * RecyclerView Adapter for displaying ShopSyncModel items.
      */
-    public static class ShopSyncsRecyclerViewAdapter extends
-            RecyclerView.Adapter<ShopSyncsRecyclerViewAdapter.ViewHolder> {
+    public static class ShopSyncsRecyclerViewAdapter
+            extends RecyclerView.Adapter<ShopSyncsRecyclerViewAdapter.ViewHolder> {
 
         private final List<ShopSyncModel> shopSyncList;
         private final Context context;
@@ -98,8 +98,7 @@ public class MyShopSyncsActivity extends BaseActivity {
                 String shopSyncNameText = "Name: " + shopSyncModel.getName();
                 shopSyncNameTextView.setText(shopSyncNameText);
 
-                String usersText = "Users: " + shopSyncModel.getUserUids().size();
-                usersTextView.setText(usersText);
+                // TODO: usersTextView.setText(number of users);
 
                 goToShopSyncButton.setOnClickListener(v -> {
                     Log.d(TAG, "go to shop sync button clicked for shop sync: " + shopSyncModel);
@@ -120,18 +119,47 @@ public class MyShopSyncsActivity extends BaseActivity {
 
         // check if the user is signed in
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
-        Log.d(TAG, "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
-                currentUser.getUid() + ")");
+        Log.d(TAG,
+              "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
+                      currentUser.getUid() + ")");
 
         // set up the recycler view
         List<ShopSyncModel> shopSyncs = new ArrayList<>();
         RecyclerView recyclerView = findViewById(R.id.recyclerViewShopSyncs);
-        ShopSyncsRecyclerViewAdapter adapter =
-                new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
+
+        ShopSyncsRecyclerViewAdapter adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // TODO: fix issue where shop syncs are not being fetched properly
+        applicationGraph.shopSyncsService().getShopSyncsForUser(currentUser.getUid())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "onCreate: task for shop syncs is complete");
+
+                        DataSnapshot dataSnapshot = task.getResult();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                            // Convert each child's value into a ShopSyncModel object
+                            ShopSyncModel shopSync = childSnapshot.getValue(ShopSyncModel.class);
+                            if (shopSync != null) {
+                                shopSyncs.add(shopSync);
+                            }
+                        }
+
+                        Log.d(TAG,
+                              "onCreate: retrieved " + shopSyncs.size() +
+                                      " shop syncs");
+
+                        // notify the adapter that the data set has changed
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        signOutOnErrorAndRedirectToMainActivity("Failed to retrieve shop syncs. " +
+                                                                        "Signing out now.");
+                    }
+                });
+
+        // TODO: fix issue where shop syncs are not being fetched
+        //  properly
+        /*
         applicationGraph.shopSyncsService()
                 .getShopSyncsWithUserUid(currentUser.getUid())
                 .addOnCompleteListener(task -> {
@@ -156,6 +184,7 @@ public class MyShopSyncsActivity extends BaseActivity {
                                                                         "Signing out now.");
                     }
                 });
+         */
     }
 
 }

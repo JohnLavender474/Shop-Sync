@@ -1,15 +1,10 @@
 package edu.uga.cs.shopsync.backend.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UserProfileModel {
-
 
     private String userUid = "";
     private String email = "";
     private String username = "";
-    private List<String> myShopSyncsUids = new ArrayList<>();
 
     public UserProfileModel() {
     }
@@ -44,11 +39,4 @@ public class UserProfileModel {
         this.username = username;
     }
 
-    public List<String> getMyShopSyncsUids() {
-        return myShopSyncsUids;
-    }
-
-    public void setMyShopSyncsUids(List<String> myShopSyncsUids) {
-        this.myShopSyncsUids = myShopSyncsUids;
-    }
 }

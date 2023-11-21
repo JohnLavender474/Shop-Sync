@@ -86,8 +86,8 @@ public class UsersFirebaseReference {
      * @param onSuccess the runnable for if the task succeeds
      */
     public void createUser(String email, String username, String password,
-                           @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError) throws
-            TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
+                           @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError)
+            throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         // query to check if a user profile already exists with the given email
         Query query = usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(username);
         Task<DataSnapshot> checkIfExistsTask = query.get();
@@ -114,7 +114,8 @@ public class UsersFirebaseReference {
                     Log.d(TAG, "createUser: user already exists with the email: " + email);
                     if (onError != null) {
                         onError.accept(new ErrorHandle(ErrorType.USER_ALREADY_EXISTS, Map.of(
-                                "email", email), "User already exists with the email: " + email));
+                                "email", email), "User already exists with the email: "
+                                + email));
                     }
                     return;
                 }
@@ -130,7 +131,8 @@ public class UsersFirebaseReference {
 
                         // the user should not be null after successful creation
                         if (user == null) {
-                            throw new IllegalNullValueException("User should not be null after " + "successful creation");
+                            throw new IllegalNullValueException("User should not be null after " +
+                                                                        "successful creation");
                         }
 
                         // add the user profile to the user_profiles collection
@@ -150,8 +152,8 @@ public class UsersFirebaseReference {
                     } else {
                         // if the task to create the user fails, throw an exception
                         Log.d(TAG,
-                              "createUser: failed to create user with username " + username + " " +
-                                      "-" + " " + _createUserTask.getException());
+                              "createUser: failed to create user with username " + username +
+                                      " - " + _createUserTask.getException());
                         if (onError != null) {
                             onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
                                                            "Failed to create user with " +
@@ -160,8 +162,8 @@ public class UsersFirebaseReference {
                     }
                 });
             } else {
-                Log.d(TAG,
-                      "createUser: task to check if username exists failed - " + _checkIfExistsTask.getException());
+                Log.d(TAG, "createUser: task to check if username exists failed - " +
+                              _checkIfExistsTask.getException());
                 if (onError != null) {
                     onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
                                                    "Task to check if username exists failed"));
@@ -198,6 +200,16 @@ public class UsersFirebaseReference {
      */
     public @NonNull Task<DataSnapshot> getUserProfileWithUid(String userUid) {
         return usersCollection.child(userUid).get();
+    }
+
+    /**
+     * Updates the user profile with the given user profile model.
+     *
+     * @param userProfileModel the user profile model
+     * @noinspection UnusedReturnValue
+     */
+    public @NonNull Task<Void> updateUserProfile(UserProfileModel userProfileModel) {
+        return usersCollection.child(userProfileModel.getUserUid()).setValue(userProfileModel);
     }
 
     /**
