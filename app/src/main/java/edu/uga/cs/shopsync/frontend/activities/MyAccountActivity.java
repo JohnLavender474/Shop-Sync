@@ -14,14 +14,26 @@ import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 
+/**
+ * Activity for displaying the user's account information.
+ */
 public class MyAccountActivity extends BaseActivity {
 
     private static final String TAG = "MyAccountActivity";
 
+    /**
+     * Default constructor for MyAccountActivity. This constructor uses the singleton instance of
+     * the application graph. This constructor should only be used by the Android framework.
+     */
     public MyAccountActivity() {
         super();
     }
 
+    /**
+     * Constructor for MyAccountActivity. This constructor should be used for testing purposes
+     *
+     * @param applicationGraph The application graph to use for this activity.
+     */
     MyAccountActivity(ApplicationGraph applicationGraph) {
         super(applicationGraph);
     }
@@ -31,38 +43,39 @@ public class MyAccountActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_account);
 
-        if (!applicationGraph.usersService().isCurrentUserSignedIn()) {
-            Log.d(TAG, "onCreate: user not signed in, redirecting to main activity");
-
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-
-            return;
-        }
-
-        FirebaseUser currentUser = applicationGraph.usersService().getCurrentFirebaseUser();
-        if (currentUser == null) {
-            throw new IllegalStateException("Current user cannot be null at this point");
-        }
-        Log.d(TAG, "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
-                currentUser.getUid() + ")");
+        // check if the user is logged in and fetch the current user, otherwise redirect to the
+        // main activity
+        FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
 
         TextView emailTextView = findViewById(R.id.textViewEmail);
         TextView usernameTextView = findViewById(R.id.textViewUsername);
 
+        // fetch the user profile and then set the text views to display the user profile info
         applicationGraph.usersService().getUserProfileWithUid(currentUser.getUid())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "onCreate: task for user profile is complete");
 
+                        // fetch the user profile model
                         DataSnapshot dataSnapshot = task.getResult();
                         UserProfileModel userProfileModel =
                                 dataSnapshot.getValue(UserProfileModel.class);
 
+                        // cannot proceed if user profile model is null
                         if (userProfileModel == null) {
-                            throw new IllegalStateException("User profile model cannot be null " +
-                                                                    "at this point");
+                            Log.e(TAG, "onCreate: user profile model is null, signing out");
+                            Toast.makeText(getApplicationContext(), "Failed to retrieve user " +
+                                    "profile. Signing out now.", Toast.LENGTH_SHORT).show();
+
+                            // sign out the user on error
+                            applicationGraph.usersService().signOut();
+
+                            // redirect to the main activity on error
+                            Intent intent = new Intent(this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+
+                            return;
                         }
 
                         Log.d(TAG, "onCreate: retrieved user profile with email " +
@@ -70,34 +83,34 @@ public class MyAccountActivity extends BaseActivity {
                                 userProfileModel.getUsername() + " and id (" +
                                 userProfileModel.getUserUid() + ")");
 
+                        // set the text views to display the user profile info
                         emailTextView.setText(userProfileModel.getEmail());
                         usernameTextView.setText(userProfileModel.getUsername());
                     } else {
-                        Log.d(TAG, "onCreate: failed to retrieve user profile");
-
-                        Toast.makeText(getApplicationContext(), "Failed to retrieve user " +
-                                "profile", Toast.LENGTH_SHORT).show();
+                        signOutOnErrorAndRedirectToMainActivity("Failed to retrieve user profile. " +
+                                                                 "Signing out now.");
                     }
                 });
 
+        // go to my shop syncs activity on button click
         Button buttonGoToMyShopSyncs = findViewById(R.id.buttonGoToMyShopSyncs);
         buttonGoToMyShopSyncs.setOnClickListener(v -> {
             Log.d(TAG, "onCreate: go to my shop syncs button clicked, redirecting to my shop " +
                     "syncs activity");
-
             Intent intent = new Intent(this, MyShopSyncsActivity.class);
             startActivity(intent);
         });
 
+        // go to change password activity on button click
         Button buttonChangePassword = findViewById(R.id.buttonChangePassword);
         buttonChangePassword.setOnClickListener(v -> {
             Log.d(TAG, "onCreate: change password button clicked, redirecting to change password " +
                     "activity");
-
             Intent intent = new Intent(this, ChangePasswordActivity.class);
             startActivity(intent);
         });
 
+        // sign out on button click
         Button buttonSignOut = findViewById(R.id.buttonSignOut);
         buttonSignOut.setOnClickListener(v -> {
             Log.d(TAG, "onCreate: sign out button clicked, signing out and redirecting to the " +
@@ -107,8 +120,10 @@ public class MyAccountActivity extends BaseActivity {
 
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
             startActivity(intent);
+
+            Toast.makeText(getApplicationContext(), "Signed out successfully", Toast.LENGTH_SHORT)
+                    .show();
         });
     }
 
