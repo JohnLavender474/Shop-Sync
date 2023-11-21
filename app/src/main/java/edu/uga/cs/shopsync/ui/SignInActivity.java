@@ -7,17 +7,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.ApplicationGraphSingleton;
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.services.UsersService;
 
-public class SignInActivity extends AppCompatActivity {
+public class SignInActivity extends BaseActivity {
 
     private static final String TAG = "SignInActivity";
-
-    private final UsersService usersService;
 
     private EditText editTextSignInEmail;
     private EditText editTextSignInPassword;
@@ -29,20 +25,30 @@ public class SignInActivity extends AppCompatActivity {
      * @see ApplicationGraphSingleton
      */
     public SignInActivity() {
-        usersService = ApplicationGraphSingleton.getInstance().usersService();
+        super();
     }
 
     /**
      * Package-private constructor for testing only.
      *
-     * @param usersService the users service
+     * @param applicationGraph the application graph
      */
-    SignInActivity(UsersService usersService) {
-        this.usersService = usersService;
+    SignInActivity(ApplicationGraph applicationGraph) {
+        super(applicationGraph);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (applicationGraph.usersService().isCurrentUserSignedIn()) {
+            Log.d(TAG, "onCreate: user already signed in");
+
+            Intent intent = new Intent(this, MyAccountActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+            return;
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
@@ -57,20 +63,22 @@ public class SignInActivity extends AppCompatActivity {
         String email = editTextSignInEmail.getText().toString();
         String password = editTextSignInPassword.getText().toString();
 
-        usersService.signInUser(email, password).addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                Log.d(TAG, "signInUser: success");
-                Toast.makeText(getApplicationContext(), "Signed in user: " + email,
-                               Toast.LENGTH_SHORT).show();
+        applicationGraph
+                .usersService()
+                .signInUser(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "signInUser: success");
+                        Toast.makeText(getApplicationContext(), "Signed in user: " + email,
+                                       Toast.LENGTH_SHORT).show();
 
-                Intent intent = new Intent(SignInActivity.this, MyShopSyncsActivity.class);
-                startActivity(intent);
-            } else {
-                Log.d(TAG, "signInUser: failure");
-                Toast.makeText(getApplicationContext(), "Sign in failed!", Toast.LENGTH_SHORT)
-                        .show();
-            }
-        });
+                        Intent intent = new Intent(SignInActivity.this, MyAccountActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Log.d(TAG, "signInUser: failure");
+                        Toast.makeText(getApplicationContext(), "Sign in failed!",
+                                       Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
-
 }
