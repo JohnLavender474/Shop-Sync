@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.exceptions;
+package edu.uga.cs.shopsync.backend.exceptions;
 
 import androidx.annotation.NonNull;
 

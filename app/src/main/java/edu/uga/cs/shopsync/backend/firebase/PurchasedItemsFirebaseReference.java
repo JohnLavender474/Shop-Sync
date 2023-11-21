@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.firebase;
+package edu.uga.cs.shopsync.backend.firebase;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.models.PurchasedItemModel;
+import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 
 /**
  * Provides methods to modify the purchased_items collection.

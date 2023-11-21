@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.ui;
+package edu.uga.cs.shopsync.frontend.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import com.google.firebase.database.DataSnapshot;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.models.UserProfileModel;
+import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 
 public class MyAccountActivity extends BaseActivity {
 

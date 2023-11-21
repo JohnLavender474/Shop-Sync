@@ -3,7 +3,7 @@ package edu.uga.cs.shopsync;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uga.cs.shopsync.models.UserProfileModel;
+import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 
 public class TemporaryStuff {
 

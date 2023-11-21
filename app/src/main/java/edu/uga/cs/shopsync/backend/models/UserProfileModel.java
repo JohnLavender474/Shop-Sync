@@ -1,9 +1,10 @@
-package edu.uga.cs.shopsync.models;
+package edu.uga.cs.shopsync.backend.models;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserProfileModel {
+
 
     private String userUid = "";
     private String email = "";

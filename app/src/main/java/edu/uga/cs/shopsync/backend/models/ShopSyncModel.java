@@ -1,4 +1,6 @@
-package edu.uga.cs.shopsync.models;
+package edu.uga.cs.shopsync.backend.models;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,5 +63,16 @@ public class ShopSyncModel {
 
     public void setUserUids(List<String> userUids) {
         this.userUids = userUids;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ShopSyncModel{" +
+                "uid='" + uid + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", userUids=" + userUids +
+                '}';
     }
 }

@@ -1,4 +1,4 @@
-package edu.uga.cs.shopsync.services;
+package edu.uga.cs.shopsync.backend.services;
 
 import android.util.Log;
 
@@ -12,8 +12,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.firebase.ShopSyncsFirebaseReference;
-import edu.uga.cs.shopsync.models.ShopSyncModel;
+import edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference;
+import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 
 /**
  * Service class for shop syncs.
