@@ -3,6 +3,7 @@ package edu.uga.cs.shopsync.backend.services;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -13,7 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference;
-import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
+import edu.uga.cs.shopsync.backend.firebase.UserShopSyncsMapFirebaseReference;
 
 /**
  * Service class for shop syncs.
@@ -24,10 +25,14 @@ public class ShopSyncsService {
     private static final String TAG = "ShopSyncsService";
 
     private final ShopSyncsFirebaseReference shopSyncsFirebaseReference;
+    private final UserShopSyncsMapFirebaseReference userShopSyncsMapFirebaseReference;
 
     @Inject
-    public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference) {
+    public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
+                            @NonNull UserShopSyncsMapFirebaseReference
+                                    userShopSyncsMapFirebaseReference) {
         this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
+        this.userShopSyncsMapFirebaseReference = userShopSyncsMapFirebaseReference;
         Log.d(TAG, "ShopSyncsService: created");
     }
 
@@ -37,10 +42,10 @@ public class ShopSyncsService {
      * @param name        the name of the shop sync
      * @param description the description of the shop sync
      * @param userUids    the user uids of the shop sync
-     * @return the uid of the shop sync
      */
-    public String addShopSync(String name, String description, String... userUids) {
-        return shopSyncsFirebaseReference.addShopSync(name, description, userUids);
+    public void addShopSync(@NonNull String name, @NonNull String description,
+                            @NonNull List<String> userUids) {
+        addShopSync(name, description, userUids, null, null);
     }
 
     /**
@@ -49,10 +54,31 @@ public class ShopSyncsService {
      * @param name        the name of the shop sync
      * @param description the description of the shop sync
      * @param userUids    the user uids of the shop sync
-     * @return the uid of the shop sync
      */
-    public String addShopSync(String name, String description, List<String> userUids) {
-        return shopSyncsFirebaseReference.addShopSync(name, description, userUids);
+    public void addShopSync(@NonNull String name, @NonNull String description,
+                            @NonNull List<String> userUids, @Nullable Runnable onSuccess,
+                            @Nullable Runnable onFailure) {
+        // Add shop sync to shop syncs collection
+        String shopSyncUid = shopSyncsFirebaseReference.addShopSync(name, description);
+
+        // If the shop sync uid is null, then the shop sync was not added
+        if (shopSyncUid == null) {
+            Log.e(TAG, "addShopSync: failed to add shop sync");
+            if (onFailure != null) {
+                onFailure.run();
+            }
+            return;
+        }
+
+        // Map the shop sync to the users
+        userUids.forEach(userUid -> userShopSyncsMapFirebaseReference
+                .addShopSyncToUser(userUid, shopSyncUid));
+
+        Log.d(TAG, "addShopSync: successfully added shop sync with uid " + shopSyncUid);
+        if (onSuccess != null) {
+            Log.d(TAG, "addShopSync: running on success runnable");
+            onSuccess.run();
+        }
     }
 
     /**
@@ -61,28 +87,18 @@ public class ShopSyncsService {
      * @param uid the uid of the shop sync
      * @return the task that attempts to get the shop sync with the given uid
      */
-    public Task<DataSnapshot> getShopSyncWithUid(String uid) {
+    public Task<DataSnapshot> getShopSyncWithUid(@NonNull String uid) {
         return shopSyncsFirebaseReference.getShopSyncWithUid(uid);
-    }
-
-    /**
-     * Returns the task that attempts to get the shop syncs that contain the given user uid.
-     *
-     * @param userUid the user uid contained in the user uids field of the shop sync
-     * @return the task that attempts to get the shop syncs that contain the given user uid
-     */
-    public Task<DataSnapshot> getShopSyncsWithUserUid(String userUid) {
-        return shopSyncsFirebaseReference.getShopSyncsWithUserUid(userUid);
     }
 
     /**
      * Returns the task that attempts to update the shop sync.
      *
-     * @param updatedShopSync the updated shop sync
+     * @param userUid the user uid
      * @return the task that attempts to update the shop sync
      */
-    public Task<Void> updateShopSync(ShopSyncModel updatedShopSync) {
-        return shopSyncsFirebaseReference.updateShopSync(updatedShopSync);
+    public Task<DataSnapshot> getShopSyncsForUser(@NonNull String userUid) {
+        return userShopSyncsMapFirebaseReference.getShopSyncsAssociatedWithUser(userUid);
     }
 
     /**
