@@ -119,4 +119,23 @@ public class BaseActivity extends AppCompatActivity {
         return currentUser;
     }
 
+    /**
+     * Signs out the current user and redirects to the main activity. This method should be called
+     * when an error occurs that requires the user to be signed out.
+     *
+     * @param error The error message to display to the user.
+     */
+    protected void signOutOnErrorAndRedirectToMainActivity(String error) {
+        Log.e(TAG, "signOutOnErrorAndRedirectToMainActivity: " + error);
+        Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
+
+        // sign out the user on error
+        applicationGraph.usersService().signOut();
+
+        // redirect to the main activity on error
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
 }
