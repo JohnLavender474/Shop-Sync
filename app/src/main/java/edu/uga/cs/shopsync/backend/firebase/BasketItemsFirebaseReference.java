@@ -24,14 +24,25 @@ public class BasketItemsFirebaseReference {
     private static final String BASKET_ITEMS_COLLECTION = "basket_items";
     private static final String SHOPPING_BASKET_UID_FIELD = "shoppingBasketUid";
 
-    private final DatabaseReference basketItemsCollection = FirebaseDatabase.getInstance()
-            .getReference(BASKET_ITEMS_COLLECTION);
+    private final DatabaseReference basketItemsCollection;
 
     /**
      * Constructs a new BasketItemsFirebaseReference. Empty constructor required for injection.
      */
     @Inject
     public BasketItemsFirebaseReference() {
+        basketItemsCollection = FirebaseDatabase.getInstance()
+                .getReference(BASKET_ITEMS_COLLECTION);
+    }
+
+    /**
+     * Constructs a new BasketItemsFirebaseReference with the given basket items collection.
+     * Used for testing only.
+     *
+     * @param basketItemsCollection the basket items collection
+     */
+    BasketItemsFirebaseReference(DatabaseReference basketItemsCollection) {
+        this.basketItemsCollection = basketItemsCollection;
     }
 
     /**
