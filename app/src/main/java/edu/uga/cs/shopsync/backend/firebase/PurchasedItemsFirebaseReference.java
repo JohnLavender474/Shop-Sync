@@ -21,8 +21,7 @@ import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 public class PurchasedItemsFirebaseReference {
 
     private static final String PURCHASED_ITEMS_COLLECTION = "purchased_items";
-    private static final String USER_ID_FIELD = "userId";
-    private static final String ITEM_ID_FIELD = "itemId";
+    private static final String USER_UID_FIELD = "userUid";
 
     private final DatabaseReference purchasedItemsCollection = FirebaseDatabase.getInstance()
             .getReference(PURCHASED_ITEMS_COLLECTION);
@@ -68,7 +67,7 @@ public class PurchasedItemsFirebaseReference {
      * @return the task that attempts to get the purchased items with the given user id
      */
     public Task<DataSnapshot> getPurchasedItemsWithUserId(String userId) {
-        Query query = purchasedItemsCollection.orderByChild(USER_ID_FIELD).equalTo(userId);
+        Query query = purchasedItemsCollection.orderByChild(USER_UID_FIELD).equalTo(userId);
         return query.get();
     }
 

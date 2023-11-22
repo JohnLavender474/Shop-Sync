@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 
 import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
+import edu.uga.cs.shopsync.backend.models.ShoppingBasketModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 
 /**
@@ -59,6 +60,7 @@ public class ShopSyncsFirebaseReference {
      */
     public String addShopSync(@NonNull String name, @Nullable String description,
                               @Nullable Collection<ShoppingItemModel> shoppingItems,
+                              @Nullable Map<String, ShoppingBasketModel> shoppingBaskets,
                               @Nullable Collection<PurchasedItemModel> purchasedItems) {
         String uid = shopSyncsCollection.push().getKey();
         if (uid == null) {
@@ -75,6 +77,10 @@ public class ShopSyncsFirebaseReference {
                                                                        shoppingItem));
         }
 
+        if (shoppingBaskets == null) {
+            shoppingBaskets = new HashMap<>();
+        }
+
         Map<String, PurchasedItemModel> purchasedItemsMap = new HashMap<>();
         if (purchasedItems != null) {
             purchasedItems.forEach(purchasedItem -> purchasedItemsMap.put(purchasedItem.getUid(),
@@ -82,7 +88,7 @@ public class ShopSyncsFirebaseReference {
         }
 
         ShopSyncModel newShopSync = new ShopSyncModel(uid, name, description, shoppingItemsMap,
-                                                      purchasedItemsMap);
+                                                      shoppingBaskets, purchasedItemsMap);
         shopSyncsCollection.child(uid).setValue(newShopSync);
 
         return uid;

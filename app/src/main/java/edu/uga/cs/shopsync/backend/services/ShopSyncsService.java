@@ -63,7 +63,7 @@ public class ShopSyncsService {
                             @Nullable Runnable onFailure) {
         // Add shop sync to shop syncs collection
         String shopSyncUid = shopSyncsFirebaseReference
-                .addShopSync(name, description, null, null);
+                .addShopSync(name, description, null, null, null);
 
         // If the shop sync uid is null, then the shop sync was not added
         if (shopSyncUid == null) {

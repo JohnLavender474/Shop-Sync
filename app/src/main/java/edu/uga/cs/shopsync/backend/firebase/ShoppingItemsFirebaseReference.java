@@ -48,22 +48,24 @@ public class ShoppingItemsFirebaseReference {
     /**
      * Adds a shopping item with the given name, quantity, and price per unit.
      *
-     * @param name     the name of the shopping item
-     * @param inBasket if the item is in a user's basket
+     * @param shopSyncUid the uid of the shop sync the shopping item is in
+     * @param name        the name of the shopping item
+     * @param inBasket    if the item is in a user's basket
      * @return the shopping item model
      */
-    public ShoppingItemModel addShoppingItem(String name, boolean inBasket) {
+    public ShoppingItemModel addShoppingItem(String shopSyncUid, String name, boolean inBasket) {
         String uid = shoppingItemsCollection.push().getKey();
         if (uid == null) {
             Log.e(TAG, "addShoppingItem: uid is null");
             return null;
         }
 
-        ShoppingItemModel newShoppingItem = new ShoppingItemModel(uid, name, inBasket);
+        ShoppingItemModel newShoppingItem = new ShoppingItemModel(uid, shopSyncUid, name, inBasket);
         shoppingItemsCollection.child(uid).setValue(newShoppingItem);
 
-        Log.d(TAG, "addShoppingItem: added shopping item with name " + name + ", in basket " +
-                inBasket + ", and uid (" + uid + ")");
+        Log.d(TAG,
+              "addShoppingItem: added shopping item with shop sync uid (" + shopSyncUid + "), " +
+                      "name " + name + ", in basket " + inBasket + ", and uid (" + uid + ")");
         return newShoppingItem;
     }
 

@@ -11,6 +11,7 @@ public class ShopSyncModel {
     private String name;
     private String description;
     private Map<String, ShoppingItemModel> shoppingItems;
+    private Map<String, ShoppingBasketModel> shoppingBaskets;
     private Map<String, PurchasedItemModel> purchasedItems;
 
     public ShopSyncModel() {
@@ -18,15 +19,18 @@ public class ShopSyncModel {
         name = "";
         description = "";
         shoppingItems = new HashMap<>();
+        shoppingBaskets = new HashMap<>();
         purchasedItems = new HashMap<>();
     }
 
     public ShopSyncModel(String uid, String name, String description, Map<String,
-            ShoppingItemModel> shoppingItems, Map<String, PurchasedItemModel> purchasedItems) {
+            ShoppingItemModel> shoppingItems, Map<String, ShoppingBasketModel> shoppingBaskets,
+                         Map<String, PurchasedItemModel> purchasedItems) {
         this.uid = uid;
         this.name = name;
         this.description = description;
         this.shoppingItems = shoppingItems;
+        this.shoppingBaskets = shoppingBaskets;
         this.purchasedItems = purchasedItems;
     }
 
@@ -36,6 +40,7 @@ public class ShopSyncModel {
         result.put("name", name);
         result.put("description", description);
         result.put("shoppingItems", shoppingItems);
+        result.put("shoppingBaskets", shoppingBaskets);
         result.put("purchasedItems", purchasedItems);
         return result;
     }
@@ -70,6 +75,14 @@ public class ShopSyncModel {
 
     public void setShoppingItems(Map<String, ShoppingItemModel> shoppingItems) {
         this.shoppingItems = shoppingItems;
+    }
+
+    public Map<String, ShoppingBasketModel> getShoppingBaskets() {
+        return shoppingBaskets;
+    }
+
+    public void setShoppingBaskets(Map<String, ShoppingBasketModel> shoppingBaskets) {
+        this.shoppingBaskets = shoppingBaskets;
     }
 
     public Map<String, PurchasedItemModel> getPurchasedItems() {

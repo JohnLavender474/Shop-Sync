@@ -23,7 +23,7 @@ public class PurchasedItemModel {
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("id", uid);
+        map.put("uid", uid);
         map.put("userUid", userUid);
         map.put("basketItemUid", basketItemUid);
         return map;

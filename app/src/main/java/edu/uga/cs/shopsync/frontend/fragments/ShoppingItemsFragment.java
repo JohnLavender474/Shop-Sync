@@ -42,8 +42,8 @@ public class ShoppingItemsFragment extends Fragment {
     private List<ShoppingItemModel> getShoppingItems() {
         // Replace this with your actual data retrieval logic
         List<ShoppingItemModel> items = new ArrayList<>();
-        items.add(new ShoppingItemModel("1", "Item 1", false));
-        items.add(new ShoppingItemModel("2", "Item 2", true));
+        items.add(new ShoppingItemModel("1", "Shop Sync", "Item 1", false));
+        items.add(new ShoppingItemModel("2", "Shop Sync", "Item 2", true));
         // Add more items as needed
         return items;
     }

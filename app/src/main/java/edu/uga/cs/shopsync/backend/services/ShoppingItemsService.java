@@ -33,12 +33,13 @@ public class ShoppingItemsService {
     /**
      * Adds a shopping item with the given name, quantity, and price per unit.
      *
-     * @param name     the name of the shopping item
-     * @param inBasket if the item is in a user's basket
+     * @param shopSyncUid the uid of the shop sync the shopping item is in
+     * @param name        the name of the shopping item
+     * @param inBasket    if the item is in a user's basket
      * @return the shopping item model
      */
-    public ShoppingItemModel addShoppingItem(String name, boolean inBasket) {
-        return shoppingItemsFirebaseReference.addShoppingItem(name, inBasket);
+    public ShoppingItemModel addShoppingItem(String shopSyncUid, String name, boolean inBasket) {
+        return shoppingItemsFirebaseReference.addShoppingItem(shopSyncUid, name, inBasket);
     }
 
     /**

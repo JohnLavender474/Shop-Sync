@@ -10,7 +10,6 @@ import java.util.HashMap;
 import javax.inject.Inject;
 
 import edu.uga.cs.shopsync.backend.models.ShoppingBasketModel;
-import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 
 /**
  * Firebase reference for shopping baskets.
@@ -56,36 +55,6 @@ public class ShoppingBasketsFirebaseReference {
         String key = createKey(userUid, shopSyncUid);
         shoppingBasketsCollection.child(key).setValue(newShoppingBasket);
         return newShoppingBasket;
-    }
-
-    /**
-     * Sets the shopping item in the shopping basket with the given user uid and shop sync uid.
-     * If the shopping item already exists in the shopping basket, it will be overwritten.
-     *
-     * @param userUid      the user uid
-     * @param shopSyncUid  the shop sync uid
-     * @param shoppingItem the shopping item
-     */
-    public void setItemInShoppingBasket(String userUid, String shopSyncUid,
-                                        ShoppingItemModel shoppingItem) {
-        String key = createKey(userUid, shopSyncUid);
-        shoppingBasketsCollection.child(key).child(SHOPPING_ITEMS_FIELD)
-                .child(shoppingItem.getUid()).setValue(shoppingItem);
-    }
-
-    /**
-     * Removes the shopping item from the shopping basket with the given user uid and shop sync uid.
-     * If the shopping item does not exist in the shopping basket, nothing will happen.
-     *
-     * @param userUid         the user uid
-     * @param shopSyncUid     the shop sync uid
-     * @param shoppingItemUid the shopping item uid
-     */
-    public void removeItemFromShoppingBasket(String userUid, String shopSyncUid,
-                                             String shoppingItemUid) {
-        String key = createKey(userUid, shopSyncUid);
-        shoppingBasketsCollection.child(key).child(SHOPPING_ITEMS_FIELD)
-                .child(shoppingItemUid).removeValue();
     }
 
     /**
