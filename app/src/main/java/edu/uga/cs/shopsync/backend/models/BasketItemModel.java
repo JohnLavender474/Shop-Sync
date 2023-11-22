@@ -5,45 +5,33 @@ import java.util.Map;
 
 public class BasketItemModel {
 
-    private String uid;
+    private String shoppingItemUid;
     private String shoppingBasketUid;
-    private ShoppingItemModel shoppingItem;
     private long quantity;
     private double pricePerUnit;
 
     public BasketItemModel() {
-        uid = "";
         shoppingBasketUid = "";
-        shoppingItem = null;
+        shoppingItemUid = "";
         quantity = 0;
         pricePerUnit = 0;
     }
 
-    public BasketItemModel(String uid, String shoppingBasketUid, ShoppingItemModel shoppingItem,
+    public BasketItemModel(String shoppingBasketUid, String shoppingItemUid,
                            long quantity, double pricePerUnit) {
-        this.uid = uid;
         this.shoppingBasketUid = shoppingBasketUid;
-        this.shoppingItem = shoppingItem;
+        this.shoppingItemUid = shoppingItemUid;
         this.quantity = quantity;
         this.pricePerUnit = pricePerUnit;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("uid", uid);
         map.put("shoppingBasketUid", shoppingBasketUid);
-        map.put("shoppingItem", shoppingItem);
+        map.put("shoppingItemUid", shoppingItemUid);
         map.put("quantity", quantity);
         map.put("pricePerUnit", pricePerUnit);
         return map;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
     }
 
     public String getShoppingBasketUid() {
@@ -54,12 +42,12 @@ public class BasketItemModel {
         this.shoppingBasketUid = shoppingBasketUid;
     }
 
-    public ShoppingItemModel getShoppingItem() {
-        return shoppingItem;
+    public String getShoppingItemUid() {
+        return shoppingItemUid;
     }
 
-    public void setShoppingItem(ShoppingItemModel shoppingItem) {
-        this.shoppingItem = shoppingItem;
+    public void setShoppingItemUid(String shoppingItemUid) {
+        this.shoppingItemUid = shoppingItemUid;
     }
 
     public long getQuantity() {

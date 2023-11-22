@@ -1,13 +1,11 @@
 <!-- fragment_purchased_items.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/default_padding"
-    android:paddingRight="@dimen/default_padding"
+    android:paddingStart="@dimen/default_padding"
     android:paddingTop="@dimen/default_padding"
-    android:paddingBottom="@dimen/default_padding"
-    tools:context=".PurchasedItemsFragment">
+    android:paddingEnd="@dimen/default_padding"
+    android:paddingBottom="@dimen/default_padding">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPurchasedItems"

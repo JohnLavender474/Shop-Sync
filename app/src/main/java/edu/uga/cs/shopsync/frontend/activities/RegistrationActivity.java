@@ -7,15 +7,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseUser;
-
 import java.util.function.Consumer;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.ErrorType;
-import edu.uga.cs.shopsync.utils.UtilMethods;
 
 /**
  * Activity for registering a new user.
@@ -74,24 +72,9 @@ public class RegistrationActivity extends BaseActivity {
         }
 
         // to run if registration is successful
-        Runnable onSuccess = () -> {
+        Consumer<UserProfileModel> onSuccess = userProfile -> {
             Toast.makeText(RegistrationActivity.this, "User registered successfully",
                            Toast.LENGTH_LONG).show();
-
-
-            // TODO: The following block is only for testing purposes and should be removed ASAP
-            /* --- */
-            FirebaseUser currentUser = applicationGraph.usersService().getCurrentFirebaseUser();
-            if (currentUser == null) {
-                throw new IllegalStateException("User is not signed in");
-            }
-            for (int i = 0; i < 5; i++) {
-                applicationGraph.shopSyncsService()
-                        .addShopSync("Test ShopSync " + i, "Description",
-                                     UtilMethods.mutableListOf(currentUser.getUid()));
-            }
-            /* --- */
-
 
             Intent intent = new Intent(RegistrationActivity.this, MyAccountActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -103,7 +86,7 @@ public class RegistrationActivity extends BaseActivity {
             Log.e(TAG, "User registration failed due to an internal error: " + errorHandle);
 
             String message;
-            if (errorHandle.errorType() == ErrorType.USER_ALREADY_EXISTS) {
+            if (errorHandle.errorType() == ErrorType.ENTITY_ALREADY_EXISTS) {
                 message = "User registration failed because a user already exists with the " +
                         "email: " + email;
             } else {

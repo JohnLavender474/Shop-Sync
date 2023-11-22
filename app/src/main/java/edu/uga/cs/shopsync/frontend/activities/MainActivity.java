@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.TemporaryStuff;
 
 /**
  * The main activity for the application. This activity is the first activity that is displayed
@@ -38,6 +39,9 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // TODO: remove after testing
+        TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
 
         // if the user is already signed in, then redirect to the my account activity
         if (applicationGraph.usersService().isCurrentUserSignedIn()) {

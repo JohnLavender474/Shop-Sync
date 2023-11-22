@@ -90,7 +90,6 @@ public class BasketItemsFragment extends Fragment {
             }
 
             void bind(BasketItemModel item) {
-                textViewItemName.setText(item.getShoppingItem().getName());
                 editTextQuantity.setText(String.valueOf(item.getQuantity()));
                 editTextPricePerUnit.setText(String.valueOf(item.getPricePerUnit()));
 
@@ -99,6 +98,10 @@ public class BasketItemsFragment extends Fragment {
                     // Perform update logic (update quantity and price per unit)
                     updateBasketItem(item);
                 });
+
+                // Set the item name
+                // TODO: get name from item through database
+                // textViewItemName.setText(item.getShoppingItemName());
             }
 
             private void updateBasketItem(BasketItemModel item) {
