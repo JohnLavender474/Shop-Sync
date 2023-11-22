@@ -5,27 +5,27 @@ import java.util.Map;
 
 public class ShoppingItemModel {
 
-    private String uid = "";
-    private String name = "";
-    private long quantity = 0;
-    private double pricePerUnit = 0;
+    private String uid;
+    private String name;
+    private boolean inBasket;
 
     public ShoppingItemModel() {
+        uid = "";
+        name = "";
+        inBasket = false;
     }
 
-    public ShoppingItemModel(String uid, String name, long quantity, double pricePerUnit) {
+    public ShoppingItemModel(String uid, String name, boolean inBasket) {
         this.uid = uid;
         this.name = name;
-        this.quantity = quantity;
-        this.pricePerUnit = pricePerUnit;
+        this.inBasket = inBasket;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", uid);
         map.put("name", name);
-        map.put("quantity", quantity);
-        map.put("pricePerUnit", pricePerUnit);
+        map.put("inBasket", inBasket);
         return map;
     }
 
@@ -45,19 +45,11 @@ public class ShoppingItemModel {
         this.name = name;
     }
 
-    public long getQuantity() {
-        return quantity;
+    public boolean isInBasket() {
+        return inBasket;
     }
 
-    public void setQuantity(long quantity) {
-        this.quantity = quantity;
-    }
-
-    public double getPricePerUnit() {
-        return pricePerUnit;
-    }
-
-    public void setPricePerUnit(double pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
+    public void setInBasket(boolean inBasket) {
+        this.inBasket = inBasket;
     }
 }

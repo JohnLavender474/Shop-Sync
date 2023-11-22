@@ -7,26 +7,26 @@ public class ShoppingBasketModel {
 
     private String userUid;
     private String shopSyncUid;
-    private Map<String, ShoppingItemModel> shoppingItems;
+    private Map<String, BasketItemModel> basketItems;
 
     public ShoppingBasketModel() {
         userUid = "";
         shopSyncUid = "";
-        shoppingItems = new HashMap<>();
+        basketItems = new HashMap<>();
     }
 
     public ShoppingBasketModel(String userUid, String shopSyncUid, Map<String,
-            ShoppingItemModel> shoppingItems) {
+            BasketItemModel> basketItems) {
         this.userUid = userUid;
         this.shopSyncUid = shopSyncUid;
-        this.shoppingItems = shoppingItems;
+        this.basketItems = basketItems;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("userUid", userUid);
         result.put("shopSyncUid", shopSyncUid);
-        result.put("shoppingItems", shoppingItems);
+        result.put("basketItems", basketItems);
         return result;
     }
 
@@ -46,11 +46,11 @@ public class ShoppingBasketModel {
         this.shopSyncUid = shopSyncUid;
     }
 
-    public Map<String, ShoppingItemModel> getShoppingItems() {
-        return shoppingItems;
+    public Map<String, BasketItemModel> getBasketItems() {
+        return basketItems;
     }
 
-    public void setShoppingItems(Map<String, ShoppingItemModel> shoppingItems) {
-        this.shoppingItems = shoppingItems;
+    public void setBasketItems(Map<String, BasketItemModel> basketItems) {
+        this.basketItems = basketItems;
     }
 }

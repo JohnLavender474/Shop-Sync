@@ -24,7 +24,8 @@ public class ShoppingItemsService {
     private final ShoppingItemsFirebaseReference shoppingItemsFirebaseReference;
 
     @Inject
-    public ShoppingItemsService(@NonNull ShoppingItemsFirebaseReference shoppingItemsFirebaseReference) {
+    public ShoppingItemsService(@NonNull ShoppingItemsFirebaseReference
+                                        shoppingItemsFirebaseReference) {
         this.shoppingItemsFirebaseReference = shoppingItemsFirebaseReference;
         Log.d(TAG, "ShoppingItemsService: created");
     }
@@ -32,13 +33,12 @@ public class ShoppingItemsService {
     /**
      * Adds a shopping item with the given name, quantity, and price per unit.
      *
-     * @param name         the name of the shopping item
-     * @param quantity     the quantity of the shopping item
-     * @param pricePerUnit the price per unit of the shopping item
+     * @param name     the name of the shopping item
+     * @param inBasket if the item is in a user's basket
      * @return the shopping item model
      */
-    public ShoppingItemModel addShoppingItem(String name, long quantity, double pricePerUnit) {
-        return shoppingItemsFirebaseReference.addShoppingItem(name, quantity, pricePerUnit);
+    public ShoppingItemModel addShoppingItem(String name, boolean inBasket) {
+        return shoppingItemsFirebaseReference.addShoppingItem(name, inBasket);
     }
 
     /**

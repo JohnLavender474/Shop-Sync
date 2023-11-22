@@ -1,0 +1,48 @@
+<!-- row_basket_item.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Item Name -->
+    <TextView
+        android:id="@+id/textViewItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Quantity -->
+    <EditText
+        android:id="@+id/editTextQuantity"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="4dp"
+        android:hint="@string/quantity"
+        android:inputType="number"
+        android:textSize="16sp"
+        android:autofillHints="" />
+
+    <!-- Price Per Unit -->
+    <EditText
+        android:id="@+id/editTextPricePerUnit"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="4dp"
+        android:hint="@string/price_per_unit"
+        android:inputType="numberDecimal"
+        android:textSize="16sp"
+        android:autofillHints="" />
+
+    <!-- Update Button -->
+    <Button
+        android:id="@+id/buttonUpdateItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/update"
+        android:textSize="16sp" />
+
+</LinearLayout>

@@ -1,39 +1,70 @@
 package edu.uga.cs.shopsync.backend.models;
 
-import androidx.annotation.NonNull;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PurchaseGroupModel {
 
+    private String uid;
+    private String userUid;
     private String username;
+    private String shopSyncUid;
     private double totalCost;
     private String timeOfPurchase;
-    private Map<String, PurchasedItemModel> purchasedItems;
+    private List<String> purchasedItemUids;
 
     public PurchaseGroupModel() {
+        uid = "";
+        userUid = "";
         username = "";
-        totalCost = 0;
+        shopSyncUid = "";
+        totalCost = 0.0;
         timeOfPurchase = "";
-        purchasedItems = new HashMap<>();
+        purchasedItemUids = new ArrayList<>();
     }
 
-    public PurchaseGroupModel(@NonNull String username, double totalCost,
-                              @NonNull String timeOfPurchase,
-                              @NonNull Map<String, PurchasedItemModel> purchasedItems) {
+    public PurchaseGroupModel(String uid, String userUid, String username, String shopSyncUid,
+                              double totalCost, String timeOfPurchase,
+                              List<String> purchasedItemUids) {
+        this.uid = uid;
+        this.userUid = userUid;
         this.username = username;
+        this.shopSyncUid = shopSyncUid;
         this.totalCost = totalCost;
         this.timeOfPurchase = timeOfPurchase;
-        this.purchasedItems = purchasedItems;
+        this.purchasedItemUids = purchasedItemUids;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getUserUid() {
+        return userUid;
+    }
+
+    public void setUserUid(String userUid) {
+        this.userUid = userUid;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(@NonNull String username) {
+    public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getShopSyncUid() {
+        return shopSyncUid;
+    }
+
+    public void setShopSyncUid(String shopSyncUid) {
+        this.shopSyncUid = shopSyncUid;
     }
 
     public double getTotalCost() {
@@ -48,16 +79,16 @@ public class PurchaseGroupModel {
         return timeOfPurchase;
     }
 
-    public void setTimeOfPurchase(@NonNull String timeOfPurchase) {
+    public void setTimeOfPurchase(String timeOfPurchase) {
         this.timeOfPurchase = timeOfPurchase;
     }
 
-    public Map<String, PurchasedItemModel> getPurchasedItems() {
-        return purchasedItems;
+    public List<String> getPurchasedItemUids() {
+        return purchasedItemUids;
     }
 
-    public void setPurchasedItems(@NonNull Map<String, PurchasedItemModel> purchasedItems) {
-        this.purchasedItems = purchasedItems;
+    public void setPurchasedItemUids(List<String> purchasedItemUids) {
+        this.purchasedItemUids = purchasedItemUids;
     }
 }
 

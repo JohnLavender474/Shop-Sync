@@ -35,18 +35,18 @@ public class PurchasedItemsFirebaseReference {
     }
 
     /**
-     * Adds a purchased item with the given user id and item id.
+     * Adds a purchased item with the given user uid and basket item.
      *
-     * @param userId the user id
-     * @param itemId the item id
+     * @param userUid     the user uid
+     * @param basketItemUid the basket item uid
      * @return the purchased item model
      */
-    public PurchasedItemModel addPurchasedItem(String userId, String itemId) {
+    public PurchasedItemModel addPurchasedItem(String userUid, String basketItemUid) {
         String uid = purchasedItemsCollection.push().getKey();
         if (uid == null) {
             return null;
         }
-        PurchasedItemModel newPurchasedItem = new PurchasedItemModel(uid, userId, itemId);
+        PurchasedItemModel newPurchasedItem = new PurchasedItemModel(uid, userUid, basketItemUid);
         purchasedItemsCollection.child(uid).setValue(newPurchasedItem);
         return newPurchasedItem;
     }
@@ -69,17 +69,6 @@ public class PurchasedItemsFirebaseReference {
      */
     public Task<DataSnapshot> getPurchasedItemsWithUserId(String userId) {
         Query query = purchasedItemsCollection.orderByChild(USER_ID_FIELD).equalTo(userId);
-        return query.get();
-    }
-
-    /**
-     * Returns the task that attempts to get the purchased items with the given item id.
-     *
-     * @param itemId the item id
-     * @return the task that attempts to get the purchased items with the given item id
-     */
-    public Task<DataSnapshot> getPurchasedItemsWithItemId(String itemId) {
-        Query query = purchasedItemsCollection.orderByChild(ITEM_ID_FIELD).equalTo(itemId);
         return query.get();
     }
 

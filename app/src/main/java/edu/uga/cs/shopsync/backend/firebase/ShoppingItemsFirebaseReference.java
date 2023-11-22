@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.firebase;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -46,19 +48,22 @@ public class ShoppingItemsFirebaseReference {
     /**
      * Adds a shopping item with the given name, quantity, and price per unit.
      *
-     * @param name         the name of the shopping item
-     * @param quantity     the quantity of the shopping item
-     * @param pricePerUnit the price per unit of the shopping item
+     * @param name     the name of the shopping item
+     * @param inBasket if the item is in a user's basket
      * @return the shopping item model
      */
-    public ShoppingItemModel addShoppingItem(String name, long quantity, double pricePerUnit) {
+    public ShoppingItemModel addShoppingItem(String name, boolean inBasket) {
         String uid = shoppingItemsCollection.push().getKey();
         if (uid == null) {
+            Log.e(TAG, "addShoppingItem: uid is null");
             return null;
         }
-        ShoppingItemModel newShoppingItem = new ShoppingItemModel(uid, name, quantity,
-                                                                  pricePerUnit);
+
+        ShoppingItemModel newShoppingItem = new ShoppingItemModel(uid, name, inBasket);
         shoppingItemsCollection.child(uid).setValue(newShoppingItem);
+
+        Log.d(TAG, "addShoppingItem: added shopping item with name " + name + ", in basket " +
+                inBasket + ", and uid (" + uid + ")");
         return newShoppingItem;
     }
 

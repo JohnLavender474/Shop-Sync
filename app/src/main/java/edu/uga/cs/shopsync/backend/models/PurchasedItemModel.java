@@ -5,24 +5,27 @@ import java.util.Map;
 
 public class PurchasedItemModel {
 
-    private String uid = "";
-    private String userUid = "";
-    private String itemUid = "";
+    private String uid;
+    private String userUid;
+    private String basketItemUid;
 
     public PurchasedItemModel() {
+        uid = "";
+        userUid = "";
+        basketItemUid = "";
     }
 
-    public PurchasedItemModel(String uid, String userUid, String itemUid) {
+    public PurchasedItemModel(String uid, String userUid, String basketItemUid) {
         this.uid = uid;
         this.userUid = userUid;
-        this.itemUid = itemUid;
+        this.basketItemUid = basketItemUid;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", uid);
         map.put("userUid", userUid);
-        map.put("itemUid", itemUid);
+        map.put("basketItemUid", basketItemUid);
         return map;
     }
 
@@ -42,11 +45,11 @@ public class PurchasedItemModel {
         this.userUid = userUid;
     }
 
-    public String getItemUid() {
-        return itemUid;
+    public String getBasketItemUid() {
+        return basketItemUid;
     }
 
-    public void setItemUid(String itemUid) {
-        this.itemUid = itemUid;
+    public void setBasketItemUid(String basketItemUid) {
+        this.basketItemUid = basketItemUid;
     }
 }
