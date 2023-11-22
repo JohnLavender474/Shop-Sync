@@ -48,7 +48,7 @@ public class ShoppingItemsService {
      * @return the task that attempts to get the shopping item with the given uid
      */
     public Task<DataSnapshot> getShoppingItemWithId(String itemId) {
-        return shoppingItemsFirebaseReference.getShoppingItemWithId(itemId);
+        return shoppingItemsFirebaseReference.getShoppingItem(itemId);
     }
 
     /**

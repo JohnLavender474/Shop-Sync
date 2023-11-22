@@ -7,13 +7,18 @@ import java.util.Map;
 
 public class ShopSyncModel {
 
-    private String uid = "";
-    private String name = "";
-    private String description = "";
-    private Map<String, ShoppingItemModel> shoppingItems = new HashMap<>();
-    private Map<String, PurchasedItemModel> purchasedItems = new HashMap<>();
+    private String uid;
+    private String name;
+    private String description;
+    private Map<String, ShoppingItemModel> shoppingItems;
+    private Map<String, PurchasedItemModel> purchasedItems;
 
     public ShopSyncModel() {
+        uid = "";
+        name = "";
+        description = "";
+        shoppingItems = new HashMap<>();
+        purchasedItems = new HashMap<>();
     }
 
     public ShopSyncModel(String uid, String name, String description, Map<String,
@@ -26,7 +31,7 @@ public class ShopSyncModel {
     }
 
     public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         result.put("uid", uid);
         result.put("name", name);
         result.put("description", description);
@@ -57,6 +62,22 @@ public class ShopSyncModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Map<String, ShoppingItemModel> getShoppingItems() {
+        return shoppingItems;
+    }
+
+    public void setShoppingItems(Map<String, ShoppingItemModel> shoppingItems) {
+        this.shoppingItems = shoppingItems;
+    }
+
+    public Map<String, PurchasedItemModel> getPurchasedItems() {
+        return purchasedItems;
+    }
+
+    public void setPurchasedItems(Map<String, PurchasedItemModel> purchasedItems) {
+        this.purchasedItems = purchasedItems;
     }
 
     @NonNull

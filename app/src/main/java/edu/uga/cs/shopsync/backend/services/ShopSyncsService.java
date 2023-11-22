@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference;
-import edu.uga.cs.shopsync.backend.firebase.UserShopSyncsMapFirebaseReference;
+import edu.uga.cs.shopsync.backend.firebase.UserShopSyncMapFirebaseReference;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.ErrorType;
 
@@ -29,13 +29,13 @@ public class ShopSyncsService {
     private static final String TAG = "ShopSyncsService";
 
     private final ShopSyncsFirebaseReference shopSyncsFirebaseReference;
-    private final UserShopSyncsMapFirebaseReference userShopSyncsMapFirebaseReference;
+    private final UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference;
 
     @Inject
     public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
-                            @NonNull UserShopSyncsMapFirebaseReference userShopSyncsMapFirebaseReference) {
+                            @NonNull UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference) {
         this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
-        this.userShopSyncsMapFirebaseReference = userShopSyncsMapFirebaseReference;
+        this.userShopSyncMapFirebaseReference = userShopSyncMapFirebaseReference;
         Log.d(TAG, "ShopSyncsService: created");
     }
 
@@ -75,7 +75,7 @@ public class ShopSyncsService {
         }
 
         // Map the shop sync to the users
-        userUids.forEach(userUid -> userShopSyncsMapFirebaseReference
+        userUids.forEach(userUid -> userShopSyncMapFirebaseReference
                 .addShopSyncToUser(userUid, shopSyncUid));
 
         Log.d(TAG, "addShopSync: successfully added shop sync with uid " + shopSyncUid);
@@ -105,7 +105,7 @@ public class ShopSyncsService {
     public void getShopSyncsForUser(@NonNull String userUid,
                                     @NonNull Consumer<List<String>> shopSyncUidsConsumer,
                                     @Nullable Consumer<ErrorHandle> onError) {
-        userShopSyncsMapFirebaseReference.getShopSyncsAssociatedWithUser(userUid)
+        userShopSyncMapFirebaseReference.getShopSyncsAssociatedWithUser(userUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
@@ -160,7 +160,7 @@ public class ShopSyncsService {
     public void getUsersForShopSync(@NonNull String shopSyncUid,
                                     @NonNull Consumer<List<String>> userUidsConsumer,
                                     @Nullable Consumer<ErrorHandle> onError) {
-        userShopSyncsMapFirebaseReference.getUsersAssociatedWithShopSync(shopSyncUid)
+        userShopSyncMapFirebaseReference.getUsersAssociatedWithShopSync(shopSyncUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
@@ -215,7 +215,7 @@ public class ShopSyncsService {
         shopSyncsFirebaseReference.deleteShopSync(shopSyncUid).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // Remove the shop sync from the user to shop syncs map
-                userShopSyncsMapFirebaseReference.removeShopSync(shopSyncUid);
+                userShopSyncMapFirebaseReference.removeShopSync(shopSyncUid);
                 Log.d(TAG,
                       "deleteShopSync: successfully deleted shop sync with uid " + shopSyncUid);
             } else {

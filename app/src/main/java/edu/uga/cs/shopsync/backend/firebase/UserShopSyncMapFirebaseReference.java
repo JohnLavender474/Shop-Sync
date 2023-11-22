@@ -14,7 +14,7 @@ import javax.inject.Inject;
 /**
  * Firebase reference for user to shop syncs map.
  */
-public class UserShopSyncsMapFirebaseReference {
+public class UserShopSyncMapFirebaseReference {
 
     private static final String TAG = "UserShopSyncsMapFirebaseReference";
     private static final String USER_TO_SHOP_SYNCS_MAP = "user_to_shop_syncs_map";
@@ -28,7 +28,7 @@ public class UserShopSyncsMapFirebaseReference {
      * injection.
      */
     @Inject
-    public UserShopSyncsMapFirebaseReference() {
+    public UserShopSyncMapFirebaseReference() {
         userToShopSyncsMapReference = FirebaseDatabase.getInstance()
                 .getReference(USER_TO_SHOP_SYNCS_MAP);
         shopSyncToUsersMapReference = FirebaseDatabase.getInstance()
@@ -41,8 +41,8 @@ public class UserShopSyncsMapFirebaseReference {
      *
      * @param userToShopSyncsMapReference the reference to the user to shop syncs map
      */
-    UserShopSyncsMapFirebaseReference(@NonNull DatabaseReference userToShopSyncsMapReference,
-                                      @NonNull DatabaseReference shopSyncToUsersMapReference) {
+    UserShopSyncMapFirebaseReference(@NonNull DatabaseReference userToShopSyncsMapReference,
+                                     @NonNull DatabaseReference shopSyncToUsersMapReference) {
         this.userToShopSyncsMapReference = userToShopSyncsMapReference;
         this.shopSyncToUsersMapReference = shopSyncToUsersMapReference;
         Log.d(TAG, "UserShopSyncsMapFirebaseReference: created");

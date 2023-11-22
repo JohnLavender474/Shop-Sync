@@ -19,16 +19,28 @@ import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 @Singleton
 public class ShoppingItemsFirebaseReference {
 
+    private static final String TAG = "ShoppingItemsFirebaseReference";
     private static final String SHOPPING_ITEMS_COLLECTION = "shopping_items";
 
-    private final DatabaseReference shoppingItemsCollection = FirebaseDatabase.getInstance()
-            .getReference(SHOPPING_ITEMS_COLLECTION);
+    private final DatabaseReference shoppingItemsCollection;
 
     /**
      * Constructs a new ShoppingItemsFirebaseReference. Empty constructor required for injection.
      */
     @Inject
     public ShoppingItemsFirebaseReference() {
+        shoppingItemsCollection =
+                FirebaseDatabase.getInstance().getReference(SHOPPING_ITEMS_COLLECTION);
+    }
+
+    /**
+     * Constructs a new ShoppingItemsFirebaseReference with the given shopping items collection.
+     * Used for testing only.
+     *
+     * @param shoppingItemsCollection the shopping items collection
+     */
+    ShoppingItemsFirebaseReference(DatabaseReference shoppingItemsCollection) {
+        this.shoppingItemsCollection = shoppingItemsCollection;
     }
 
     /**
@@ -53,11 +65,11 @@ public class ShoppingItemsFirebaseReference {
     /**
      * Returns the task that attempts to get the shopping item with the given uid.
      *
-     * @param itemId the uid of the shopping item
+     * @param uid the uid of the shopping item
      * @return the task that attempts to get the shopping item with the given uid
      */
-    public Task<DataSnapshot> getShoppingItemWithId(String itemId) {
-        return shoppingItemsCollection.child(itemId).get();
+    public Task<DataSnapshot> getShoppingItem(String uid) {
+        return shoppingItemsCollection.child(uid).get();
     }
 
     /**
@@ -79,11 +91,11 @@ public class ShoppingItemsFirebaseReference {
     /**
      * Returns the task that attempts to delete the shopping item with the given uid.
      *
-     * @param itemId the uid of the shopping item
+     * @param uid the uid of the shopping item
      * @return the task that attempts to delete the shopping item with the given uid
      */
-    public Task<Void> deleteShoppingItem(String itemId) {
-        return shoppingItemsCollection.child(itemId).removeValue();
+    public Task<Void> deleteShoppingItem(String uid) {
+        return shoppingItemsCollection.child(uid).removeValue();
     }
 }
 
