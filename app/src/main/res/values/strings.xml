@@ -60,4 +60,6 @@
     <string name="change_password">Change Password</string>
     <string name="view">View</string>
     <string name="placeholder">Placeholder</string>
+    <string name="purchased_items">Purchased Items</string>
+    <string name="shopping_items">Shopping Items</string>
 </resources>

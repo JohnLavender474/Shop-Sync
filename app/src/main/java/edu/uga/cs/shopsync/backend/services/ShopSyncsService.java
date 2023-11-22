@@ -33,8 +33,7 @@ public class ShopSyncsService {
 
     @Inject
     public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
-                            @NonNull UserShopSyncsMapFirebaseReference
-                                    userShopSyncsMapFirebaseReference) {
+                            @NonNull UserShopSyncsMapFirebaseReference userShopSyncsMapFirebaseReference) {
         this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
         this.userShopSyncsMapFirebaseReference = userShopSyncsMapFirebaseReference;
         Log.d(TAG, "ShopSyncsService: created");
@@ -59,11 +58,11 @@ public class ShopSyncsService {
      * @param description the description of the shop sync
      * @param userUids    the user uids of the shop sync
      */
-    public void addShopSync(@NonNull String name, @NonNull String description,
+    public void addShopSync(@NonNull String name, @Nullable String description,
                             @NonNull List<String> userUids, @Nullable Runnable onSuccess,
                             @Nullable Runnable onFailure) {
         // Add shop sync to shop syncs collection
-        String shopSyncUid = shopSyncsFirebaseReference.addShopSync(name, description);
+        String shopSyncUid = shopSyncsFirebaseReference.addShopSync(name, description, null, null);
 
         // If the shop sync uid is null, then the shop sync was not added
         if (shopSyncUid == null) {
@@ -75,8 +74,8 @@ public class ShopSyncsService {
         }
 
         // Map the shop sync to the users
-        userUids.forEach(userUid -> userShopSyncsMapFirebaseReference
-                .addShopSyncToUser(userUid, shopSyncUid));
+        userUids.forEach(userUid -> userShopSyncsMapFirebaseReference.addShopSyncToUser(userUid,
+                                                                                        shopSyncUid));
 
         Log.d(TAG, "addShopSync: successfully added shop sync with uid " + shopSyncUid);
         if (onSuccess != null) {
@@ -105,8 +104,7 @@ public class ShopSyncsService {
     public void getShopSyncsForUser(@NonNull String userUid,
                                     @NonNull Consumer<List<String>> shopSyncUidsConsumer,
                                     @Nullable Consumer<ErrorHandle> onError) {
-        userShopSyncsMapFirebaseReference
-                .getShopSyncsAssociatedWithUser(userUid)
+        userShopSyncsMapFirebaseReference.getShopSyncsAssociatedWithUser(userUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
@@ -124,25 +122,24 @@ public class ShopSyncsService {
                             // consume the shop sync uids
                             shopSyncUidsConsumer.accept(shopSyncUids);
                         } else {
-                            Log.e(TAG, "getShopSyncsForUser: failed to get shop syncs for user" +
-                                    " " +
-                                    "(" + userUid + ")");
+                            Log.e(TAG,
+                                  "getShopSyncsForUser: failed to get shop syncs for user" + " " + "(" + userUid + ")");
 
                             // consume error
                             if (onError != null) {
                                 onError.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
-                                                               "Task to get shop syncs for user " +
-                                                                       "failed"));
+                                                               "Task to get shop syncs for user " + "failed"));
                             }
                         }
                     } else {
-                        Log.e(TAG, "getShopSyncsForUser: failed to get shop syncs for user ("
-                                + userUid + ")", task.getException());
+                        Log.e(TAG,
+                              "getShopSyncsForUser: failed to get shop syncs for user (" + userUid + ")", task.getException());
 
                         // consume error
                         if (onError != null) {
-                            onError.accept(new ErrorHandle(ErrorType.TASK_FAILED, "Task to get " +
-                                    "shop syncs for user failed"));
+                            onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                           "Task to get " + "shop syncs for user " +
+                                                                   "failed"));
                         }
                     }
                 });
@@ -158,8 +155,7 @@ public class ShopSyncsService {
     public void getUsersForShopSync(@NonNull String shopSyncUid,
                                     @NonNull Consumer<List<String>> userUidsConsumer,
                                     @Nullable Consumer<ErrorHandle> onError) {
-        userShopSyncsMapFirebaseReference
-                .getUsersAssociatedWithShopSync(shopSyncUid)
+        userShopSyncsMapFirebaseReference.getUsersAssociatedWithShopSync(shopSyncUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
@@ -177,24 +173,24 @@ public class ShopSyncsService {
                             // consume the user uids
                             userUidsConsumer.accept(userUids);
                         } else {
-                            Log.e(TAG, "getUsersForShopSync: failed to get users for shop sync " +
-                                    "(" + shopSyncUid + ")");
+                            Log.e(TAG,
+                                  "getUsersForShopSync: failed to get users for shop sync " + "(" + shopSyncUid + ")");
 
                             // consume error
                             if (onError != null) {
                                 onError.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
-                                                               "Task to get users for shop sync " +
-                                                                       "failed"));
+                                                               "Task to get users for shop sync " + "failed"));
                             }
                         }
                     } else {
-                        Log.e(TAG, "getUsersForShopSync: failed to get users for shop sync ("
-                                + shopSyncUid + ")", task.getException());
+                        Log.e(TAG,
+                              "getUsersForShopSync: failed to get users for shop sync (" + shopSyncUid + ")", task.getException());
 
                         // consume error
                         if (onError != null) {
-                            onError.accept(new ErrorHandle(ErrorType.TASK_FAILED, "Task to get " +
-                                    "users for shop sync failed"));
+                            onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                           "Task to get " + "users for shop sync " +
+                                                                   "failed"));
                         }
                     }
                 });
@@ -211,8 +207,8 @@ public class ShopSyncsService {
             if (task.isSuccessful()) {
                 // Remove the shop sync from the user to shop syncs map
                 userShopSyncsMapFirebaseReference.removeShopSync(shopSyncUid);
-                Log.d(TAG, "deleteShopSync: successfully deleted shop sync with uid "
-                        + shopSyncUid);
+                Log.d(TAG,
+                      "deleteShopSync: successfully deleted shop sync with uid " + shopSyncUid);
             } else {
                 Log.e(TAG, "deleteShopSync: failed to delete shop sync with uid " + shopSyncUid);
             }
