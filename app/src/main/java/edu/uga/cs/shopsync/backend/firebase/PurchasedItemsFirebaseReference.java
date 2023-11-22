@@ -23,20 +23,31 @@ public class PurchasedItemsFirebaseReference {
     private static final String PURCHASED_ITEMS_COLLECTION = "purchased_items";
     private static final String USER_UID_FIELD = "userUid";
 
-    private final DatabaseReference purchasedItemsCollection = FirebaseDatabase.getInstance()
-            .getReference(PURCHASED_ITEMS_COLLECTION);
+    private final DatabaseReference purchasedItemsCollection;
 
     /**
      * Constructs a new PurchasedItemsFirebaseReference. Empty constructor required for injection.
      */
     @Inject
     public PurchasedItemsFirebaseReference() {
+        purchasedItemsCollection = FirebaseDatabase.getInstance()
+                .getReference(PURCHASED_ITEMS_COLLECTION);
+    }
+
+    /**
+     * Constructs a new PurchasedItemsFirebaseReference with the given purchased items collection.
+     * Used for testing only.
+     *
+     * @param purchasedItemsCollection the purchased items collection
+     */
+    PurchasedItemsFirebaseReference(DatabaseReference purchasedItemsCollection) {
+        this.purchasedItemsCollection = purchasedItemsCollection;
     }
 
     /**
      * Adds a purchased item with the given user uid and basket item.
      *
-     * @param userUid     the user uid
+     * @param userUid       the user uid
      * @param basketItemUid the basket item uid
      * @return the purchased item model
      */
