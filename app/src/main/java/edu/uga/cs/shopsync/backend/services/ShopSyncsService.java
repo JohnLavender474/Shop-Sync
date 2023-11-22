@@ -62,7 +62,8 @@ public class ShopSyncsService {
                             @NonNull List<String> userUids, @Nullable Runnable onSuccess,
                             @Nullable Runnable onFailure) {
         // Add shop sync to shop syncs collection
-        String shopSyncUid = shopSyncsFirebaseReference.addShopSync(name, description, null, null);
+        String shopSyncUid = shopSyncsFirebaseReference
+                .addShopSync(name, description, null, null);
 
         // If the shop sync uid is null, then the shop sync was not added
         if (shopSyncUid == null) {
@@ -74,8 +75,8 @@ public class ShopSyncsService {
         }
 
         // Map the shop sync to the users
-        userUids.forEach(userUid -> userShopSyncsMapFirebaseReference.addShopSyncToUser(userUid,
-                                                                                        shopSyncUid));
+        userUids.forEach(userUid -> userShopSyncsMapFirebaseReference
+                .addShopSyncToUser(userUid, shopSyncUid));
 
         Log.d(TAG, "addShopSync: successfully added shop sync with uid " + shopSyncUid);
         if (onSuccess != null) {
@@ -123,22 +124,26 @@ public class ShopSyncsService {
                             shopSyncUidsConsumer.accept(shopSyncUids);
                         } else {
                             Log.e(TAG,
-                                  "getShopSyncsForUser: failed to get shop syncs for user" + " " + "(" + userUid + ")");
+                                  "getShopSyncsForUser: failed to get shop syncs for user" +
+                                          " (" + userUid + ")");
 
                             // consume error
                             if (onError != null) {
                                 onError.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
-                                                               "Task to get shop syncs for user " + "failed"));
+                                                               "Task to get shop syncs " +
+                                                                       "for user failed"));
                             }
                         }
                     } else {
                         Log.e(TAG,
-                              "getShopSyncsForUser: failed to get shop syncs for user (" + userUid + ")", task.getException());
+                              "getShopSyncsForUser: failed to get shop syncs for user (" +
+                                      userUid + ")", task.getException());
 
                         // consume error
                         if (onError != null) {
                             onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
-                                                           "Task to get " + "shop syncs for user " +
+                                                           "Task to get " +
+                                                                   "shop syncs for user " +
                                                                    "failed"));
                         }
                     }
@@ -174,22 +179,26 @@ public class ShopSyncsService {
                             userUidsConsumer.accept(userUids);
                         } else {
                             Log.e(TAG,
-                                  "getUsersForShopSync: failed to get users for shop sync " + "(" + shopSyncUid + ")");
+                                  "getUsersForShopSync: failed to get users for shop sync " +
+                                          "(" + shopSyncUid + ")");
 
                             // consume error
                             if (onError != null) {
                                 onError.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
-                                                               "Task to get users for shop sync " + "failed"));
+                                                               "Task to get users for " +
+                                                                       "shop sync failed"));
                             }
                         }
                     } else {
                         Log.e(TAG,
-                              "getUsersForShopSync: failed to get users for shop sync (" + shopSyncUid + ")", task.getException());
+                              "getUsersForShopSync: failed to get users for shop sync (" +
+                                      shopSyncUid + ")", task.getException());
 
                         // consume error
                         if (onError != null) {
                             onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
-                                                           "Task to get " + "users for shop sync " +
+                                                           "Task to get " +
+                                                                   "users for shop sync " +
                                                                    "failed"));
                         }
                     }

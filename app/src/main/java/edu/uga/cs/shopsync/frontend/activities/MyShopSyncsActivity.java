@@ -57,7 +57,7 @@ public class MyShopSyncsActivity extends BaseActivity {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.shop_sync_list_item, parent, false);
+                    .inflate(R.layout.row_shop_sync, parent, false);
             return new ViewHolder(view);
         }
 

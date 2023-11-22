@@ -62,4 +62,8 @@
     <string name="placeholder">Placeholder</string>
     <string name="purchased_items">Purchased Items</string>
     <string name="shopping_items">Shopping Items</string>
+    <string name="quantity">Quantity</string>
+    <string name="item_name">Item Name</string>
+    <string name="price_per_unit">Price per Unit</string>
+    <string name="purchase">Purchase</string>
 </resources>
