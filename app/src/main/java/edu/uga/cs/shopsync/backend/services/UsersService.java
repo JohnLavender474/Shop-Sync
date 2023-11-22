@@ -21,6 +21,7 @@ import edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.exceptions.UserAlreadyExistsException;
+import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 
 /**
@@ -64,7 +65,8 @@ public class UsersService {
      */
     public void createUser(@NonNull String email, @NonNull String username,
                            @NonNull String password,
-                           @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError)
+                           @Nullable Consumer<UserProfileModel> onSuccess,
+                           @Nullable Consumer<ErrorHandle> onError)
             throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         usersFirebaseReference.createUser(email, username, password, onSuccess, onError);
     }

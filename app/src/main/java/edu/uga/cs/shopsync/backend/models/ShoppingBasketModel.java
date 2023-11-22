@@ -5,45 +5,32 @@ import java.util.Map;
 
 public class ShoppingBasketModel {
 
-    private String userUid;
-    private String shopSyncUid;
+    private String uid;
     private Map<String, BasketItemModel> basketItems;
 
     public ShoppingBasketModel() {
-        userUid = "";
-        shopSyncUid = "";
+        uid = "";
         basketItems = new HashMap<>();
     }
 
-    public ShoppingBasketModel(String userUid, String shopSyncUid, Map<String,
-            BasketItemModel> basketItems) {
-        this.userUid = userUid;
-        this.shopSyncUid = shopSyncUid;
+    public ShoppingBasketModel(String uid, Map<String, BasketItemModel> basketItems) {
+        this.uid = uid;
         this.basketItems = basketItems;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
-        result.put("userUid", userUid);
-        result.put("shopSyncUid", shopSyncUid);
+        result.put("uid", uid);
         result.put("basketItems", basketItems);
         return result;
     }
 
-    public String getUserUid() {
-        return userUid;
+    public String getUid() {
+        return uid;
     }
 
-    public void setUserUid(String userUid) {
-        this.userUid = userUid;
-    }
-
-    public String getShopSyncUid() {
-        return shopSyncUid;
-    }
-
-    public void setShopSyncUid(String shopSyncUid) {
-        this.shopSyncUid = shopSyncUid;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public Map<String, BasketItemModel> getBasketItems() {

@@ -7,25 +7,34 @@ public class PurchasedItemModel {
 
     private String uid;
     private String userUid;
-    private String basketItemUid;
+
+    // TODO:
+    // include shopping item and basket item so that if user undoes purchase, the items
+    // can be added back to the shopping list and basket respectively in the database
+    private ShoppingItemModel shoppingItem;
+    private BasketItemModel basketItem;
 
     public PurchasedItemModel() {
         uid = "";
         userUid = "";
-        basketItemUid = "";
+        shoppingItem = null;
+        basketItem = null;
     }
 
-    public PurchasedItemModel(String uid, String userUid, String basketItemUid) {
+    public PurchasedItemModel(String uid, String userUid, ShoppingItemModel shoppingItem,
+                              BasketItemModel basketItem) {
         this.uid = uid;
         this.userUid = userUid;
-        this.basketItemUid = basketItemUid;
+        this.shoppingItem = shoppingItem;
+        this.basketItem = basketItem;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("uid", uid);
         map.put("userUid", userUid);
-        map.put("basketItemUid", basketItemUid);
+        map.put("shoppingItem", shoppingItem.toMap());
+        map.put("basketItem", basketItem.toMap());
         return map;
     }
 
@@ -45,11 +54,19 @@ public class PurchasedItemModel {
         this.userUid = userUid;
     }
 
-    public String getBasketItemUid() {
-        return basketItemUid;
+    public ShoppingItemModel getShoppingItem() {
+        return shoppingItem;
     }
 
-    public void setBasketItemUid(String basketItemUid) {
-        this.basketItemUid = basketItemUid;
+    public void setShoppingItem(ShoppingItemModel shoppingItem) {
+        this.shoppingItem = shoppingItem;
+    }
+
+    public BasketItemModel getBasketItem() {
+        return basketItem;
+    }
+
+    public void setBasketItem(BasketItemModel basketItem) {
+        this.basketItem = basketItem;
     }
 }

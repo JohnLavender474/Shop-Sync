@@ -14,17 +14,17 @@ import edu.uga.cs.shopsync.backend.services.UsersService;
 public interface ApplicationGraph {
 
     /**
-     * Returns the users service.
-     *
-     * @return the users service
-     */
-    UsersService usersService();
-
-    /**
      * Returns the shop syncs service.
      *
      * @return the shop syncs service
      */
     ShopSyncsService shopSyncsService();
+
+    /**
+     * Returns the users service.
+     *
+     * @return the users service
+     */
+    UsersService usersService();
 
 }

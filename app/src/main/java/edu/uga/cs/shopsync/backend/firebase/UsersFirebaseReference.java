@@ -86,7 +86,8 @@ public class UsersFirebaseReference {
      * @param onSuccess the runnable for if the task succeeds
      */
     public void createUser(String email, String username, String password,
-                           @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError)
+                           @Nullable Consumer<UserProfileModel> onSuccess,
+                           @Nullable Consumer<ErrorHandle> onError)
             throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         // query to check if a user profile already exists with the given email
         Query query = usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(username);
@@ -113,7 +114,7 @@ public class UsersFirebaseReference {
                 if (dataSnapshot.exists()) {
                     Log.d(TAG, "createUser: user already exists with the email: " + email);
                     if (onError != null) {
-                        onError.accept(new ErrorHandle(ErrorType.USER_ALREADY_EXISTS, Map.of(
+                        onError.accept(new ErrorHandle(ErrorType.ENTITY_ALREADY_EXISTS, Map.of(
                                 "email", email), "User already exists with the email: "
                                                                + email));
                     }
@@ -122,45 +123,44 @@ public class UsersFirebaseReference {
 
                 // if the data snapshot does not exist, a user with the provided email does not
                 // exist and the task should proceed
-                Task<AuthResult> createUserTask =
-                        firebaseAuth.createUserWithEmailAndPassword(email, password);
+                firebaseAuth
+                        .createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(_createUserTask -> {
+                            if (_createUserTask.isSuccessful()) {
+                                FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                createUserTask.addOnCompleteListener(_createUserTask -> {
-                    if (_createUserTask.isSuccessful()) {
-                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                                // the user should not be null after successful creation
+                                if (user == null) {
+                                    throw new IllegalNullValueException("User should not be null " +
+                                                                                "after successful" +
+                                                                                " creation");
+                                }
 
-                        // the user should not be null after successful creation
-                        if (user == null) {
-                            throw new IllegalNullValueException("User should not be null after " +
-                                                                        "successful creation");
-                        }
+                                // add the user profile to the user_profiles collection
+                                String userUid = user.getUid();
+                                String userEmail = user.getEmail();
+                                UserProfileModel userProfileModel = new UserProfileModel(
+                                        userUid, userEmail, username);
+                                usersCollection.child(userUid).setValue(userProfileModel);
 
-                        // add the user profile to the user_profiles collection
-                        String userUid = user.getUid();
-                        String userEmail = user.getEmail();
-                        UserProfileModel userProfileModel = new UserProfileModel(userUid,
-                                                                                 userEmail,
-                                                                                 username);
-                        usersCollection.child(userUid).setValue(userProfileModel);
+                                Log.d(TAG, "createUser: created user with username " + username);
 
-                        Log.d(TAG, "createUser: created user with username " + username);
-
-                        // run the on success runnable if it is not null
-                        if (onSuccess != null) {
-                            onSuccess.run();
-                        }
-                    } else {
-                        // if the task to create the user fails, throw an exception
-                        Log.d(TAG,
-                              "createUser: failed to create user with username " + username +
-                                      " - " + _createUserTask.getException());
-                        if (onError != null) {
-                            onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
-                                                           "Failed to create user with " +
-                                                                   "username " + username));
-                        }
-                    }
-                });
+                                // run the on success runnable if it is not null
+                                if (onSuccess != null) {
+                                    onSuccess.accept(userProfileModel);
+                                }
+                            } else {
+                                // if the task to create the user fails, throw an exception
+                                Log.d(TAG,
+                                      "createUser: failed to create user with username " + username +
+                                              " - " + _createUserTask.getException());
+                                if (onError != null) {
+                                    onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                                   "Failed to create user with " +
+                                                                           "username " + username));
+                                }
+                            }
+                        });
             } else {
                 Log.d(TAG, "createUser: task to check if username exists failed - " +
                         _checkIfExistsTask.getException());
@@ -250,7 +250,7 @@ public class UsersFirebaseReference {
      * @return the uid of the deleted user
      */
     public String deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
-                           @Nullable Runnable onFailure) {
+                             @Nullable Runnable onFailure) {
         FirebaseUser user = getCurrentFirebaseUser();
         if (user == null) {
             throw new IllegalStateException("Cannot delete user if user is not logged in");
