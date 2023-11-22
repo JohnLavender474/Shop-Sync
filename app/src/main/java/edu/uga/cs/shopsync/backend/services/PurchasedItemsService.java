@@ -32,22 +32,22 @@ public class PurchasedItemsService {
     /**
      * Adds a purchased item with the given user id and item id.
      *
-     * @param userId the user id
-     * @param itemId the item id
+     * @param userUid       the user id
+     * @param basketItemUid the basket item uid
      * @return the purchased item model
      */
-    public PurchasedItemModel addPurchasedItem(String userId, String itemId) {
-        return purchasedItemsFirebaseReference.addPurchasedItem(userId, itemId);
+    public PurchasedItemModel addPurchasedItem(String userUid, String basketItemUid) {
+        return purchasedItemsFirebaseReference.addPurchasedItem(userUid, basketItemUid);
     }
 
     /**
      * Returns the task that attempts to get the purchased item with the given uid.
      *
-     * @param itemId the uid of the purchased item
+     * @param uid the uid of the purchased item
      * @return the task that attempts to get the purchased item with the given uid
      */
-    public Task<DataSnapshot> getPurchasedItemWithId(String itemId) {
-        return purchasedItemsFirebaseReference.getPurchasedItemWithId(itemId);
+    public Task<DataSnapshot> getPurchasedItemWithUid(String uid) {
+        return purchasedItemsFirebaseReference.getPurchasedItemWithId(uid);
     }
 
     /**
@@ -58,16 +58,6 @@ public class PurchasedItemsService {
      */
     public Task<DataSnapshot> getPurchasedItemsWithUserId(String userId) {
         return purchasedItemsFirebaseReference.getPurchasedItemsWithUserId(userId);
-    }
-
-    /**
-     * Returns the task that attempts to get the purchased items with the given item id.
-     *
-     * @param itemId the item id
-     * @return the task that attempts to get the purchased items with the given item id
-     */
-    public Task<DataSnapshot> getPurchasedItemsWithItemId(String itemId) {
-        return purchasedItemsFirebaseReference.getPurchasedItemsWithItemId(itemId);
     }
 
     /**

@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.backend.firebase.UserShopSyncsMapFirebaseReference;
+import edu.uga.cs.shopsync.backend.firebase.UserShopSyncMapFirebaseReference;
 import edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
@@ -32,14 +32,14 @@ public class UsersService {
     private static final String TAG = "UsersService";
 
     private final UsersFirebaseReference usersFirebaseReference;
-    private final UserShopSyncsMapFirebaseReference userShopSyncsMapFirebaseReference;
+    private final UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference;
 
     @Inject
     public UsersService(@NonNull UsersFirebaseReference usersFirebaseReference,
-                        @NonNull UserShopSyncsMapFirebaseReference
-                                userShopSyncsMapFirebaseReference) {
+                        @NonNull UserShopSyncMapFirebaseReference
+                                userShopSyncMapFirebaseReference) {
         this.usersFirebaseReference = usersFirebaseReference;
-        this.userShopSyncsMapFirebaseReference = userShopSyncsMapFirebaseReference;
+        this.userShopSyncMapFirebaseReference = userShopSyncMapFirebaseReference;
         Log.d(TAG, "UsersService: created");
     }
 
@@ -151,6 +151,6 @@ public class UsersService {
     public void deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
                            @Nullable Runnable onFailure) {
         String userUid = usersFirebaseReference.deleteUser(password, onSuccess, onFailure);
-        userShopSyncsMapFirebaseReference.removeUser(userUid);
+        userShopSyncMapFirebaseReference.removeUser(userUid);
     }
 }

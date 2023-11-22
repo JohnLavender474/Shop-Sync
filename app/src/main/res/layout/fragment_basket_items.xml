@@ -1,0 +1,28 @@
+<!-- fragment_basket_items.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- RecyclerView to display basket items -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewBasketItems"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        android:scrollbars="vertical" />
+
+    <!-- Placeholder for empty basket -->
+    <TextView
+        android:id="@+id/textViewEmptyBasket"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="@string/your_basket_is_empty"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+</LinearLayout>

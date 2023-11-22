@@ -66,4 +66,9 @@
     <string name="item_name">Item Name</string>
     <string name="price_per_unit">Price per Unit</string>
     <string name="purchase">Purchase</string>
+    <string name="basket_items">Basket Items</string>
+    <string name="set_in_my_basket">Set In My Basket</string>
+    <string name="inBasket">In a basket</string>
+    <string name="update">Update</string>
+    <string name="your_basket_is_empty">Your basket is empty.</string>
 </resources>
