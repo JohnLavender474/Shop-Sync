@@ -3,19 +3,23 @@ package edu.uga.cs.shopsync.backend.firebase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
+import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 
 /**
  * Provides methods to modify the shop_syncs collection.
@@ -53,13 +57,32 @@ public class ShopSyncsFirebaseReference {
      * @param description the description of the shop sync
      * @return the uid of the shop sync
      */
-    public String addShopSync(@NonNull String name, @NonNull String description) {
+    public String addShopSync(@NonNull String name, @Nullable String description,
+                              @Nullable Collection<ShoppingItemModel> shoppingItems,
+                              @Nullable Collection<PurchasedItemModel> purchasedItems) {
         String uid = shopSyncsCollection.push().getKey();
         if (uid == null) {
             return null;
         }
 
-        ShopSyncModel newShopSync = new ShopSyncModel(uid, name, description);
+        if (description == null) {
+            description = "";
+        }
+
+        Map<String, ShoppingItemModel> shoppingItemsMap = new HashMap<>();
+        if (shoppingItems != null) {
+            shoppingItems.forEach(shoppingItem -> shoppingItemsMap.put(shoppingItem.getUid(),
+                                                                       shoppingItem));
+        }
+
+        Map<String, PurchasedItemModel> purchasedItemsMap = new HashMap<>();
+        if (purchasedItems != null) {
+            purchasedItems.forEach(purchasedItem -> purchasedItemsMap.put(purchasedItem.getUid(),
+                                                                          purchasedItem));
+        }
+
+        ShopSyncModel newShopSync = new ShopSyncModel(uid, name, description, shoppingItemsMap,
+                                                      purchasedItemsMap);
         shopSyncsCollection.child(uid).setValue(newShopSync);
 
         return uid;

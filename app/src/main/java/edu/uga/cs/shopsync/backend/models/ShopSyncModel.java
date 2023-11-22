@@ -10,14 +10,19 @@ public class ShopSyncModel {
     private String uid = "";
     private String name = "";
     private String description = "";
+    private Map<String, ShoppingItemModel> shoppingItems = new HashMap<>();
+    private Map<String, PurchasedItemModel> purchasedItems = new HashMap<>();
 
     public ShopSyncModel() {
     }
 
-    public ShopSyncModel(String uid, String name, String description) {
+    public ShopSyncModel(String uid, String name, String description, Map<String,
+            ShoppingItemModel> shoppingItems, Map<String, PurchasedItemModel> purchasedItems) {
         this.uid = uid;
         this.name = name;
         this.description = description;
+        this.shoppingItems = shoppingItems;
+        this.purchasedItems = purchasedItems;
     }
 
     public Map<String, Object> toMap() {
@@ -25,6 +30,8 @@ public class ShopSyncModel {
         result.put("uid", uid);
         result.put("name", name);
         result.put("description", description);
+        result.put("shoppingItems", shoppingItems);
+        result.put("purchasedItems", purchasedItems);
         return result;
     }
 
