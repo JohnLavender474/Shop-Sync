@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.backend.firebase.UserShopSyncsMapFirebaseReference;
 import edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
@@ -31,10 +32,14 @@ public class UsersService {
     private static final String TAG = "UsersService";
 
     private final UsersFirebaseReference usersFirebaseReference;
+    private final UserShopSyncsMapFirebaseReference userShopSyncsMapFirebaseReference;
 
     @Inject
-    public UsersService(@NonNull UsersFirebaseReference usersFirebaseReference) {
+    public UsersService(@NonNull UsersFirebaseReference usersFirebaseReference,
+                        @NonNull UserShopSyncsMapFirebaseReference
+                                userShopSyncsMapFirebaseReference) {
         this.usersFirebaseReference = usersFirebaseReference;
+        this.userShopSyncsMapFirebaseReference = userShopSyncsMapFirebaseReference;
         Log.d(TAG, "UsersService: created");
     }
 
@@ -57,9 +62,10 @@ public class UsersService {
      * @param username the user's username
      * @param password the user's password
      */
-    public void createUser(@NonNull String email, @NonNull String username, @NonNull String password,
+    public void createUser(@NonNull String email, @NonNull String username,
+                           @NonNull String password,
                            @Nullable Runnable onSuccess, @Nullable Consumer<ErrorHandle> onError)
-    throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
+            throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         usersFirebaseReference.createUser(email, username, password, onSuccess, onError);
     }
 
@@ -136,7 +142,7 @@ public class UsersService {
     }
 
     /**
-     * Attempts to delete the current user.
+     * Attempts to delete the current user. Throws an exception if the user is not signed in.
      *
      * @param password  the user's password
      * @param onSuccess the runnable for if the task succeeds
@@ -144,6 +150,7 @@ public class UsersService {
      */
     public void deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
                            @Nullable Runnable onFailure) {
-        usersFirebaseReference.deleteUser(password, onSuccess, onFailure);
+        String userUid = usersFirebaseReference.deleteUser(password, onSuccess, onFailure);
+        userShopSyncsMapFirebaseReference.removeUser(userUid);
     }
 }

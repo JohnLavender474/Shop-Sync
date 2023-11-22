@@ -115,7 +115,7 @@ public class UsersFirebaseReference {
                     if (onError != null) {
                         onError.accept(new ErrorHandle(ErrorType.USER_ALREADY_EXISTS, Map.of(
                                 "email", email), "User already exists with the email: "
-                                + email));
+                                                               + email));
                     }
                     return;
                 }
@@ -163,7 +163,7 @@ public class UsersFirebaseReference {
                 });
             } else {
                 Log.d(TAG, "createUser: task to check if username exists failed - " +
-                              _checkIfExistsTask.getException());
+                        _checkIfExistsTask.getException());
                 if (onError != null) {
                     onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
                                                    "Task to check if username exists failed"));
@@ -243,12 +243,13 @@ public class UsersFirebaseReference {
     }
 
     /**
-     * Attempts to delete the current user.
+     * Attempts to delete the current user. Throws an exception if the current user is not signed.
      *
      * @param password  the user's password
      * @param onFailure the runnable for if the task fails
+     * @return the uid of the deleted user
      */
-    public void deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
+    public String deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
                            @Nullable Runnable onFailure) {
         FirebaseUser user = getCurrentFirebaseUser();
         if (user == null) {
@@ -256,6 +257,7 @@ public class UsersFirebaseReference {
         }
 
         reauthenticateAndRun(user, password, () -> deleteUser(user, onSuccess, onFailure), null);
+        return user.getUid();
     }
 
     /**
@@ -309,8 +311,8 @@ public class UsersFirebaseReference {
     }
 
     private void reauthenticateAndRun(@NonNull FirebaseUser user, @NonNull String password,
-                                      @Nullable Runnable onSuccess, @Nullable Runnable onFailure) throws
-            IllegalNullValueException {
+                                      @Nullable Runnable onSuccess, @Nullable Runnable onFailure)
+            throws IllegalNullValueException {
         String email = user.getEmail();
         if (email == null) {
             throw new IllegalNullValueException("User email cannot be null");

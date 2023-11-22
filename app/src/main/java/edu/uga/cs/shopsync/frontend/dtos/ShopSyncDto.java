@@ -5,21 +5,28 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
+
 public class ShopSyncDto {
 
     private String uid = "";
     private String name = "";
     private String description = "";
-    private List<UserDto> users = new ArrayList<>();
+    private List<String> userUids = new ArrayList<>();
 
     public ShopSyncDto() {
     }
 
-    public ShopSyncDto(String uid, String name, String description, List<UserDto> users) {
+    public ShopSyncDto(String uid, String name, String description, List<String> userUids) {
         this.uid = uid;
         this.name = name;
         this.description = description;
-        this.users = users;
+        this.userUids = userUids;
+    }
+
+    public static ShopSyncDto fromModel(ShopSyncModel model) {
+        return new ShopSyncDto(model.getUid(), model.getName(), model.getDescription(),
+                               new ArrayList<>());
     }
 
     public String getUid() {
@@ -46,18 +53,18 @@ public class ShopSyncDto {
         this.description = description;
     }
 
-    public List<UserDto> getUsers() {
-        return users;
+    public List<String> getUserUids() {
+        return userUids;
     }
 
-    public void setUsers(List<UserDto> users) {
-        this.users = users;
+    public void setUserUids(List<String> userUids) {
+        this.userUids = userUids;
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ShopSyncDto{" + "uid=" + uid + ", name=" + name + ", description=" + description +
-                ", users=" + users + '}';
+                ", userUids=" + userUids + '}';
     }
 }
