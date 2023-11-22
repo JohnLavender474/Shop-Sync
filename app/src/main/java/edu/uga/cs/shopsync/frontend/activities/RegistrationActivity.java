@@ -85,9 +85,11 @@ public class RegistrationActivity extends BaseActivity {
             if (currentUser == null) {
                 throw new IllegalStateException("User is not signed in");
             }
-            applicationGraph.shopSyncsService().addShopSync("Test ShopSync", "Test ShopSync " +
-                    "Description", UtilMethods.mutableListOf(currentUser.getUid()));
-
+            for (int i = 0; i < 5; i++) {
+                applicationGraph.shopSyncsService()
+                        .addShopSync("Test ShopSync " + i, "Description",
+                                     UtilMethods.mutableListOf(currentUser.getUid()));
+            }
             /* --- */
 
 

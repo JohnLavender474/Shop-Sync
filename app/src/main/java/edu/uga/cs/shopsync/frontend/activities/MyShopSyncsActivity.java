@@ -20,10 +20,14 @@ import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
+import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 import edu.uga.cs.shopsync.frontend.Constants;
+import edu.uga.cs.shopsync.frontend.dtos.ShopSyncDto;
 
 public class MyShopSyncsActivity extends BaseActivity {
 
@@ -35,7 +39,7 @@ public class MyShopSyncsActivity extends BaseActivity {
     public static class ShopSyncsRecyclerViewAdapter
             extends RecyclerView.Adapter<ShopSyncsRecyclerViewAdapter.ViewHolder> {
 
-        private final List<ShopSyncModel> shopSyncList;
+        private final List<ShopSyncDto> shopSyncList;
         private final Context context;
 
         /**
@@ -44,7 +48,7 @@ public class MyShopSyncsActivity extends BaseActivity {
          * @param context      The context of the calling activity.
          * @param shopSyncList The list of ShopSyncModel items to be displayed.
          */
-        public ShopSyncsRecyclerViewAdapter(Context context, List<ShopSyncModel> shopSyncList) {
+        public ShopSyncsRecyclerViewAdapter(Context context, List<ShopSyncDto> shopSyncList) {
             this.context = context;
             this.shopSyncList = shopSyncList;
         }
@@ -59,8 +63,8 @@ public class MyShopSyncsActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            ShopSyncModel shopSyncModel = shopSyncList.get(position);
-            holder.bind(shopSyncModel);
+            ShopSyncDto shopSyncDto = shopSyncList.get(position);
+            holder.bind(shopSyncDto);
         }
 
         @Override
@@ -92,19 +96,23 @@ public class MyShopSyncsActivity extends BaseActivity {
             /**
              * Bind method to associate data from a ShopSyncModel to the views in the ViewHolder.
              *
-             * @param shopSyncModel The ShopSyncModel item to be displayed.
+             * @param shopSyncDto The ShopSyncDto item to be displayed.
              */
-            public void bind(ShopSyncModel shopSyncModel) {
-                String shopSyncNameText = "Name: " + shopSyncModel.getName();
+            public void bind(ShopSyncDto shopSyncDto) {
+                // set the text view to display the shop sync name
+                String shopSyncNameText = "Name: " + shopSyncDto.getName();
                 shopSyncNameTextView.setText(shopSyncNameText);
 
-                // TODO: usersTextView.setText(number of users);
+                // set the text view to display the number of users in the shop sync
+                String usersText = "Users: " + shopSyncDto.getUserUids().size();
+                usersTextView.setText(usersText);
 
+                // set up the button to go to the shop sync activity on click
                 goToShopSyncButton.setOnClickListener(v -> {
-                    Log.d(TAG, "go to shop sync button clicked for shop sync: " + shopSyncModel);
+                    Log.d(TAG, "go to shop sync button clicked for shop sync: " + shopSyncDto);
 
                     Intent intent = new Intent(context, ShopSyncActivity.class);
-                    intent.putExtra(Constants.SHOP_SYNC_UID_EXTRA, shopSyncModel.getUid());
+                    intent.putExtra(Constants.SHOP_SYNC_UID_EXTRA, shopSyncDto.getUid());
                     context.startActivity(intent);
                 });
             }
@@ -124,67 +132,71 @@ public class MyShopSyncsActivity extends BaseActivity {
                       currentUser.getUid() + ")");
 
         // set up the recycler view
-        List<ShopSyncModel> shopSyncs = new ArrayList<>();
+        List<ShopSyncDto> shopSyncs = new ArrayList<>();
         RecyclerView recyclerView = findViewById(R.id.recyclerViewShopSyncs);
-
         ShopSyncsRecyclerViewAdapter adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        applicationGraph.shopSyncsService().getShopSyncsForUser(currentUser.getUid())
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "onCreate: task for shop syncs is complete");
+        // consumer that for each shop sync uid gets the corresponding ShopSyncModel from the
+        // database, then converts the model to a dto and adds the dto to the recycler adapter
+        Consumer<List<String>> shopSyncUidsConsumer = shopSyncUids ->
+                shopSyncUids.forEach(shopSyncUid -> applicationGraph.shopSyncsService()
+                        .getShopSyncWithUid(shopSyncUid)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DataSnapshot dataSnapshot = task.getResult();
 
-                        DataSnapshot dataSnapshot = task.getResult();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                            // Convert each child's value into a ShopSyncModel object
-                            ShopSyncModel shopSync = childSnapshot.getValue(ShopSyncModel.class);
-                            if (shopSync != null) {
-                                shopSyncs.add(shopSync);
+                                // if the task was successful but the data snapshot is null,
+                                // throw an illegal state exception
+                                if (dataSnapshot == null) {
+                                    throw new IllegalNullValueException("getShopSyncWithUid: " +
+                                                                                "task was " +
+                                                                                "successful " +
+                                                                                "but data " +
+                                                                                "snapshot is" +
+                                                                                " null");
+                                }
+
+                                // get the shop sync model
+                                ShopSyncModel shopSyncModel =
+                                        dataSnapshot.getValue(ShopSyncModel.class);
+                                if (shopSyncModel == null) {
+                                    throw new IllegalNullValueException("getShopSyncWithUid: " +
+                                                                                "task was " +
+                                                                                "successful " +
+                                                                                "but shop sync " +
+                                                                                "model " +
+                                                                                "is null");
+                                }
+
+                                // convert the shop sync model to a dto
+                                ShopSyncDto shopSyncDto = ShopSyncDto.fromModel(shopSyncModel);
+
+                                // consumer that gets the user uids for the shop sync and adds
+                                // them to the shop sync dto and then adds the shop sync dto to
+                                // the list of shop syncs in the recycler adapter
+                                Consumer<List<String>> userUidsConsumer = userUids -> {
+                                    shopSyncDto.setUserUids(userUids);
+                                    shopSyncs.add(shopSyncDto);
+                                    adapter.notifyDataSetChanged();
+                                };
+
+                                // get the user uids for the shop sync
+                                applicationGraph.shopSyncsService()
+                                        .getUsersForShopSync(shopSyncDto.getUid(),
+                                                             userUidsConsumer, null);
+                            } else {
+                                Log.d(TAG,
+                                      "onCreate: failed to retrieve shop sync with uid " + shopSyncUid);
+                                throw new TaskFailureException(task, "getShopSyncWithUid: failed " +
+                                        "to retrieve shop sync with uid " + shopSyncUid);
                             }
-                        }
+                        }));
 
-                        Log.d(TAG,
-                              "onCreate: retrieved " + shopSyncs.size() +
-                                      " shop syncs");
-
-                        // notify the adapter that the data set has changed
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        signOutOnErrorAndRedirectToMainActivity("Failed to retrieve shop syncs. " +
-                                                                        "Signing out now.");
-                    }
-                });
-
-        // TODO: fix issue where shop syncs are not being fetched
-        //  properly
-        /*
-        applicationGraph.shopSyncsService()
-                .getShopSyncsWithUserUid(currentUser.getUid())
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "onCreate: task for shop syncs is complete");
-
-                        // gather all the shop syncs into a list
-                        DataSnapshot dataSnapshot = task.getResult();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                            // Convert each child's value into a ShopSyncModel object
-                            ShopSyncModel shopSync = childSnapshot.getValue(ShopSyncModel.class);
-                            if (shopSync != null) {
-                                shopSyncs.add(shopSync);
-                            }
-                        }
-                        Log.d(TAG, "onCreate: retrieved " + shopSyncs.size() + " shop syncs");
-
-                        // notify the adapter that the data set has changed
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        signOutOnErrorAndRedirectToMainActivity("Failed to retrieve shop syncs. " +
-                                                                        "Signing out now.");
-                    }
-                });
-         */
+        // get the shop syncs for the current user
+        applicationGraph.shopSyncsService().getShopSyncsForUser(currentUser.getUid(),
+                                                                shopSyncUidsConsumer, null);
     }
 
 }

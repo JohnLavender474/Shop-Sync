@@ -106,10 +106,12 @@ public class UserShopSyncsMapFirebaseReference {
     public void removeUser(@NonNull String userId) {
         Log.d(TAG, "removeUser: removing all shop sync mappings for user (" + userId + ")");
 
+        // get all shop syncs associated with the user and delete the mappings
         getShopSyncsAssociatedWithUser(userId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DataSnapshot dataSnapshot = task.getResult();
 
+                // for each shop sync associated with the user, remove the user from the shop sync
                 for (DataSnapshot shopSyncSnapshot : dataSnapshot.getChildren()) {
                     String shopSyncId = shopSyncSnapshot.getKey();
                     if (shopSyncId != null) {
@@ -117,9 +119,45 @@ public class UserShopSyncsMapFirebaseReference {
                     }
                 }
 
+                // remove the user from the user to shop syncs map
+                userToShopSyncsMapReference.child(userId).removeValue();
+
                 Log.d(TAG, "removeUser: successfully removed all shop sync mappings for user");
             } else {
                 Log.e(TAG, "removeUser: failed to get shop syncs associated with user",
+                      task.getException());
+            }
+        });
+    }
+
+    /**
+     * Removes all user mappings for the shop sync.
+     *
+     * @param shopSyncUid the shop sync uid
+     */
+    public void removeShopSync(@NonNull String shopSyncUid) {
+        Log.d(TAG, "removeShopSync: removing all user mappings for shop sync (" + shopSyncUid +
+                ")");
+
+        // get all users associated with the shop sync and delete the mappings
+        getUsersAssociatedWithShopSync(shopSyncUid).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot dataSnapshot = task.getResult();
+
+                // for each user associated with the shop sync, remove the shop sync from the user
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();
+                    if (userId != null) {
+                        removeUserShopSyncMapping(userId, shopSyncUid);
+                    }
+                }
+
+                // remove the shop sync from the shop sync to users map
+                shopSyncToUsersMapReference.child(shopSyncUid).removeValue();
+
+                Log.d(TAG, "removeShopSync: successfully removed all user mappings for shop sync");
+            } else {
+                Log.e(TAG, "removeShopSync: failed to get users associated with shop sync",
                       task.getException());
             }
         });
