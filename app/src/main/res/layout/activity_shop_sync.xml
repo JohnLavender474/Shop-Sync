@@ -1,71 +1,96 @@
 <!-- res/layout-land/activity_shop_sync.xml -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <!-- Shop Sync Metadata -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="@string/back"
+        app:layout_constraintBottom_toTopOf="@+id/textViewShopSyncName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/textViewShopSyncName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/placeholder"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="25sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backButton" />
 
     <TextView
         android:id="@+id/textViewDescription"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="8dp"
         android:text="@string/placeholder"
-        app:layout_constraintTop_toBottomOf="@+id/textViewShopSyncName"
+        app:layout_constraintBottom_toTopOf="@+id/tableLayoutUsernames"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintTop_toBottomOf="@+id/textViewShopSyncName" />
 
-    <TextView
-        android:id="@+id/textViewUsersList"
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:id="@+id/tableLayoutUsernames"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDescription"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginStart="15dp"
+        app:layout_constraintBottom_toTopOf="@id/buttonItems"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDescription" />
 
-    <!-- RadioGroup to contain the RadioButtons -->
-    <RadioGroup
-        android:id="@+id/radioGroupItems"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/buttonItems"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/textViewUsersList"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tableLayoutUsernames">
 
-        <!-- RadioButton for Shopping Items -->
-        <RadioButton
-            android:id="@+id/radioButtonShoppingItems"
+        <!-- Button for Shopping Items -->
+        <Button
+            android:id="@+id/buttonShoppingItems"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/shopping_items"
-            android:checked="true"/>
+            android:layout_height="50dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:text="@string/shopping_items" />
 
-        <RadioButton
-            android:id="@+id/radioButtonBasketItems"
+        <!-- Button for Basket Items -->
+        <Button
+            android:id="@+id/buttonBasketItems"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
             android:text="@string/basket_items" />
 
-        <!-- RadioButton for Purchased Items -->
-        <RadioButton
-            android:id="@+id/radioButtonPurchasedItems"
+        <!-- Button for Purchased Items -->
+        <Button
+            android:id="@+id/buttonPurchasedItems"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/purchased_items"/>
-    </RadioGroup>
+            android:layout_height="50dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:text="@string/purchased_items" />
+    </LinearLayout>
 
     <View
         android:id="@+id/guideline"
@@ -75,19 +100,19 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:background="#E91E63"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/fragmentContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroupItems"
-        app:layout_constraintBottom_toTopOf="@+id/fragmentContainer"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonItems" />
 
     <!-- FrameLayout to host fragments -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/guideline"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/guideline" />
 </androidx.constraintlayout.widget.ConstraintLayout>

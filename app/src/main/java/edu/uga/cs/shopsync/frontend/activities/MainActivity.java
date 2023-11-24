@@ -24,9 +24,6 @@ public class MainActivity extends BaseActivity {
      */
     public MainActivity() {
         super();
-        // TODO: remove after testing
-        // TemporaryStuff.testAddNewUser(applicationGraph);
-        // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
     }
 
     /**
@@ -41,7 +38,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        // TODO: remove after testing
+        // TemporaryStuff.testAddNewUser(applicationGraph);
+        // TemporaryStuff.testAddShoppingItem(applicationGraph);
+        // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
 
         // if the user is already signed in, then redirect to the my account activity
         if (applicationGraph.usersService().isCurrentUserSignedIn()) {
@@ -53,6 +54,9 @@ public class MainActivity extends BaseActivity {
 
             return;
         }
+
+        // set the content view
+        setContentView(R.layout.activity_main);
 
         // set up the register button
         Button registerButton = findViewById(R.id.register_button);
