@@ -1,14 +1,17 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
+import static edu.uga.cs.shopsync.utils.PasswordStrength.MEDIUM;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.MIN_LENGTH;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.PasswordStrengthCalculationResult;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.PasswordStrengthCriteria;
+import static edu.uga.cs.shopsync.utils.PasswordStrength.STRONG;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.WEAK;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.calculate;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -119,6 +122,11 @@ public class ChangePasswordActivity extends BaseActivity {
             public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
                 updateUI();
             }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                updateUI();
+            }
         });
 
         // initialize new password edit text
@@ -133,8 +141,23 @@ public class ChangePasswordActivity extends BaseActivity {
                 passwordStrengthCriteria = result.criteriaMet();
 
                 passwordStrengthTextView.setTextColor(passwordStrength.color);
-                passwordStrengthTextView.setText(passwordStrength.message);
+                String message = "Password strength: " + passwordStrength.name() + ".";
+                passwordStrengthTextView.setText(message);
+                int passwordStrengthColor;
+                if (passwordStrength == STRONG) {
+                    passwordStrengthColor = Color.GREEN;
+                } else if (passwordStrength == MEDIUM) {
+                    passwordStrengthColor = Color.YELLOW;
+                } else {
+                    passwordStrengthColor = Color.RED;
+                }
+                passwordStrengthTextView.setTextColor(passwordStrengthColor);
 
+                updateUI();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
                 updateUI();
             }
         });
@@ -145,6 +168,11 @@ public class ChangePasswordActivity extends BaseActivity {
         confirmNewPasswordEditText.addTextChangedListener(new TextWatcherAdapter() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateUI();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
                 updateUI();
             }
         });
@@ -192,16 +220,6 @@ public class ChangePasswordActivity extends BaseActivity {
     }
 
     private void updateUI() {
-        // set change password button color and click-ability based on password criteria met
-        boolean canChangePassword = !passwordStrengthCriteria.containsValue(false);
-        if (canChangePassword) {
-            changePasswordButton.setBackgroundColor(Color.GREEN);
-            changePasswordButton.setClickable(true);
-        } else {
-            changePasswordButton.setBackgroundColor(Color.RED);
-            changePasswordButton.setClickable(false);
-        }
-
         // fetch old password and new password fields
         String oldPassword = oldPasswordEditText.getText().toString();
         String newPassword = newPasswordEditText.getText().toString();

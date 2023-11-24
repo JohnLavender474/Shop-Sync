@@ -25,6 +25,9 @@ public class MainActivity extends BaseActivity {
      */
     public MainActivity() {
         super();
+        // TODO: remove after testing
+        TemporaryStuff.testAddNewUser(applicationGraph);
+        // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
     }
 
     /**
@@ -40,9 +43,6 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // TODO: remove after testing
-        TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
 
         // if the user is already signed in, then redirect to the my account activity
         if (applicationGraph.usersService().isCurrentUserSignedIn()) {
