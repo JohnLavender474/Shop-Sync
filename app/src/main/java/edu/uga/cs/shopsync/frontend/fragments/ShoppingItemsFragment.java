@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.activities.contracts.FragmentCallbackReceiver;
@@ -44,8 +44,16 @@ public class ShoppingItemsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        // if the activity does not implement FragmentCallbackReceiver, then throw an exception
+        // otherwise, set the callbackReceiver to the activity
         if (callbackReceiver == null) {
-            throw new IllegalNullValueException("FragmentCallbackReceiver not initialized");
+            if (!(getActivity() instanceof FragmentCallbackReceiver)) {
+                Log.e(TAG, "onCreateView: Activity must implement FragmentCallbackReceiver");
+                throw new ClassCastException("Activity must implement FragmentCallbackReceiver");
+            }
+
+            Log.d(TAG, "onCreateView: Activity implements FragmentCallbackReceiver");
+            callbackReceiver = (FragmentCallbackReceiver) getActivity();
         }
 
         View view = inflater.inflate(R.layout.fragment_shopping_items, container, false);
@@ -137,13 +145,13 @@ public class ShoppingItemsFragment extends Fragment {
         private class ViewHolder extends RecyclerView.ViewHolder {
 
             private final EditText editTextItemName;
-            private final EditText editTextInBasket;
+            private final TextView textViewInBasket;
             private final Button buttonSetInMyShoppingBasket;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
-                editTextInBasket = itemView.findViewById(R.id.editTextInBasket);
+                textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
                 buttonSetInMyShoppingBasket =
                         itemView.findViewById(R.id.buttonSetInMyShoppingBasket);
             }
@@ -152,7 +160,7 @@ public class ShoppingItemsFragment extends Fragment {
                 // Bind data to views
                 editTextItemName.setText(item.getName());
                 String inBasketText = "In a basket: " + (item.isInBasket() ? "Yes" : "No");
-                editTextInBasket.setText(inBasketText);
+                textViewInBasket.setText(inBasketText);
 
                 // TODO: listen to updates to shopping item model and update the UI accordingly
                 /*

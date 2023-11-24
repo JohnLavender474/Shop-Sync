@@ -70,37 +70,43 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
             setContentView(R.layout.activity_shop_sync);
         }
         */
+        // set the content view
         setContentView(R.layout.activity_shop_sync);
 
+        // set up the back button
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
             Log.d(TAG, "Back button clicked");
             finish();
         });
 
+        // set up the views for displaying the shop sync metadata
         shopSyncNameTextView = findViewById(R.id.textViewShopSyncName);
         descriptionTextView = findViewById(R.id.textViewDescription);
         usernamesTable = findViewById(R.id.tableLayoutUsernames);
 
+        // set up the buttons for switching between the different items lists
         Button shoppingItemsButton = findViewById(R.id.buttonShoppingItems);
         Button basketItemsButton = findViewById(R.id.buttonBasketItems);
         Button purchasedItemsButton = findViewById(R.id.buttonPurchasedItems);
-
         itemTypeButtons = Map.of(
                 R.id.buttonShoppingItems, shoppingItemsButton,
                 R.id.buttonBasketItems, basketItemsButton,
                 R.id.buttonPurchasedItems, purchasedItemsButton
         );
-
         itemTypeButtons.values()
-                .forEach(button -> button.setOnClickListener(v -> handleItemsTypeButtonClick(button)));
+                .forEach(button -> button.setOnClickListener(v -> handleItemsTypeChange(button)));
+        // set the shopping items button as the default selected button
+        handleItemsTypeChange(shoppingItemsButton);
 
+        // fetch the shop sync id from the intent and populate the metadata
         String shopSyncId = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
         if (shopSyncId == null) {
             throw new IllegalStateException("ShopSync started without shop sync id");
         }
-
         populateMetaData(shopSyncId);
+
+        // update the fragments to display the shopping items list
         updateFragments(ItemsListType.SHOPPING_ITEMS_LIST);
     }
 
@@ -119,6 +125,8 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
 
     @Override
     public void onFragmentCallback(String action, Props props) {
+        Log.d(TAG, "onFragmentCallback: called");
+
         String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
         if (shopSyncUid == null) {
             throw new IllegalNullValueException("ShopSync started without shop sync id");
@@ -189,16 +197,14 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
         }
     }
 
-    private void handleItemsTypeButtonClick(Button button) {
+    private void handleItemsTypeChange(Button button) {
         Log.d(TAG, "Items type button clicked: " + button.getText());
 
         itemTypeButtons.values().forEach(otherButton -> {
-            otherButton.setEnabled(false);
             otherButton.setBackgroundColor(Color.GRAY);
             otherButton.setTextColor(Color.BLACK);
         });
 
-        button.setEnabled(true);
         button.setBackgroundColor(Color.GREEN);
         button.setTextColor(Color.WHITE);
 

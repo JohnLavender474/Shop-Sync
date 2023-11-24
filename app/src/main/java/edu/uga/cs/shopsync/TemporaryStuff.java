@@ -21,6 +21,35 @@ public class TemporaryStuff {
                                 userProfile -> Log.d("TemporaryStuff", "user created"), null);
     }
 
+    public static void testAddShoppingItem(ApplicationGraph applicationGraph) {
+        Log.d("TemporaryStuff", "testAddShoppingItemToShoppingBasket");
+
+        UsersService usersService = applicationGraph.usersService();
+
+        // on create user
+        Consumer<UserProfileModel> createUserOnSuccess = userProfile -> {
+            ShopSyncsService shopSyncsService = applicationGraph.shopSyncsService();
+
+            // on create shop sync
+            Consumer<ShopSyncModel> createShopSyncOnSuccess = shopSync -> {
+                // create shopping item
+                shopSyncsService.addShoppingItem(shopSync.getUid(), "name", false);
+
+                // create user's shopping basket
+                shopSyncsService.addShoppingBasket(shopSync.getUid(), userProfile.getUserUid());
+            };
+
+            shopSyncsService.addShopSync("Shop Sync", "Description",
+                                         List.of(userProfile.getUserUid()),
+                                         createShopSyncOnSuccess, null);
+
+        };
+
+        // create user
+        usersService.createUser("dawg@mail.com", "dawg", "password",
+                                createUserOnSuccess, null);
+    }
+
     public static void testAddShoppingItemToShoppingBasket(ApplicationGraph applicationGraph) {
         Log.d("TemporaryStuff", "testAddShoppingItemToShoppingBasket");
 
