@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
@@ -17,6 +18,7 @@ public class SignInActivity extends BaseActivity {
 
     private EditText editTextSignInEmail;
     private EditText editTextSignInPassword;
+    private TextView textViewSignInError;
 
     /**
      * Default constructor. Uses the singleton instance of the application graph for service
@@ -55,11 +57,19 @@ public class SignInActivity extends BaseActivity {
         editTextSignInEmail = findViewById(R.id.editTextSignInEmail);
         editTextSignInPassword = findViewById(R.id.editTextSignInPassword);
 
+        textViewSignInError = findViewById(R.id.signInError);
+
         Button buttonSignIn = findViewById(R.id.buttonSignIn);
         buttonSignIn.setOnClickListener(v -> onSignInButtonClick());
+
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
     }
 
     private void onSignInButtonClick() {
+        Log.d(TAG, "onSignInButtonClick: sign in button clicked");
+        textViewSignInError.setText("");
+
         String email = editTextSignInEmail.getText().toString();
         String password = editTextSignInPassword.getText().toString();
 
@@ -78,6 +88,10 @@ public class SignInActivity extends BaseActivity {
                         Log.d(TAG, "signInUser: failure");
                         Toast.makeText(getApplicationContext(), "Sign in failed!",
                                        Toast.LENGTH_SHORT).show();
+
+                        String message = "Sign in failed. Make sure your email and password are " +
+                                "correct.";
+                        textViewSignInError.setText(message);
                     }
                 });
     }

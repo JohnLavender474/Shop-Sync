@@ -1,10 +1,8 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
-import static edu.uga.cs.shopsync.utils.PasswordStrength.MEDIUM;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.MIN_LENGTH;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.PasswordStrengthCalculationResult;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.PasswordStrengthCriteria;
-import static edu.uga.cs.shopsync.utils.PasswordStrength.STRONG;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.WEAK;
 import static edu.uga.cs.shopsync.utils.PasswordStrength.calculate;
 
@@ -46,8 +44,6 @@ public class ChangePasswordActivity extends BaseActivity {
 
     private PasswordStrength passwordStrength;
     private Map<PasswordStrengthCriteria, Boolean> passwordStrengthCriteria;
-
-    private Button changePasswordButton;
 
     private EditText oldPasswordEditText;
     private EditText newPasswordEditText;
@@ -143,15 +139,6 @@ public class ChangePasswordActivity extends BaseActivity {
                 passwordStrengthTextView.setTextColor(passwordStrength.color);
                 String message = "Password strength: " + passwordStrength.name() + ".";
                 passwordStrengthTextView.setText(message);
-                int passwordStrengthColor;
-                if (passwordStrength == STRONG) {
-                    passwordStrengthColor = Color.GREEN;
-                } else if (passwordStrength == MEDIUM) {
-                    passwordStrengthColor = Color.YELLOW;
-                } else {
-                    passwordStrengthColor = Color.RED;
-                }
-                passwordStrengthTextView.setTextColor(passwordStrengthColor);
 
                 updateUI();
             }
@@ -180,16 +167,12 @@ public class ChangePasswordActivity extends BaseActivity {
         // back button
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
-            // TODO: go back to parent activity which might be MyAccountActivity or MainActivity
-
-            Log.d(TAG, "onCreate: back button clicked");
-            Intent intent = new Intent(ChangePasswordActivity.this, MyAccountActivity.class);
-            startActivity(intent);
+            Log.d(TAG, "Back button clicked");
             finish();
         });
 
         // change password button
-        changePasswordButton = findViewById(R.id.changePasswordButton);
+        Button changePasswordButton = findViewById(R.id.changePasswordButton);
         changePasswordButton.setOnClickListener(v -> {
             Log.d(TAG, "changePasswordButton: change password button clicked");
 
@@ -331,7 +314,8 @@ public class ChangePasswordActivity extends BaseActivity {
                 updatePassword(user, newPassword);
             } else {
                 Log.e(TAG, "reAuthenticateUser: re-authentication failed", task.getException());
-                Toast.makeText(ChangePasswordActivity.this, "Re-authentication failed.",
+                Toast.makeText(ChangePasswordActivity.this, "Could not authenticate with old " +
+                                       "password.",
                                Toast.LENGTH_SHORT).show();
             }
         });
