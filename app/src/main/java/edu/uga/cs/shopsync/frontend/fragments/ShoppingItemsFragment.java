@@ -21,6 +21,7 @@ import java.util.List;
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
+import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.activities.contracts.FragmentCallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
@@ -35,6 +36,7 @@ public class ShoppingItemsFragment extends Fragment {
             "ACTION_INITIALIZE_SHOPPING_ITEMS";
     public static final String ACTION_MOVE_TO_BASKET = "ACTION_ADD_TO_BASKET";
     public static final String PROP_SHOPPING_ITEMS = "PROP_SHOPPING_ITEMS";
+    public static final String PROP_SHOPPING_ITEMS_ADAPTER = "PROP_SHOPPING_ITEMS_ADAPTER";
 
     private FragmentCallbackReceiver callbackReceiver = null;
 
@@ -59,7 +61,8 @@ public class ShoppingItemsFragment extends Fragment {
 
         // send the shopping items to the parent activity to be initialized
         callbackReceiver.onFragmentCallback(ACTION_INITIALIZE_SHOPPING_ITEMS, Props.of(
-                Pair.create(PROP_SHOPPING_ITEMS, shoppingItems)));
+                Pair.create(PROP_SHOPPING_ITEMS, shoppingItems),
+                Pair.create(Constants.RECYCLER_VIEW_ADAPTER, adapter)));
 
         return view;
     }
@@ -96,11 +99,19 @@ public class ShoppingItemsFragment extends Fragment {
         callbackReceiver = null;
     }
 
-    private static class ShoppingItemsAdapter
+    /**
+     * Adapter for shopping items.
+     */
+    public static class ShoppingItemsAdapter
             extends RecyclerView.Adapter<ShoppingItemsAdapter.ViewHolder> {
 
         private final List<ShoppingItemModel> items;
 
+        /**
+         * Constructor for the adapter.
+         *
+         * @param items The list of shopping items to display.
+         */
         ShoppingItemsAdapter(List<ShoppingItemModel> items) {
             this.items = items;
         }

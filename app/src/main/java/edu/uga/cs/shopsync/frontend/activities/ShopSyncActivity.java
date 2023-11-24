@@ -1,5 +1,10 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
+import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.*;
+import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
+import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.PROP_SHOPPING_ITEMS;
+
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -24,6 +29,7 @@ import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
+import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.activities.contracts.FragmentCallbackReceiver;
@@ -89,7 +95,7 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
         itemTypeButtons.values()
                 .forEach(button -> button.setOnClickListener(v -> handleItemsTypeButtonClick(button)));
 
-        String shopSyncId = getIntent().getStringExtra(Constants.SHOP_SYNC_UID_EXTRA);
+        String shopSyncId = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
         if (shopSyncId == null) {
             throw new IllegalStateException("ShopSync started without shop sync id");
         }
@@ -113,7 +119,74 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
 
     @Override
     public void onFragmentCallback(String action, Props props) {
-        Log.d(TAG, "onFragmentCallback: called with props " + props);
+        String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
+        if (shopSyncUid == null) {
+            throw new IllegalNullValueException("ShopSync started without shop sync id");
+        }
+
+        Log.d(TAG, "onFragmentCallback: called with action " + action + " and props " + props);
+
+        switch (action) {
+            case ACTION_INITIALIZE_SHOPPING_ITEMS -> initializeShoppingItems(shopSyncUid, props);
+        }
+    }
+
+    private void initializeShoppingItems(String shopSyncUid, Props props) {
+        Log.d(TAG, "initializeShoppingItems: initializing shopping items");
+
+        // fetch the shopping items list from the props and populate it
+        applicationGraph.shopSyncsService().getShoppingItemsWithShopSyncUid(shopSyncUid)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        if (dataSnapshot == null) {
+                            throw new IllegalNullValueException("DataSnapshot is null");
+                        }
+
+                        populateShoppingItems(dataSnapshot, props);
+                    } else {
+                        Log.e(TAG, "onFragmentCallback: failed to fetch shopping items",
+                              task.getException());
+                        throw new TaskFailureException(task, "Failed to fetch shopping items");
+                    }
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    @SuppressLint("NotifyDataSetChanged")
+    private void populateShoppingItems(DataSnapshot data, Props props) {
+        // fetch the shopping items list from the props
+        List<ShoppingItemModel> shoppingItems =
+                (List<ShoppingItemModel>) props.get(PROP_SHOPPING_ITEMS);
+        if (shoppingItems == null) {
+            Log.e(TAG, "populateShoppingItems: shopping items list is null");
+            throw new IllegalNullValueException("Shopping items list is null");
+        }
+        Log.d(TAG, "populateShoppingItems: shopping items list size: " + shoppingItems.size());
+
+        // fetch the RecyclerView from the props
+        ShoppingItemsAdapter adapter =
+                (ShoppingItemsAdapter) props.get(Constants.RECYCLER_VIEW_ADAPTER);
+        if (adapter == null) {
+            Log.e(TAG, "populateShoppingItems: Shopping items adapter is null");
+            throw new IllegalNullValueException("RecyclerView is null");
+        }
+        Log.d(TAG, "populateShoppingItems: Adapter " + adapter);
+
+        // populate the shopping items list and notify the adapter
+        for (DataSnapshot child : data.getChildren()) {
+            // fetch and add the shopping item
+            ShoppingItemModel shoppingItem = child.getValue(ShoppingItemModel.class);
+            if (shoppingItem == null) {
+                Log.e(TAG,
+                      "populateShoppingItems: no shopping item found with id: " + child.getKey());
+                throw new IllegalNullValueException("No shopping item found with id: " + child.getKey());
+            }
+            shoppingItems.add(shoppingItem);
+
+            // notify the adapter
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void handleItemsTypeButtonClick(Button button) {

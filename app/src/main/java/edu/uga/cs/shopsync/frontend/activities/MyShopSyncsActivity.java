@@ -112,7 +112,7 @@ public class MyShopSyncsActivity extends BaseActivity {
                     Log.d(TAG, "go to shop sync button clicked for shop sync: " + shopSyncDto);
 
                     Intent intent = new Intent(context, ShopSyncActivity.class);
-                    intent.putExtra(Constants.SHOP_SYNC_UID_EXTRA, shopSyncDto.getUid());
+                    intent.putExtra(Constants.SHOP_SYNC_UID, shopSyncDto.getUid());
                     context.startActivity(intent);
                 });
             }
