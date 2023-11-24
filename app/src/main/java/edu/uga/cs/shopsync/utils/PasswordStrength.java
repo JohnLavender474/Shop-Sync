@@ -15,9 +15,9 @@ import edu.uga.cs.shopsync.R;
  */
 public enum PasswordStrength {
 
-    WEAK(R.string.weak, Color.parseColor("#61ad85")),
-    MEDIUM(R.string.medium, Color.parseColor("#4d8a6a")),
-    STRONG(R.string.strong, Color.parseColor("#3a674f"));
+    WEAK(R.string.weak, Color.RED),
+    MEDIUM(R.string.medium, Color.YELLOW),
+    STRONG(R.string.strong, Color.GREEN);
 
     /**
      * A record containing the result of a password strength calculation.
@@ -42,7 +42,6 @@ public enum PasswordStrength {
     }
 
     public static final int MIN_LENGTH = 8;
-    public static final int MAX_LENGTH = 25;
 
     public final int message;
     public final int color;

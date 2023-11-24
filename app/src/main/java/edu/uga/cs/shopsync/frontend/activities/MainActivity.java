@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.TemporaryStuff;
 
 /**
  * The main activity for the application. This activity is the first activity that is displayed
@@ -26,7 +25,7 @@ public class MainActivity extends BaseActivity {
     public MainActivity() {
         super();
         // TODO: remove after testing
-        TemporaryStuff.testAddNewUser(applicationGraph);
+        // TemporaryStuff.testAddNewUser(applicationGraph);
         // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
     }
 
