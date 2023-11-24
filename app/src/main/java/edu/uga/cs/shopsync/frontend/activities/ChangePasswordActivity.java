@@ -1,38 +1,64 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
+import static edu.uga.cs.shopsync.utils.PasswordStrength.MIN_LENGTH;
+import static edu.uga.cs.shopsync.utils.PasswordStrength.PasswordStrengthCalculationResult;
+import static edu.uga.cs.shopsync.utils.PasswordStrength.PasswordStrengthCriteria;
+import static edu.uga.cs.shopsync.utils.PasswordStrength.WEAK;
+import static edu.uga.cs.shopsync.utils.PasswordStrength.calculate;
+
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Map;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
+import edu.uga.cs.shopsync.frontend.utils.TextWatcherAdapter;
+import edu.uga.cs.shopsync.utils.PasswordStrength;
 
 /**
  * Activity for changing the user's password.
- *
+ * <p>
  * This activity provides a user interface for changing the password of a logged-in user.
  * It requires the user to input their old password for re-authentication and then
  * enter the new password along with its confirmation.
- *
  */
 public class ChangePasswordActivity extends BaseActivity {
 
     private static final String TAG = "ChangePasswordActivity";
-    private EditText oldPasswordEditText, newPasswordEditText, confirmNewPasswordEditText;
+
+    private PasswordStrength passwordStrength;
+    private Map<PasswordStrengthCriteria, Boolean> passwordStrengthCriteria;
+
     private Button changePasswordButton;
-    private FirebaseUser user;
+
+    private EditText oldPasswordEditText;
+    private EditText newPasswordEditText;
+    private EditText confirmNewPasswordEditText;
+
+    private TextView passwordStrengthTextView;
+    private TextView oldPasswordNotSameAsNewPasswordTextView;
+    private TextView confirmPasswordMatchesTextView;
+    private TextView hasMinLengthTextView;
+    private TextView hasSpecialCharTextView;
+    private TextView hasUpperCaseTextView;
+    private TextView hasLowerCaseTextView;
+    private TextView hasAlphanumericTextView;
+    private TextView hasDigitTextView;
 
     /**
      * Default constructor for ChangePasswordActivity.
@@ -42,7 +68,7 @@ public class ChangePasswordActivity extends BaseActivity {
     }
 
     /**
-     * Constructor for ChangePasswordActivity with ApplicationGraph.
+     * Constructor for ChangePasswordActivity with ApplicationGraph. Used for testing purposes only.
      *
      * @param applicationGraph The application graph for dependency injection.
      */
@@ -51,103 +77,262 @@ public class ChangePasswordActivity extends BaseActivity {
     }
 
     /**
-     * Called when the activity is starting.
-     *
-     * This method initializes the UI components and sets up the event listeners for the buttons.
+     * Called when the activity is starting. This method initializes the UI components and sets up
+     * the event listeners for the buttons.
      *
      * @param savedInstanceState If the activity is being re-initialized after previously being
-     *                           shut down then this Bundle contains the data it most recently
+     *                           shut down, then this Bundle contains the data it most recently
      *                           supplied. Otherwise, it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: called");
         super.onCreate(savedInstanceState);
+
+        // check if user is logged in
+        FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+
+        // set the layout for the activity
         setContentView(R.layout.activity_change_password);
 
+        // initialize password strength and criteria fields
+        passwordStrength = WEAK;
+        passwordStrengthCriteria = PasswordStrength.createCriteriaMap();
+
+        // initialize password criteria text views
+        passwordStrengthTextView = findViewById(R.id.passwordStrengthTextView);
+        oldPasswordNotSameAsNewPasswordTextView =
+                findViewById(R.id.oldPasswordNotSameAsNewPasswordTextView);
+        confirmPasswordMatchesTextView = findViewById(R.id.confirmPasswordMatchesTextView);
+        hasMinLengthTextView = findViewById(R.id.hasMinLengthTextView);
+        hasSpecialCharTextView = findViewById(R.id.hasSpecialCharTextView);
+        hasUpperCaseTextView = findViewById(R.id.hasUpperCaseTextView);
+        hasLowerCaseTextView = findViewById(R.id.hasLowerCaseTextView);
+        hasAlphanumericTextView = findViewById(R.id.hasAlphanumericTextView);
+        hasDigitTextView = findViewById(R.id.hasDigitTextView);
+
+        // initialize old password edit text
         oldPasswordEditText = findViewById(R.id.oldPassword);
+        oldPasswordEditText.setText("");
+        oldPasswordEditText.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                updateUI();
+            }
+        });
+
+        // initialize new password edit text
         newPasswordEditText = findViewById(R.id.newPassword);
+        newPasswordEditText.setText("");
+        newPasswordEditText.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                PasswordStrengthCalculationResult result = calculate(s.toString());
+
+                passwordStrength = result.strength();
+                passwordStrengthCriteria = result.criteriaMet();
+
+                passwordStrengthTextView.setTextColor(passwordStrength.color);
+                passwordStrengthTextView.setText(passwordStrength.message);
+
+                updateUI();
+            }
+        });
+
+        // initialize confirm new password edit text
         confirmNewPasswordEditText = findViewById(R.id.confirmNewPassword);
+        confirmNewPasswordEditText.setText("");
+        confirmNewPasswordEditText.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateUI();
+            }
+        });
+
+        // back button
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            // TODO: go back to parent activity which might be MyAccountActivity or MainActivity
+
+            Log.d(TAG, "onCreate: back button clicked");
+            Intent intent = new Intent(ChangePasswordActivity.this, MyAccountActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        // change password button
         changePasswordButton = findViewById(R.id.changePasswordButton);
+        changePasswordButton.setOnClickListener(v -> {
+            Log.d(TAG, "changePasswordButton: change password button clicked");
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
+            String oldPassword = oldPasswordEditText.getText().toString();
+            String newPassword = newPasswordEditText.getText().toString();
+            String confirmNewPassword = confirmNewPasswordEditText.getText().toString();
 
-        changePasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String oldPassword = oldPasswordEditText.getText().toString();
-                String newPassword = newPasswordEditText.getText().toString();
-                String confirmNewPassword = confirmNewPasswordEditText.getText().toString();
+            if (!newPassword.equals(confirmNewPassword)) {
+                Toast.makeText(ChangePasswordActivity.this, "Confirm new password field " +
+                                       "does not match the new password field.",
+                               Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "changePasswordButton: new passwords do not match");
+                return;
+            }
 
-                if (!newPassword.equals(confirmNewPassword)) {
-                    Toast.makeText(ChangePasswordActivity.this, "New passwords do not match.", Toast.LENGTH_SHORT).show();
-                    return;
+            if (!isValidPassword(newPassword)) {
+                Toast.makeText(ChangePasswordActivity.this, "Password does not meet " +
+                        "complexity requirements.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "changePasswordButton: password does not meet complexity requirements");
+                return;
+            }
+
+            reAuthenticateUser(user, oldPassword, newPassword);
+        });
+
+        // reset everything
+        updateUI();
+    }
+
+    private void updateUI() {
+        // set change password button color and click-ability based on password criteria met
+        boolean canChangePassword = !passwordStrengthCriteria.containsValue(false);
+        if (canChangePassword) {
+            changePasswordButton.setBackgroundColor(Color.GREEN);
+            changePasswordButton.setClickable(true);
+        } else {
+            changePasswordButton.setBackgroundColor(Color.RED);
+            changePasswordButton.setClickable(false);
+        }
+
+        String oldPassword = oldPasswordEditText.getText().toString();
+        String newPassword = newPasswordEditText.getText().toString();
+
+        // check if old password is the same as the new password
+        if (oldPassword.equals(newPassword)) {
+            String message = "Old password cannot be the same as the new password.";
+            oldPasswordNotSameAsNewPasswordTextView.setText(message);
+            oldPasswordNotSameAsNewPasswordTextView.setVisibility(View.VISIBLE);
+        } else {
+            oldPasswordNotSameAsNewPasswordTextView.setVisibility(View.INVISIBLE);
+        }
+
+        String confirmNewPassword = confirmNewPasswordEditText.getText().toString();
+
+        // check if confirm new password matches new password
+        if (!newPassword.equals(confirmNewPassword)) {
+            String message = "Does not match new password.";
+            confirmPasswordMatchesTextView.setText(message);
+            confirmPasswordMatchesTextView.setVisibility(View.VISIBLE);
+        } else {
+            confirmPasswordMatchesTextView.setVisibility(View.INVISIBLE);
+        }
+
+        // update password criteria text views
+        passwordStrengthCriteria.forEach((criteria, value) -> {
+            TextView textView;
+            String message;
+
+            switch (criteria) {
+                case HAS_DIGIT -> {
+                    textView = hasDigitTextView;
+                    if (value) {
+                        message = "Password must contain at least one digit.";
+                    } else {
+                        message = "Password contains at least one digit.";
+                    }
                 }
-
-                if (!isValidPassword(newPassword)) {
-                    Toast.makeText(ChangePasswordActivity.this, "Password does not meet complexity requirements.", Toast.LENGTH_SHORT).show();
-                    return;
+                case HAS_ALPHANUMERIC -> {
+                    textView = hasAlphanumericTextView;
+                    if (value) {
+                        message = "Password must contain at least one alphanumeric character.";
+                    } else {
+                        message = "Password contains at least one alphanumeric character.";
+                    }
                 }
+                case HAS_LOWER_CASE -> {
+                    textView = hasLowerCaseTextView;
+                    if (value) {
+                        message = "Password must contain at least one lower case letter.";
+                    } else {
+                        message = "Password contains at least one lower case letter.";
+                    }
+                }
+                case HAS_UPPER_CASE -> {
+                    textView = hasUpperCaseTextView;
+                    if (value) {
+                        message = "Password must contain at least one upper case letter.";
+                    } else {
+                        message = "Password contains at least one upper case letter.";
+                    }
+                }
+                case HAS_SPECIAL_CHAR -> {
+                    textView = hasSpecialCharTextView;
+                    if (value) {
+                        message = "Password must contain at least one special character.";
+                    } else {
+                        message = "Password contains at least one special character.";
+                    }
+                }
+                case MEET_MIN_LENGTH -> {
+                    textView = hasMinLengthTextView;
+                    if (value) {
+                        message = "Password must be at least 8 characters long.";
+                    } else {
+                        message = "Password is at least 8 characters long.";
+                    }
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + criteria);
+            }
 
-                reAuthenticateUser(oldPassword);
+            if (textView == null) {
+                throw new IllegalNullValueException("TextView cannot be null at this point");
+            }
+
+            textView.setTextColor(value ? Color.GREEN : Color.RED);
+            textView.setText(message);
+        });
+    }
+
+    private boolean isValidPassword(@NonNull String password) {
+        return password.length() >= MIN_LENGTH && !passwordStrengthCriteria.containsValue(false);
+    }
+
+    private void updatePassword(FirebaseUser user, String newPassword) {
+        user.updatePassword(newPassword).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "updatePassword: password updated successfully");
+
+                Toast.makeText(ChangePasswordActivity.this, "Password updated successfully.",
+                               Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(ChangePasswordActivity.this,
+                                           MyAccountActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Log.e(TAG, "updatePassword: password update failed", task.getException());
+                Toast.makeText(ChangePasswordActivity.this, "Password update failed.",
+                               Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    /**
-     * Checks if the given password meets the complexity requirements.
-     *
-     * @param password The password to be validated.
-     * @return true if the password meets the requirements, false otherwise.
-     */
-    private boolean isValidPassword(String password) {
-        return password.length() > 6; // could change this for more checks
-    }
+    private void reAuthenticateUser(@NonNull FirebaseUser user, @NonNull String oldPassword,
+                                    @NonNull String newPassword) {
+        String email = user.getEmail();
+        if (email == null) {
+            Log.e(TAG, "reAuthenticateUser: user email is null");
+            throw new IllegalNullValueException("reAuthenticateUser: user email is null");
+        }
 
-    /**
-     * Updates the user's password to the new password.
-     *
-     * This method updates the user's password and navigates to MyAccountActivity on success.
-     *
-     * @param newPassword The new password to be set for the user.
-     */
-    private void updatePassword(String newPassword) {
-        user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(ChangePasswordActivity.this, "Password updated successfully.", Toast.LENGTH_SHORT).show();
+        AuthCredential credential = EmailAuthProvider.getCredential(email, oldPassword);
 
-                    Intent intent = new Intent(ChangePasswordActivity.this, MyAccountActivity.class);
-                    startActivity(intent);
-
-                    finish();
-                } else {
-                    Toast.makeText(ChangePasswordActivity.this, "Password update failed.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-    /**
-     * Re-authenticates the user with their old password.
-     *
-     * This method is used for security purposes to confirm the identity of the user
-     * before allowing a password change.
-     *
-     * @param oldPassword The current password of the user for re-authentication.
-     */
-    private void reAuthenticateUser(String oldPassword) {
-        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
-
-        user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    String newPassword = newPasswordEditText.getText().toString();
-                    updatePassword(newPassword);
-                } else {
-                    Toast.makeText(ChangePasswordActivity.this, "Re-authentication failed.", Toast.LENGTH_SHORT).show();
-                }
+        user.reauthenticate(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "reAuthenticateUser: re-authentication successful");
+                updatePassword(user, newPassword);
+            } else {
+                Log.e(TAG, "reAuthenticateUser: re-authentication failed", task.getException());
+                Toast.makeText(ChangePasswordActivity.this, "Re-authentication failed.",
+                               Toast.LENGTH_SHORT).show();
             }
         });
     }

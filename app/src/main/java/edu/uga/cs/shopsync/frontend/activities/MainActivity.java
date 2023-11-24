@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
@@ -68,6 +69,21 @@ public class MainActivity extends BaseActivity {
             Log.d(TAG, "onCreate: sign in button clicked, redirecting to sign in activity");
             Intent intent = new Intent(MainActivity.this, SignInActivity.class);
             startActivity(intent);
+        });
+
+        // set up forgot password button
+        Button forgotPassword = findViewById(R.id.forgot_password_button);
+        forgotPassword.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), "Forgot password functionality not set up yet",
+                           Toast.LENGTH_SHORT).show();
+
+            // TODO:
+            /*
+            Log.d(TAG, "onCreate: forgot password button clicked, redirecting to forgot password
+            activity");
+            Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
+            startActivity(intent);
+             */
         });
     }
 }
