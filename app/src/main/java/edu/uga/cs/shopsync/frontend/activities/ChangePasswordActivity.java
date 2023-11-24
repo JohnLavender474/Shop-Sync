@@ -202,6 +202,7 @@ public class ChangePasswordActivity extends BaseActivity {
             changePasswordButton.setClickable(false);
         }
 
+        // fetch old password and new password fields
         String oldPassword = oldPasswordEditText.getText().toString();
         String newPassword = newPasswordEditText.getText().toString();
 
@@ -214,6 +215,7 @@ public class ChangePasswordActivity extends BaseActivity {
             oldPasswordNotSameAsNewPasswordTextView.setVisibility(View.INVISIBLE);
         }
 
+        // fetch confirm new password field
         String confirmNewPassword = confirmNewPasswordEditText.getText().toString();
 
         // check if confirm new password matches new password
@@ -274,9 +276,9 @@ public class ChangePasswordActivity extends BaseActivity {
                 case MEET_MIN_LENGTH -> {
                     textView = hasMinLengthTextView;
                     if (value) {
-                        message = "Password must be at least 8 characters long.";
+                        message = "Password must be between 8 and 25 characters long.";
                     } else {
-                        message = "Password is at least 8 characters long.";
+                        message = "Password is between 8 and 25 characters long.";
                     }
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + criteria);
@@ -293,26 +295,6 @@ public class ChangePasswordActivity extends BaseActivity {
 
     private boolean isValidPassword(@NonNull String password) {
         return password.length() >= MIN_LENGTH && !passwordStrengthCriteria.containsValue(false);
-    }
-
-    private void updatePassword(FirebaseUser user, String newPassword) {
-        user.updatePassword(newPassword).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d(TAG, "updatePassword: password updated successfully");
-
-                Toast.makeText(ChangePasswordActivity.this, "Password updated successfully.",
-                               Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(ChangePasswordActivity.this,
-                                           MyAccountActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-                Log.e(TAG, "updatePassword: password update failed", task.getException());
-                Toast.makeText(ChangePasswordActivity.this, "Password update failed.",
-                               Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void reAuthenticateUser(@NonNull FirebaseUser user, @NonNull String oldPassword,
@@ -332,6 +314,26 @@ public class ChangePasswordActivity extends BaseActivity {
             } else {
                 Log.e(TAG, "reAuthenticateUser: re-authentication failed", task.getException());
                 Toast.makeText(ChangePasswordActivity.this, "Re-authentication failed.",
+                               Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updatePassword(FirebaseUser user, String newPassword) {
+        user.updatePassword(newPassword).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "updatePassword: password updated successfully");
+
+                Toast.makeText(ChangePasswordActivity.this, "Password updated successfully.",
+                               Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(ChangePasswordActivity.this,
+                                           MyAccountActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Log.e(TAG, "updatePassword: password update failed", task.getException());
+                Toast.makeText(ChangePasswordActivity.this, "Password update failed.",
                                Toast.LENGTH_SHORT).show();
             }
         });

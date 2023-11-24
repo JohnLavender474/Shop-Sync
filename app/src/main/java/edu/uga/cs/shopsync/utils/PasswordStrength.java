@@ -42,6 +42,7 @@ public enum PasswordStrength {
     }
 
     public static final int MIN_LENGTH = 8;
+    public static final int MAX_LENGTH = 25;
 
     public final int message;
     public final int color;
@@ -119,10 +120,10 @@ public enum PasswordStrength {
 
         int length = password.length();
 
-        if (length > MIN_LENGTH) {
+        if (length >= MIN_LENGTH) {
             criteria.replace(PasswordStrengthCriteria.MEET_MIN_LENGTH, true);
             score++;
-        } else if (length < MIN_LENGTH) {
+        } else {
             score = 0;
         }
 

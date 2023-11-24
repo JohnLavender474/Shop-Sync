@@ -71,7 +71,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * Calls {@link #checkIfUserIsLoggedInAndFetch(Class)} with {@link @MainActivity} as the
+     * Calls {@link #checkIfUserIsLoggedInAndFetch(Class)} with {@link MainActivity} as the
      * activity class to redirect to if the user is not signed in, or null if [redirect] is false.
      *
      * @param redirect Whether or not to redirect to the main activity if the user is not signed in.
