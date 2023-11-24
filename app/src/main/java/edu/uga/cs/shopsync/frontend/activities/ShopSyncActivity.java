@@ -1,12 +1,17 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.widget.RadioGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.firebase.auth.FirebaseUser;
+
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;
@@ -22,7 +27,24 @@ public class ShopSyncActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shop_sync);
+
+        // Check if landscape mode
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setContentView(R.layout.activity_shop_sync_landscape);
+        } else {
+            setContentView(R.layout.activity_shop_sync);
+        }
+
+        // check if user is signed in
+        FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+
+        // fetch the shop sync id
+        String shopSyncId = getIntent().getStringExtra(Constants.SHOP_SYNC_UID_EXTRA);
+        if (shopSyncId == null) {
+            throw new IllegalStateException("ShopSyncActivity started without shop sync id");
+        }
+
+        // TODO: populate meta data: usernames, shop sync name, description, etc.
 
         // set up radio group
         RadioGroup radioGroupItems = findViewById(R.id.radioGroupItems);
@@ -43,6 +65,17 @@ public class ShopSyncActivity extends BaseActivity {
 
         // set default fragment
         updateFragments(ItemsListType.SHOPPING_ITEMS_LIST);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration config) {
+        super.onConfigurationChanged(config);
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setContentView(R.layout.activity_shop_sync_landscape);
+        } else {
+            setContentView(R.layout.activity_shop_sync);
+        }
     }
 
     private void updateFragments(ItemsListType itemsListType) {
