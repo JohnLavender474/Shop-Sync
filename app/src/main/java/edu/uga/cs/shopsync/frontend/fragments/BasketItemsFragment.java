@@ -1,5 +1,6 @@
 package edu.uga.cs.shopsync.frontend.fragments;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,15 @@ public class BasketItemsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_basket_items, container, false);
+        View view;
+
+        // Check if landscape mode
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            view = inflater.inflate(R.layout.fragment_basket_items_landscape, container, false);
+        } else {
+            view = inflater.inflate(R.layout.fragment_basket_items, container, false);
+        }
+
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewBasketItems);
 
         // Initialize basket items (replace this with your actual data retrieval)

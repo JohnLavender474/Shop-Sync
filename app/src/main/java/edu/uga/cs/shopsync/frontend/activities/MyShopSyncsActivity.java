@@ -39,18 +39,18 @@ public class MyShopSyncsActivity extends BaseActivity {
     public static class ShopSyncsRecyclerViewAdapter
             extends RecyclerView.Adapter<ShopSyncsRecyclerViewAdapter.ViewHolder> {
 
-        private final List<ShopSyncDto> shopSyncList;
+        private final List<ShopSyncDto> shopSyncs;
         private final Context context;
 
         /**
          * Constructor for ShopSyncsRecyclerViewAdapter.
          *
-         * @param context      The context of the calling activity.
-         * @param shopSyncList The list of ShopSyncModel items to be displayed.
+         * @param context   The context of the calling activity.
+         * @param shopSyncs The list of ShopSyncModel items to be displayed.
          */
-        public ShopSyncsRecyclerViewAdapter(Context context, List<ShopSyncDto> shopSyncList) {
+        public ShopSyncsRecyclerViewAdapter(Context context, List<ShopSyncDto> shopSyncs) {
             this.context = context;
-            this.shopSyncList = shopSyncList;
+            this.shopSyncs = shopSyncs;
         }
 
         @NonNull
@@ -63,13 +63,13 @@ public class MyShopSyncsActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            ShopSyncDto shopSyncDto = shopSyncList.get(position);
-            holder.bind(shopSyncDto);
+            ShopSyncDto shopSync = shopSyncs.get(position);
+            holder.bind(shopSync);
         }
 
         @Override
         public int getItemCount() {
-            return shopSyncList.size();
+            return shopSyncs.size();
         }
 
         /**
