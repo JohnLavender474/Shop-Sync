@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.models;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +91,30 @@ public class PurchaseGroupModel {
 
     public void setPurchasedItemUids(List<String> purchasedItemUids) {
         this.purchasedItemUids = purchasedItemUids;
+    }
+
+    @Override
+    public int hashCode() {
+        return uid.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof PurchaseGroupModel p && p.uid.equals(uid);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "PurchaseGroupModel{" +
+                "uid='" + uid + '\'' +
+                ", userUid='" + userUid + '\'' +
+                ", username='" + username + '\'' +
+                ", shopSyncUid='" + shopSyncUid + '\'' +
+                ", totalCost=" + totalCost +
+                ", timeOfPurchase='" + timeOfPurchase + '\'' +
+                ", purchasedItemUids=" + purchasedItemUids +
+                '}';
     }
 }
 

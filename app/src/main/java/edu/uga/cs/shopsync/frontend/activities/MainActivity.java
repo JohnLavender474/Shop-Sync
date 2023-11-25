@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.TemporaryStuff;
 
 /**
  * The main activity for the application. This activity is the first activity that is displayed

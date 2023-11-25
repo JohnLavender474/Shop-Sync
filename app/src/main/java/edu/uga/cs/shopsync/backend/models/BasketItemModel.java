@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.models;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,5 +66,28 @@ public class BasketItemModel {
 
     public void setPricePerUnit(double pricePerUnit) {
         this.pricePerUnit = pricePerUnit;
+    }
+
+    @Override
+    public int hashCode() {
+        return shoppingBasketUid.hashCode() + shoppingItemUid.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof BasketItemModel b &&
+                b.shoppingBasketUid.equals(shoppingBasketUid) &&
+                b.shoppingItemUid.equals(shoppingItemUid);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "BasketItemModel{" +
+                "shoppingItemUid='" + shoppingItemUid + '\'' +
+                ", shoppingBasketUid='" + shoppingBasketUid + '\'' +
+                ", quantity=" + quantity +
+                ", pricePerUnit=" + pricePerUnit +
+                '}';
     }
 }

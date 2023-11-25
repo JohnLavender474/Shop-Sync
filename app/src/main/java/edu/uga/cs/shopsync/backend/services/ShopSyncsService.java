@@ -45,6 +45,24 @@ public class ShopSyncsService {
     }
 
     /**
+     * Returns the shop syncs firebase reference.
+     *
+     * @return the shop syncs firebase reference
+     */
+    public ShopSyncsFirebaseReference getShopSyncsFirebaseReference() {
+        return shopSyncsFirebaseReference;
+    }
+
+    /**
+     * Returns the user shop sync map firebase reference.
+     *
+     * @return the user shop sync map firebase reference
+     */
+    public UserShopSyncMapFirebaseReference getUserShopSyncMapFirebaseReference() {
+        return userShopSyncMapFirebaseReference;
+    }
+
+    /**
      * Adds a shop sync with the given name, description, and user uids.
      *
      * @param name        the name of the shop sync
@@ -373,8 +391,7 @@ public class ShopSyncsService {
     public void deleteShoppingBasket(@NonNull String shopSyncUid, @NonNull String userUid,
                                      @Nullable Runnable onSuccess,
                                      @Nullable Consumer<ErrorHandle> onFailure) {
-        shopSyncsFirebaseReference.deleteShoppingBasket(shopSyncUid, userUid,
-                                                        onSuccess, onFailure);
+        shopSyncsFirebaseReference.deleteShoppingBasket(shopSyncUid, userUid, onSuccess, onFailure);
     }
 
     /**
@@ -383,19 +400,18 @@ public class ShopSyncsService {
      * @param shopSyncUid       the shop sync uid
      * @param shoppingBasketUid the shopping basket uid, equal to the uid of the user who owns
      *                          the shopping basket
-     * @param shoppingItemId    the shopping item id
+     * @param shoppingItemUid   the shopping item id
      * @param quantity          the quantity of the item
      * @param pricePerUnit      the price per unit of the item
      * @param onSuccess         the on success consumer
      * @param onFailure         the on failure consumer
      */
     public void addBasketItem(@NonNull String shopSyncUid, @NonNull String shoppingBasketUid,
-                              @NonNull String shoppingItemId, long quantity, double pricePerUnit,
+                              @NonNull String shoppingItemUid, long quantity, double pricePerUnit,
                               @Nullable Consumer<BasketItemModel> onSuccess,
                               @Nullable Consumer<ErrorHandle> onFailure) {
-        shopSyncsFirebaseReference.addBasketItem(shopSyncUid, shoppingBasketUid,
-                                                 shoppingItemId, quantity, pricePerUnit,
-                                                 onSuccess, onFailure);
+        shopSyncsFirebaseReference.addBasketItem(shopSyncUid, shoppingBasketUid, shoppingItemUid,
+                                                 quantity, pricePerUnit, onSuccess, onFailure);
     }
 
     /**

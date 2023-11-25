@@ -12,17 +12,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.models.PurchaseGroupModel;
 
-public class PurchasedItemsFragment extends Fragment {
+public class PurchasedItemsFragment extends Fragment implements ChildEventListener {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_purchased_items, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewPurchasedItems);
@@ -43,6 +47,31 @@ public class PurchasedItemsFragment extends Fragment {
         List<PurchaseGroupModel> groups = new ArrayList<>();
         // Populate the list with PurchaseGroupModel instances
         return groups;
+    }
+
+    @Override
+    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+    }
+
+    @Override
+    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+    }
+
+    @Override
+    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+    }
+
+    @Override
+    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError error) {
+
     }
 
     private static class PurchasedItemsAdapter

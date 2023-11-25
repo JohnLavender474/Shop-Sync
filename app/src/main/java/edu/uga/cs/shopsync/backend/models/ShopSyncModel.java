@@ -93,6 +93,16 @@ public class ShopSyncModel {
         this.purchasedItems = purchasedItems;
     }
 
+    @Override
+    public int hashCode() {
+        return uid.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ShopSyncModel s && s.uid.equals(uid);
+    }
+
     @NonNull
     @Override
     public String toString() {
