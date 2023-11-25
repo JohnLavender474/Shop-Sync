@@ -45,6 +45,24 @@ public class ShopSyncsService {
     }
 
     /**
+     * Returns the shop syncs firebase reference.
+     *
+     * @return the shop syncs firebase reference
+     */
+    public ShopSyncsFirebaseReference getShopSyncsFirebaseReference() {
+        return shopSyncsFirebaseReference;
+    }
+
+    /**
+     * Returns the user shop sync map firebase reference.
+     *
+     * @return the user shop sync map firebase reference
+     */
+    public UserShopSyncMapFirebaseReference getUserShopSyncMapFirebaseReference() {
+        return userShopSyncMapFirebaseReference;
+    }
+
+    /**
      * Adds a shop sync with the given name, description, and user uids.
      *
      * @param name        the name of the shop sync

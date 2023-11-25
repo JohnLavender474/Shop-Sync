@@ -1,8 +1,8 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
-import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.*;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.PROP_SHOPPING_ITEMS;
+import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ShoppingItemsAdapter;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
@@ -16,10 +16,14 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 import java.util.List;
 import java.util.Map;
@@ -32,18 +36,21 @@ import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.frontend.Constants;
-import edu.uga.cs.shopsync.frontend.activities.contracts.FragmentCallbackReceiver;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;
+import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
 /**
  * Activity for displaying a shop sync.
  */
-public class ShopSyncActivity extends BaseActivity implements FragmentCallbackReceiver {
+public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
     private static final String TAG = "ShopSync";
+    private static final String SHOPPING_ITEMS_FRAGMENT = "ShoppingItemsFragment";
+    private static final String BASKET_ITEMS_FRAGMENT = "BasketItemsFragment";
+    private static final String PURCHASED_ITEMS_FRAGMENT = "PurchasedItemsFragment";
 
     private enum ItemsListType {
         SHOPPING_ITEMS_LIST,
@@ -104,10 +111,80 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
         if (shopSyncId == null) {
             throw new IllegalStateException("ShopSync started without shop sync id");
         }
-        populateMetaData(shopSyncId);
+
+        // fetch the shop sync from the database
+        applicationGraph.shopSyncsService().getShopSyncWithUid(shopSyncId)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        if (dataSnapshot == null) {
+                            Log.e(TAG, "onCreate: DataSnapshot is null");
+                            throw new IllegalNullValueException("DataSnapshot is null");
+                        }
+
+                        ShopSyncModel shopSync = dataSnapshot.getValue(ShopSyncModel.class);
+                        if (shopSync == null) {
+                            Log.e(TAG, "onCreate: no shop sync found with id: " + shopSyncId);
+                            throw new IllegalNullValueException("No shop sync found with id: " + shopSyncId);
+                        }
+
+                        Log.d(TAG, "onCreate: shop sync: " + shopSync);
+
+                        // populate the metadata
+                        populateMetaData(shopSync);
+                    } else {
+                        Log.e(TAG, "onCreate: failed to fetch shop sync with id: " + shopSyncId,
+                              task.getException());
+                        throw new TaskFailureException(task, "Failed to fetch shop sync with id: "
+                                + shopSyncId);
+                    }
+                });
+
+        // add child event listener for shopping items
+        applicationGraph.shopSyncsService().getShopSyncsFirebaseReference()
+                .getShoppingItemsCollection(shopSyncId)
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot snapshot,
+                                             @Nullable String previousChildName) {
+                        if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+                            fragment.onChildAdded(snapshot, previousChildName);
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot snapshot,
+                                               @Nullable String previousChildName) {
+                        if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+                            fragment.onChildChanged(snapshot, previousChildName);
+                        }
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                        if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+                            fragment.onChildRemoved(snapshot);
+                        }
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot snapshot,
+                                             @Nullable String previousChildName) {
+                        if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+                            fragment.onChildMoved(snapshot, previousChildName);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+                            fragment.onCancelled(error);
+                        }
+                    }
+                });
 
         // update the fragments to display the shopping items list
-        updateFragments(ItemsListType.SHOPPING_ITEMS_LIST);
+        setFragment(ItemsListType.SHOPPING_ITEMS_LIST);
     }
 
     @Override
@@ -120,19 +197,19 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
         } else {
             setContentView(R.layout.activity_shop_sync);
         }
-         */
+        */
     }
 
     @Override
-    public void onFragmentCallback(String action, Props props) {
-        Log.d(TAG, "onFragmentCallback: called");
+    public void onCallback(String action, Props props) {
+        Log.d(TAG, "onCallback: called");
 
         String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
         if (shopSyncUid == null) {
             throw new IllegalNullValueException("ShopSync started without shop sync id");
         }
 
-        Log.d(TAG, "onFragmentCallback: called with action " + action + " and props " + props);
+        Log.d(TAG, "onCallback: called with action " + action + " and props " + props);
 
         switch (action) {
             case ACTION_INITIALIZE_SHOPPING_ITEMS -> initializeShoppingItems(shopSyncUid, props);
@@ -153,7 +230,7 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
 
                         populateShoppingItems(dataSnapshot, props);
                     } else {
-                        Log.e(TAG, "onFragmentCallback: failed to fetch shopping items",
+                        Log.e(TAG, "onCallback: failed to fetch shopping items",
                               task.getException());
                         throw new TaskFailureException(task, "Failed to fetch shopping items");
                     }
@@ -220,55 +297,33 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
             throw new IllegalStateException("Unexpected checked id value: " + checkedId);
         }
 
-        updateFragments(itemsListType);
+        setFragment(itemsListType);
     }
 
-    private void populateMetaData(String shopSyncId) {
-        applicationGraph.shopSyncsService().getShopSyncWithUid(shopSyncId)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DataSnapshot dataSnapshot = task.getResult();
-                        if (dataSnapshot == null) {
-                            Log.e(TAG, "populateMetaData: DataSnapshot is null");
-                            throw new IllegalNullValueException("DataSnapshot is null");
-                        }
+    private void populateMetaData(ShopSyncModel shopSync) {
+        shopSyncNameTextView.setText(shopSync.getName());
+        Log.d(TAG, "populateMetaData: shop sync name: " + shopSync.getName());
 
-                        ShopSyncModel shopSync = dataSnapshot.getValue(ShopSyncModel.class);
-                        if (shopSync == null) {
-                            Log.e(TAG,
-                                  "populateMetaData: no shop sync found with id: " + shopSyncId);
-                            throw new IllegalNullValueException("No shop sync found with id: " + shopSyncId);
-                        }
+        String description = shopSync.getDescription();
+        if (description == null || description.isBlank()) {
+            Log.d(TAG, "populateMetaData: no description found for shop sync: " + shopSync);
+            descriptionTextView.setVisibility(View.INVISIBLE);
+        } else {
+            String descriptionText = "Description: " + shopSync.getDescription();
+            descriptionTextView.setText(descriptionText);
+            descriptionTextView.setVisibility(View.VISIBLE);
+            Log.d(TAG,
+                  "populateMetaData: shop sync description: " + descriptionText);
+        }
 
-                        shopSyncNameTextView.setText(shopSync.getName());
-                        Log.d(TAG, "populateMetaData: shop sync name: " + shopSync.getName());
+        Consumer<List<String>> userUidsConsumer = userUids ->
+                userUids.forEach(userUid -> applicationGraph.usersService()
+                        .getUserProfileWithUid(userUid)
+                        .addOnSuccessListener(data -> handleUserProfileData(
+                                data, userUid)));
 
-                        String description = shopSync.getDescription();
-                        if (description == null || description.isBlank()) {
-                            Log.d(TAG, "populateMetaData: no description found for shop sync: "
-                                    + shopSyncId);
-                            descriptionTextView.setVisibility(View.INVISIBLE);
-                        } else {
-                            String descriptionText = "Description: " + shopSync.getDescription();
-                            descriptionTextView.setText(descriptionText);
-                            descriptionTextView.setVisibility(View.VISIBLE);
-                            Log.d(TAG,
-                                  "populateMetaData: shop sync description: " + descriptionText);
-                        }
-
-                        Consumer<List<String>> userUidsConsumer = userUids ->
-                                userUids.forEach(userUid -> applicationGraph.usersService()
-                                        .getUserProfileWithUid(userUid)
-                                        .addOnSuccessListener(data -> handleUserProfileData(data,
-                                                                                            userUid)));
-
-                        applicationGraph.shopSyncsService()
-                                .getUsersForShopSync(shopSyncId, userUidsConsumer, null);
-                    } else {
-                        throw new TaskFailureException(task, "Failed to fetch shop sync with id: "
-                                + shopSyncId);
-                    }
-                });
+        applicationGraph.shopSyncsService()
+                .getUsersForShopSync(shopSync.getUid(), userUidsConsumer, null);
     }
 
     private void handleUserProfileData(DataSnapshot data, String userUid) {
@@ -295,7 +350,7 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
         usernamesTable.addView(tableRow);
     }
 
-    private void updateFragments(ItemsListType itemsListType) {
+    private void setFragment(ItemsListType itemsListType) {
         Log.d(TAG, "Updating fragments to display " + itemsListType + " items");
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -304,13 +359,21 @@ public class ShopSyncActivity extends BaseActivity implements FragmentCallbackRe
 
         switch (itemsListType) {
             case SHOPPING_ITEMS_LIST ->
-                    transaction.replace(R.id.fragmentContainer, new ShoppingItemsFragment());
+                    transaction.replace(R.id.fragmentContainer, new ShoppingItemsFragment(),
+                                        SHOPPING_ITEMS_FRAGMENT);
             case BASKET_ITEMS_LIST ->
-                    transaction.replace(R.id.fragmentContainer, new BasketItemsFragment());
+                    transaction.replace(R.id.fragmentContainer, new BasketItemsFragment(),
+                                        BASKET_ITEMS_FRAGMENT);
             case PURCHASED_ITEMS_LIST ->
-                    transaction.replace(R.id.fragmentContainer, new PurchasedItemsFragment());
+                    transaction.replace(R.id.fragmentContainer, new PurchasedItemsFragment(),
+                                        PURCHASED_ITEMS_FRAGMENT);
         }
         transaction.commit();
+    }
+
+    private Fragment getCurrentFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        return fragmentManager.findFragmentById(R.id.fragmentContainer);
     }
 
 }

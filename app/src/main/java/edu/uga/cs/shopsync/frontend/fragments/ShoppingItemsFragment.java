@@ -16,19 +16,23 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.frontend.Constants;
-import edu.uga.cs.shopsync.frontend.activities.contracts.FragmentCallbackReceiver;
+import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
 /**
  * Fragment for displaying shopping items.
  */
-public class ShoppingItemsFragment extends Fragment {
+public class ShoppingItemsFragment extends Fragment implements ChildEventListener {
 
     private static final String TAG = "ShoppingItemsFragment";
 
@@ -38,37 +42,43 @@ public class ShoppingItemsFragment extends Fragment {
     public static final String PROP_SHOPPING_ITEMS = "PROP_SHOPPING_ITEMS";
     public static final String PROP_SHOPPING_ITEMS_ADAPTER = "PROP_SHOPPING_ITEMS_ADAPTER";
 
-    private FragmentCallbackReceiver callbackReceiver = null;
+    private final List<ShoppingItemModel> shoppingItems;
+    private final ShoppingItemsAdapter adapter;
+
+    private CallbackReceiver callbackReceiver;
+
+    public ShoppingItemsFragment() {
+        super();
+        callbackReceiver = null;
+        shoppingItems = new ArrayList<>();
+        adapter = new ShoppingItemsAdapter(shoppingItems);
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // if the activity does not implement FragmentCallbackReceiver, then throw an exception
+        // if the activity does not implement CallbackReceiver, then throw an exception
         // otherwise, set the callbackReceiver to the activity
         if (callbackReceiver == null) {
-            if (!(getActivity() instanceof FragmentCallbackReceiver)) {
-                Log.e(TAG, "onCreateView: Activity must implement FragmentCallbackReceiver");
-                throw new ClassCastException("Activity must implement FragmentCallbackReceiver");
+            if (!(getActivity() instanceof CallbackReceiver)) {
+                Log.e(TAG, "onCreateView: Activity must implement CallbackReceiver");
+                throw new ClassCastException("Activity must implement CallbackReceiver");
             }
 
-            Log.d(TAG, "onCreateView: Activity implements FragmentCallbackReceiver");
-            callbackReceiver = (FragmentCallbackReceiver) getActivity();
+            Log.d(TAG, "onCreateView: Activity implements CallbackReceiver");
+            callbackReceiver = (CallbackReceiver) getActivity();
         }
 
         View view = inflater.inflate(R.layout.fragment_shopping_items, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewShoppingItems);
 
-        // initialize shopping items (replace this with your actual data retrieval)
-        List<ShoppingItemModel> shoppingItems = new ArrayList<>();
-
         // set up the RecyclerView and its adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ShoppingItemsAdapter adapter = new ShoppingItemsAdapter(shoppingItems);
         recyclerView.setAdapter(adapter);
 
         // send the shopping items to the parent activity to be initialized
-        callbackReceiver.onFragmentCallback(ACTION_INITIALIZE_SHOPPING_ITEMS, Props.of(
+        callbackReceiver.onCallback(ACTION_INITIALIZE_SHOPPING_ITEMS, Props.of(
                 Pair.create(PROP_SHOPPING_ITEMS, shoppingItems),
                 Pair.create(Constants.RECYCLER_VIEW_ADAPTER, adapter)));
 
@@ -80,13 +90,13 @@ public class ShoppingItemsFragment extends Fragment {
         Log.d(TAG, "onStart: called");
         super.onStart();
 
-        if (!(getActivity() instanceof FragmentCallbackReceiver)) {
-            Log.e(TAG, "onStart: Activity must implement FragmentCallbackReceiver");
-            throw new ClassCastException("Activity must implement FragmentCallbackReceiver");
+        if (!(getActivity() instanceof CallbackReceiver)) {
+            Log.e(TAG, "onStart: Activity must implement CallbackReceiver");
+            throw new ClassCastException("Activity must implement CallbackReceiver");
         }
 
-        Log.d(TAG, "onStart: Activity implements FragmentCallbackReceiver");
-        callbackReceiver = (FragmentCallbackReceiver) getActivity();
+        Log.d(TAG, "onStart: Activity implements CallbackReceiver");
+        callbackReceiver = (CallbackReceiver) getActivity();
     }
 
     @Override
@@ -105,6 +115,70 @@ public class ShoppingItemsFragment extends Fragment {
 
         Log.d(TAG, "onDestroy: setting callbackReceiver to null");
         callbackReceiver = null;
+    }
+
+    @Override
+    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
+        Log.d(TAG, "onChildAdded: shoppingItem = " + shoppingItem);
+
+        if (shoppingItem == null) {
+            Log.e(TAG, "onChildAdded: shoppingItem is null");
+            return;
+        }
+
+        shoppingItems.add(shoppingItem);
+        adapter.notifyItemInserted(shoppingItems.size() - 1);
+    }
+
+    @Override
+    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
+        Log.d(TAG, "onChildChanged: shoppingItem = " + shoppingItem);
+
+        if (shoppingItem == null) {
+            Log.e(TAG, "onChildChanged: shoppingItem is null");
+            return;
+        }
+
+        String shoppingItemUid = shoppingItem.getUid();
+        for (int i = 0; i < shoppingItems.size(); i++) {
+            if (shoppingItems.get(i).getUid().equals(shoppingItemUid)) {
+                shoppingItems.set(i, shoppingItem);
+                adapter.notifyItemChanged(i);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
+        Log.d(TAG, "onChildRemoved: shoppingItem = " + shoppingItem);
+
+        if (shoppingItem == null) {
+            Log.e(TAG, "onChildRemoved: shoppingItem is null");
+            return;
+        }
+
+        String shoppingItemUid = shoppingItem.getUid();
+        for (int i = 0; i < shoppingItems.size(); i++) {
+            if (shoppingItems.get(i).getUid().equals(shoppingItemUid)) {
+                shoppingItems.remove(i);
+                adapter.notifyItemRemoved(i);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildMoved: called");
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError error) {
+        Log.e(TAG, "onCancelled: error = " + error);
     }
 
     /**
