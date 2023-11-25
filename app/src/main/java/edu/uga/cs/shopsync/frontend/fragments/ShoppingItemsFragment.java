@@ -1,5 +1,6 @@
 package edu.uga.cs.shopsync.frontend.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -20,12 +21,13 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.frontend.Constants;
+import edu.uga.cs.shopsync.utils.ArraySetList;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
@@ -38,9 +40,9 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
     public static final String ACTION_INITIALIZE_SHOPPING_ITEMS =
             "ACTION_INITIALIZE_SHOPPING_ITEMS";
-    public static final String ACTION_MOVE_TO_BASKET = "ACTION_ADD_TO_BASKET";
+    public static final String ACTION_MOVE_SHOPPING_ITEM_TO_BASKET = "ACTION_ADD_TO_BASKET";
+    public static final String ACTION_DELETE_SHOPPING_ITEM = "ACTION_DELETE_SHOPPING_ITEM";
     public static final String PROP_SHOPPING_ITEMS = "PROP_SHOPPING_ITEMS";
-    public static final String PROP_SHOPPING_ITEMS_ADAPTER = "PROP_SHOPPING_ITEMS_ADAPTER";
 
     private final List<ShoppingItemModel> shoppingItems;
     private final ShoppingItemsAdapter adapter;
@@ -49,8 +51,11 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
     public ShoppingItemsFragment() {
         super();
+
+        Log.d(TAG, "ShoppingItemsFragment: called");
+
         callbackReceiver = null;
-        shoppingItems = new ArrayList<>();
+        shoppingItems = new ArraySetList<>();
         adapter = new ShoppingItemsAdapter(shoppingItems);
     }
 
@@ -58,6 +63,8 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: called");
+
         // if the activity does not implement CallbackReceiver, then throw an exception
         // otherwise, set the callbackReceiver to the activity
         if (callbackReceiver == null) {
@@ -77,7 +84,6 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
 
-        // send the shopping items to the parent activity to be initialized
         callbackReceiver.onCallback(ACTION_INITIALIZE_SHOPPING_ITEMS, Props.of(
                 Pair.create(PROP_SHOPPING_ITEMS, shoppingItems),
                 Pair.create(Constants.RECYCLER_VIEW_ADAPTER, adapter)));
@@ -195,12 +201,14 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
          * @param items The list of shopping items to display.
          */
         ShoppingItemsAdapter(List<ShoppingItemModel> items) {
+            Log.d(TAG, "ShoppingItemsAdapter: called with items = " + items);
             this.items = items;
         }
 
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            Log.d(TAG, "onCreateViewHolder: called");
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.row_shopping_item, parent, false);
             return new ViewHolder(view);
@@ -208,7 +216,9 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.bind(position, items.get(position));
+            Log.d(TAG, "onBindViewHolder: called with position = " + position
+                    + " and item = " + items.get(position));
+            holder.bind(items.get(position));
         }
 
         @Override
@@ -220,55 +230,68 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
             private final EditText editTextItemName;
             private final TextView textViewInBasket;
-            private final Button buttonSetInMyShoppingBasket;
+            private final Button buttonSetInBasket;
             private final Button buttonDeleteItem;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
+
+                Log.d(TAG, "ViewHolder: called");
+
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
-                buttonSetInMyShoppingBasket =
-                        itemView.findViewById(R.id.buttonSetInMyShoppingBasket);
-                buttonDeleteItem =
-                        itemView.findViewById(R.id.buttonDeleteItem);
+                buttonSetInBasket = itemView.findViewById(R.id.buttonSetInBasket);
+                buttonDeleteItem = itemView.findViewById(R.id.buttonDeleteItem);
             }
 
-            void bind(int position, ShoppingItemModel item) {
-                // Bind data to views
+            void bind(ShoppingItemModel item) {
+                Log.d(TAG, "bind: called with item = " + item);
+
                 editTextItemName.setText(item.getName());
-                String inBasketText = "In a basket: " + (item.isInBasket() ? "Yes" : "No");
+                String inBasketText = "In a user's basket: " + (item.isInBasket() ? "Yes" : "No");
                 textViewInBasket.setText(inBasketText);
 
-                // TODO: listen to updates to shopping item model and update the UI accordingly
-                /*
-                item.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-                    @Override
-                    public void onPropertyChanged(Observable sender, int propertyId) {
-                        // TODO: disable in basket text view if not in basket
-                        // TODO: show basket text view if in basket
+                // set the button to set the item in the user's basket
+                buttonSetInBasket.setOnClickListener(v -> setItemInMyBasket(item));
+                // if the item is already in a user's basket, then disable the button
+                if (item.isInBasket()) {
+                    Log.d(TAG, "bind: item is already in a user's basket");
+                    buttonSetInBasket.setTextColor(Color.GRAY);
+                    buttonSetInBasket.setEnabled(false);
+                } else {
+                    Log.d(TAG, "bind: item is not in a user's basket");
+                    buttonSetInBasket.setTextColor(Color.GREEN);
+                    buttonSetInBasket.setEnabled(true);
+                }
 
-                        // TODO: disable add to basket button if in basket
-                        // TODO: enable add to basket button if not in basket
-                    }
-                 */
-
-                buttonSetInMyShoppingBasket.setOnClickListener(v -> setItemInMyBasket(position,
-                                                                                      item));
-                buttonDeleteItem.setOnClickListener(v -> deleteItem(position, item));
+                // set the button to delete the item
+                buttonDeleteItem.setOnClickListener(v -> deleteItem(item));
             }
 
-            private void setItemInMyBasket(int position, ShoppingItemModel item) {
-                // TODO: do not remove item?
-                // shoppingItems.remove(item);
+            private void setItemInMyBasket(ShoppingItemModel shoppingItem) {
+                Log.d(TAG, "setItemInMyBasket: called");
 
-                // Add item to shopping basket, mark this item as in basket, and update
-                // the database and UI
+                if (callbackReceiver == null) {
+                    Log.e(TAG, "setItemInMyBasket: callbackReceiver is null");
+                    throw new IllegalNullValueException("callbackReceiver is null");
+                }
 
-                // Notify the adapter that the data set has changed
-                notifyDataSetChanged();
+                Log.d(TAG, "setItemInMyBasket: calling callbackReceiver.onCallback");
+                callbackReceiver.onCallback(ACTION_MOVE_SHOPPING_ITEM_TO_BASKET, Props.of(
+                        Pair.create(Constants.SHOPPING_ITEM, shoppingItem)));
             }
 
-            private void deleteItem(int position, ShoppingItemModel item) {
+            private void deleteItem(ShoppingItemModel shoppingItem) {
+                Log.d(TAG, "deleteItem: called");
+
+                if (callbackReceiver == null) {
+                    Log.e(TAG, "deleteItem: callbackReceiver is null");
+                    throw new IllegalNullValueException("callbackReceiver is null");
+                }
+
+                Log.d(TAG, "deleteItem: calling callbackReceiver.onCallback");
+                callbackReceiver.onCallback(ACTION_DELETE_SHOPPING_ITEM, Props.of(
+                        Pair.create(Constants.SHOPPING_ITEM, shoppingItem)));
             }
         }
     }

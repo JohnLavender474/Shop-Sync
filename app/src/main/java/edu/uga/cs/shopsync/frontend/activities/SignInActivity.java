@@ -41,17 +41,8 @@ public class SignInActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (applicationGraph.usersService().isCurrentUserSignedIn()) {
-            Log.d(TAG, "onCreate: user already signed in");
-
-            Intent intent = new Intent(this, MyAccountActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-
-            return;
-        }
-
         super.onCreate(savedInstanceState);
+        checkIfUserIsLoggedInAndFetch(MyAccountActivity.class);
         setContentView(R.layout.activity_sign_in);
 
         editTextSignInEmail = findViewById(R.id.editTextSignInEmail);

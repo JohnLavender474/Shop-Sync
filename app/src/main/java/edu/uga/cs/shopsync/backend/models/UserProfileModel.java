@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.models;
 
+import androidx.annotation.NonNull;
+
 public class UserProfileModel {
 
     private String userUid = "";
@@ -37,6 +39,26 @@ public class UserProfileModel {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public int hashCode() {
+        return userUid.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof UserProfileModel u && u.userUid.equals(userUid);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "UserProfileModel{" +
+                "userUid='" + userUid + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                '}';
     }
 
 }

@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.models;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,5 +70,26 @@ public class PurchasedItemModel {
 
     public void setBasketItem(BasketItemModel basketItem) {
         this.basketItem = basketItem;
+    }
+
+    @Override
+    public int hashCode() {
+        return uid.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof PurchasedItemModel p && p.uid.equals(uid);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "PurchasedItemModel{" +
+                "uid='" + uid + '\'' +
+                ", userUid='" + userUid + '\'' +
+                ", shoppingItem=" + shoppingItem +
+                ", basketItem=" + basketItem +
+                '}';
     }
 }

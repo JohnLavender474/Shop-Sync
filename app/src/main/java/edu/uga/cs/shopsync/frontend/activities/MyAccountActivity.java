@@ -41,11 +41,12 @@ public class MyAccountActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_account);
 
         // check if the user is logged in and fetch the current user, otherwise redirect to the
         // main activity
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+
+        setContentView(R.layout.activity_my_account);
 
         TextView emailTextView = findViewById(R.id.textViewEmail);
         TextView usernameTextView = findViewById(R.id.textViewUsername);
@@ -87,8 +88,9 @@ public class MyAccountActivity extends BaseActivity {
                         emailTextView.setText(userProfileModel.getEmail());
                         usernameTextView.setText(userProfileModel.getUsername());
                     } else {
-                        signOutOnErrorAndRedirectToMainActivity("Failed to retrieve user profile. " +
-                                                                 "Signing out now.");
+                        signOutOnErrorAndRedirectToMainActivity("Failed to retrieve user profile." +
+                                                                        " " +
+                                                                        "Signing out now.");
                     }
                 });
 
