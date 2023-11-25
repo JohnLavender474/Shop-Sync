@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity {
 
         // TODO: remove after testing
         // TemporaryStuff.testAddNewUser(applicationGraph);
-        TemporaryStuff.testAddShoppingItem(applicationGraph);
+        // TemporaryStuff.testAddShoppingItem(applicationGraph);
         // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
 
         // if the user is already signed in, then redirect to the my account activity

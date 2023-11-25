@@ -39,6 +39,7 @@ import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.frontend.Constants;
+import edu.uga.cs.shopsync.frontend.activities.contracts.FragmentCallbackReceiver;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;

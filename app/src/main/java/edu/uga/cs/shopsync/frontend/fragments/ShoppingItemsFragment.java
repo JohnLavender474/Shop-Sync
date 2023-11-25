@@ -59,6 +59,16 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
         adapter = new ShoppingItemsAdapter(shoppingItems);
     }
 
+    private static final String TAG = "ShoppingItemsFragment";
+
+    public static final String ACTION_INITIALIZE_SHOPPING_ITEMS =
+            "ACTION_INITIALIZE_SHOPPING_ITEMS";
+    public static final String ACTION_MOVE_TO_BASKET = "ACTION_ADD_TO_BASKET";
+    public static final String PROP_SHOPPING_ITEMS = "PROP_SHOPPING_ITEMS";
+    public static final String PROP_SHOPPING_ITEMS_ADAPTER = "PROP_SHOPPING_ITEMS_ADAPTER";
+
+    private FragmentCallbackReceiver callbackReceiver = null;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -95,7 +105,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
     public void onStart() {
         Log.d(TAG, "onStart: called");
         super.onStart();
-
+      
         if (!(getActivity() instanceof CallbackReceiver)) {
             Log.e(TAG, "onStart: Activity must implement CallbackReceiver");
             throw new ClassCastException("Activity must implement CallbackReceiver");
