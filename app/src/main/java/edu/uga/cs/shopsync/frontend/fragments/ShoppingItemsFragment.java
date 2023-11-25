@@ -184,7 +184,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
     /**
      * Adapter for shopping items.
      */
-    public static class ShoppingItemsAdapter
+    public class ShoppingItemsAdapter
             extends RecyclerView.Adapter<ShoppingItemsAdapter.ViewHolder> {
 
         private final List<ShoppingItemModel> items;
@@ -208,7 +208,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.bind(items.get(position));
+            holder.bind(position, items.get(position));
         }
 
         @Override
@@ -221,6 +221,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
             private final EditText editTextItemName;
             private final TextView textViewInBasket;
             private final Button buttonSetInMyShoppingBasket;
+            private final Button buttonDeleteItem;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -228,9 +229,11 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
                 buttonSetInMyShoppingBasket =
                         itemView.findViewById(R.id.buttonSetInMyShoppingBasket);
+                buttonDeleteItem =
+                        itemView.findViewById(R.id.buttonDeleteItem);
             }
 
-            void bind(ShoppingItemModel item) {
+            void bind(int position, ShoppingItemModel item) {
                 // Bind data to views
                 editTextItemName.setText(item.getName());
                 String inBasketText = "In a basket: " + (item.isInBasket() ? "Yes" : "No");
@@ -249,15 +252,12 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
                     }
                  */
 
-                // Set up the purchase button click listener
-                buttonSetInMyShoppingBasket.setOnClickListener(v -> {
-                    // Perform purchase logic (remove from shopping items, add to purchased items)
-                    // You'll need to implement this part based on your requirements
-                    setItemInMyBasket(item);
-                });
+                buttonSetInMyShoppingBasket.setOnClickListener(v -> setItemInMyBasket(position,
+                                                                                      item));
+                buttonDeleteItem.setOnClickListener(v -> deleteItem(position, item));
             }
 
-            private void setItemInMyBasket(ShoppingItemModel item) {
+            private void setItemInMyBasket(int position, ShoppingItemModel item) {
                 // TODO: do not remove item?
                 // shoppingItems.remove(item);
 
@@ -266,6 +266,9 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
                 // Notify the adapter that the data set has changed
                 notifyDataSetChanged();
+            }
+
+            private void deleteItem(int position, ShoppingItemModel item) {
             }
         }
     }

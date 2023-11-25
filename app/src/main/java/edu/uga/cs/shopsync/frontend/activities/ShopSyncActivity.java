@@ -2,7 +2,6 @@ package edu.uga.cs.shopsync.frontend.activities;
 
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.PROP_SHOPPING_ITEMS;
-import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ShoppingItemsAdapter;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
@@ -39,6 +38,7 @@ import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;
+import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ShoppingItemsAdapter;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
@@ -249,7 +249,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         }
         Log.d(TAG, "populateShoppingItems: shopping items list size: " + shoppingItems.size());
 
-        // fetch the RecyclerView from the props
+        // fetch the adapter from the props
         ShoppingItemsAdapter adapter =
                 (ShoppingItemsAdapter) props.get(Constants.RECYCLER_VIEW_ADAPTER);
         if (adapter == null) {

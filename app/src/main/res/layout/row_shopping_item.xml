@@ -1,30 +1,63 @@
 <!-- shopping_item_row.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/guideline"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/black" />
 
     <EditText
         android:id="@+id/editTextItemName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:hint="@string/item_name"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:autofillHints=""
+        android:hint="@string/item_name"
         android:inputType="text" />
 
     <TextView
         android:id="@+id/textViewInBasket"
-        android:layout_width="0dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:hint="@string/inBasket"
-        android:autofillHints="" />
+        android:layout_gravity="center"
+        android:autofillHints=""
+        android:hint="@string/inBasket" />
 
-    <Button
-        android:id="@+id/buttonSetInMyShoppingBasket"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/set_in_my_basket"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonSetInMyShoppingBasket"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:text="@string/set_in_my_basket"
+            android:textColor="@color/green" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/buttonDeleteItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:text="@string/delete"
+            android:textColor="@color/red" />
+    </LinearLayout>
 </LinearLayout>
