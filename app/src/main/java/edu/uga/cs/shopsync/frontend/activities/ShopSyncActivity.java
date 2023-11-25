@@ -1,5 +1,6 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
+import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_ADD_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_DELETE_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_MOVE_SHOPPING_ITEM_TO_BASKET;
@@ -296,7 +297,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     }
 
     @Override
-    public void onCallback(String action, Props props) {
+    public void onCallback(@NonNull String action, @Nullable Props props) {
         Log.d(TAG, "onCallback: called");
 
         String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
@@ -307,16 +308,41 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         Log.d(TAG, "onCallback: called with action " + action + " and props " + props);
 
         switch (action) {
-            case ACTION_INITIALIZE_SHOPPING_ITEMS -> initializeShoppingItems(shopSyncUid, props);
-            case ACTION_MOVE_SHOPPING_ITEM_TO_BASKET -> moveShoppingItemToBasket(shopSyncUid,
-                                                                                 props);
-            case ACTION_DELETE_SHOPPING_ITEM -> deleteShoppingItem(shopSyncUid, props);
+            case ACTION_ADD_SHOPPING_ITEM -> addShoppingItem(shopSyncUid);
+            case ACTION_INITIALIZE_SHOPPING_ITEMS -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                initializeShoppingItems(shopSyncUid, props);
+            }
+            case ACTION_MOVE_SHOPPING_ITEM_TO_BASKET -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                moveShoppingItemToBasket(shopSyncUid, props);
+            }
+            case ACTION_DELETE_SHOPPING_ITEM -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                deleteShoppingItem(shopSyncUid, props);
+            }
         }
+    }
+
+    private void addShoppingItem(@NonNull String shopSyncUid) {
+        Log.d(TAG, "addShoppingItem: adding shopping item");
+
+        ShoppingItemModel shoppingItem =
+                applicationGraph.shopSyncsService().addShoppingItem(shopSyncUid, "New " +
+                        "Shopping Item", false);
+
+        Log.d(TAG, "addShoppingItem: added shopping item: " + shoppingItem);
     }
 
     @SuppressWarnings("unchecked")
     @SuppressLint("NotifyDataSetChanged")
-    private void initializeShoppingItems(String shopSyncUid, Props props) {
+    private void initializeShoppingItems(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "initializeShoppingItems: initializing shopping items");
 
         // fetch the shopping items list from the props and populate it
@@ -329,7 +355,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         }
 
                         ShoppingItemsAdapter adapter = (ShoppingItemsAdapter) props.get(
-                                Constants.RECYCLER_VIEW_ADAPTER);
+                                Constants.ADAPTER);
                         if (adapter == null) {
                             Log.e(TAG, "populateShoppingItems: adapter is null");
                             throw new IllegalNullValueException("Adapter is null");
@@ -371,7 +397,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 });
     }
 
-    private void moveShoppingItemToBasket(String shopSyncUid, Props props) {
+    private void moveShoppingItemToBasket(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "moveShoppingItemToBasket: moving shopping item to basket");
 
         // shopping basket uid is the same as the user's uid

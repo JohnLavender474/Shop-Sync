@@ -80,4 +80,6 @@
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="back">Back</string>
     <string name="delete">Delete</string>
+    <string name="add">Add +</string>
+    <string name="item_name_cannot_be_empty">ERROR: Item name cannot be empty!</string>
 </resources>
