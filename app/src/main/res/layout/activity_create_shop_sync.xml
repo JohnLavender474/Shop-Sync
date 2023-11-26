@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Shop Sync Name -->
+    <EditText
+        android:id="@+id/editTextShopSyncName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/shop_sync_name"
+        android:inputType="text"
+        android:maxLines="1"
+        android:layout_marginBottom="16dp"
+        android:autofillHints="" />
+
+    <!-- Shop Sync Description -->
+    <EditText
+        android:id="@+id/editTextShopSyncDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/shop_sync_description"
+        android:inputType="textMultiLine"
+        android:layout_below="@id/editTextShopSyncName"
+        android:layout_marginBottom="16dp"
+        android:autofillHints="" />
+
+    <!-- Invite a User Button -->
+    <Button
+        android:id="@+id/buttonInviteUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextShopSyncDescription"
+        android:layout_marginTop="16dp"
+        android:text="@string/invite_a_user"/>
+
+    <!-- Invited Users List View -->
+    <ListView
+        android:id="@+id/listViewInvitedUsers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonInviteUser"
+        android:layout_marginTop="16dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"/>
+
+    <!-- Create Shop Sync Button -->
+    <Button
+        android:id="@+id/buttonCreateShopSync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listViewInvitedUsers"
+        android:layout_marginTop="16dp"
+        android:text="@string/create"/>
+
+</RelativeLayout>
