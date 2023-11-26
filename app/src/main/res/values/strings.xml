@@ -86,4 +86,5 @@
     <string name="shop_sync_description">Shop Sync Description</string>
     <string name="invite_a_user">Invite a User +</string>
     <string name="create">Create</string>
+    <string name="enter_email">Enter email</string>
 </resources>
