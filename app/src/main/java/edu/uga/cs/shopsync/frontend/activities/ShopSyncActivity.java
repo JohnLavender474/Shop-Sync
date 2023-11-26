@@ -4,6 +4,7 @@ import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTIO
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_DELETE_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_MOVE_SHOPPING_ITEM_TO_BASKET;
+import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_UPDATE_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.PROP_SHOPPING_ITEMS;
 
 import android.annotation.SuppressLint;
@@ -309,6 +310,12 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
         switch (action) {
             case ACTION_ADD_SHOPPING_ITEM -> addShoppingItem(shopSyncUid);
+            case ACTION_UPDATE_SHOPPING_ITEM -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                updateShoppingItem(shopSyncUid, props);
+            }
             case ACTION_INITIALIZE_SHOPPING_ITEMS -> {
                 if (props == null) {
                     throw new IllegalNullValueException("Props cannot be null for " + action);
@@ -338,6 +345,18 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         "Shopping Item", false);
 
         Log.d(TAG, "addShoppingItem: added shopping item: " + shoppingItem);
+    }
+
+    private void updateShoppingItem(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "updateShoppingItem: updating shopping item");
+
+        ShoppingItemModel shoppingItem = props.get(Constants.SHOPPING_ITEM,
+                                                   ShoppingItemModel.class);
+        if (shoppingItem == null) {
+            throw new IllegalNullValueException("Shopping item is null");
+        }
+
+        applicationGraph.shopSyncsService().updateShoppingItem(shopSyncUid, shoppingItem);
     }
 
     @SuppressWarnings("unchecked")

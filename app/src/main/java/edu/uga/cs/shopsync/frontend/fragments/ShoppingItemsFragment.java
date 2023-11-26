@@ -2,7 +2,6 @@ package edu.uga.cs.shopsync.frontend.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
@@ -44,6 +43,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
     public static final String ACTION_INITIALIZE_SHOPPING_ITEMS =
             "ACTION_INITIALIZE_SHOPPING_ITEMS";
     public static final String ACTION_ADD_SHOPPING_ITEM = "ACTION_ADD_SHOPPING_ITEM";
+    public static final String ACTION_UPDATE_SHOPPING_ITEM = "ACTION_UPDATE_SHOPPING_ITEM";
     public static final String ACTION_MOVE_SHOPPING_ITEM_TO_BASKET = "ACTION_ADD_TO_BASKET";
     public static final String ACTION_DELETE_SHOPPING_ITEM = "ACTION_DELETE_SHOPPING_ITEM";
     public static final String PROP_SHOPPING_ITEMS = "PROP_SHOPPING_ITEMS";
@@ -121,15 +121,6 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
         Log.d(TAG, "onStart: Activity implements CallbackReceiver");
         callbackReceiver = (CallbackReceiver) getActivity();
-    }
-
-    @Override
-    public void onStop() {
-        Log.d(TAG, "onStop: called");
-        super.onStop();
-
-        Log.d(TAG, "onStop: setting callbackReceiver to null");
-        callbackReceiver = null;
     }
 
     @Override
@@ -262,6 +253,8 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
                 Log.d(TAG, "ViewHolder: called");
 
                 errorTextView = itemView.findViewById(R.id.textViewError);
+                errorTextView.setEnabled(false);
+
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
                 buttonSetInBasket = itemView.findViewById(R.id.buttonSetInBasket);
@@ -273,41 +266,10 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
                 // update the database when the shopping item's text changes
                 TextWatcher itemTextWatcher = new TextWatcherAdapter() {
-
-                    private boolean valid = true;
-                    private CharSequence previousText = "";
-                    private CharSequence currentText = "";
-
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i2,
-                                                  int i3) {
-                        Log.d(TAG, "beforeTextChanged: called with charSequence = " + charSequence
-                                + ", i = " + i + ", i2 = " + i2 + ", i3 = " + i3);
-                        previousText = charSequence;
-                    }
-
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-                        if (charSequence.toString().isBlank()) {
-                            Log.d(TAG, "onTextChanged: charSequence is blank");
-                            errorTextView.setEnabled(true);
-                            valid = false;
-                            return;
-                        }
-
-                        valid = true;
-                        errorTextView.setEnabled(false);
-                        currentText = charSequence;
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-                        errorTextView.setEnabled(false);
-                        if (valid) {
-                            // TODO: change text in database
-                        } else {
-                            editTextItemName.setText(previousText);
-                        }
+                        boolean error = charSequence.toString().isBlank();
+                        errorTextView.setEnabled(error);
                     }
                 };
                 editTextItemName.setText(item.getName());
@@ -317,8 +279,16 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
                 editTextItemName.setOnFocusChangeListener((v, hasFocus) -> {
                     if (hasFocus) {
                         editTextItemName.addTextChangedListener(itemTextWatcher);
+                    } else if (callbackReceiver == null) {
+                        Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextItemName.removeTextChangedListener(itemTextWatcher);
+                        String itemName = editTextItemName.getText().toString();
+                        if (!itemName.equals(item.getName())) {
+                            item.setName(itemName);
+                            callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
+                                    Pair.create(Constants.SHOPPING_ITEM, item)));
+                        }
                     }
                 });
 
