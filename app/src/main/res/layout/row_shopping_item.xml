@@ -14,6 +14,17 @@
         android:layout_marginBottom="10dp"
         android:background="@color/black" />
 
+    <TextView
+        android:id="@+id/textViewError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:enabled="false"
+        android:text="@string/item_name_should_not_be_empty"
+        android:textColor="@color/red" />
+
     <EditText
         android:id="@+id/editTextItemName"
         android:layout_width="match_parent"
@@ -52,8 +63,8 @@
             android:layout_weight="1" />
 
         <Button
-            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/buttonDeleteItem"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="50dp"

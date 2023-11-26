@@ -80,4 +80,6 @@
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="back">Back</string>
     <string name="delete">Delete</string>
+    <string name="add">Add +</string>
+    <string name="item_name_should_not_be_empty">WARNING: Item name should not be empty!</string>
 </resources>

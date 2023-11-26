@@ -4,5 +4,5 @@ public class Constants {
 
     public static final String SHOP_SYNC_UID = "ShopSyncUid";
     public static final String SHOPPING_ITEM = "ShoppingItem";
-    public static final String RECYCLER_VIEW_ADAPTER = "RecyclerViewAdapter";
+    public static final String ADAPTER = "Adapter";
 }

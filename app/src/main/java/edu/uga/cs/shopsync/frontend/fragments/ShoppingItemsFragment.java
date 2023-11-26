@@ -2,6 +2,7 @@ package edu.uga.cs.shopsync.frontend.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.frontend.Constants;
+import edu.uga.cs.shopsync.frontend.utils.TextWatcherAdapter;
 import edu.uga.cs.shopsync.utils.ArraySetList;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
@@ -40,6 +42,8 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
     public static final String ACTION_INITIALIZE_SHOPPING_ITEMS =
             "ACTION_INITIALIZE_SHOPPING_ITEMS";
+    public static final String ACTION_ADD_SHOPPING_ITEM = "ACTION_ADD_SHOPPING_ITEM";
+    public static final String ACTION_UPDATE_SHOPPING_ITEM = "ACTION_UPDATE_SHOPPING_ITEM";
     public static final String ACTION_MOVE_SHOPPING_ITEM_TO_BASKET = "ACTION_ADD_TO_BASKET";
     public static final String ACTION_DELETE_SHOPPING_ITEM = "ACTION_DELETE_SHOPPING_ITEM";
     public static final String PROP_SHOPPING_ITEMS = "PROP_SHOPPING_ITEMS";
@@ -78,15 +82,29 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
         }
 
         View view = inflater.inflate(R.layout.fragment_shopping_items, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewShoppingItems);
+
+        // add shopping item button
+        Button addShoppingItemButton = view.findViewById(R.id.buttonAddShoppingItem);
+        addShoppingItemButton.setOnClickListener(v -> {
+            Log.d(TAG, "onCreateView: add shopping item button clicked");
+
+            if (callbackReceiver == null) {
+                Log.e(TAG, "onCreateView: callbackReceiver is null");
+                throw new IllegalNullValueException("callbackReceiver is null");
+            }
+
+            Log.d(TAG, "onCreateView: calling callbackReceiver.onCallback");
+            callbackReceiver.onCallback(ACTION_ADD_SHOPPING_ITEM, Props.of());
+        });
 
         // set up the RecyclerView and its adapter
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewShoppingItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
 
         callbackReceiver.onCallback(ACTION_INITIALIZE_SHOPPING_ITEMS, Props.of(
                 Pair.create(PROP_SHOPPING_ITEMS, shoppingItems),
-                Pair.create(Constants.RECYCLER_VIEW_ADAPTER, adapter)));
+                Pair.create(Constants.ADAPTER, adapter)));
 
         return view;
     }
@@ -95,7 +113,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
     public void onStart() {
         Log.d(TAG, "onStart: called");
         super.onStart();
-      
+
         if (!(getActivity() instanceof CallbackReceiver)) {
             Log.e(TAG, "onStart: Activity must implement CallbackReceiver");
             throw new ClassCastException("Activity must implement CallbackReceiver");
@@ -103,15 +121,6 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
         Log.d(TAG, "onStart: Activity implements CallbackReceiver");
         callbackReceiver = (CallbackReceiver) getActivity();
-    }
-
-    @Override
-    public void onStop() {
-        Log.d(TAG, "onStop: called");
-        super.onStop();
-
-        Log.d(TAG, "onStop: setting callbackReceiver to null");
-        callbackReceiver = null;
     }
 
     @Override
@@ -133,8 +142,10 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
             return;
         }
 
-        shoppingItems.add(shoppingItem);
-        adapter.notifyItemInserted(shoppingItems.size() - 1);
+        // TODO: this is very inefficient, try to find a better way to do this
+        shoppingItems.add(0, shoppingItem);
+
+        adapter.notifyItemInserted(0);
     }
 
     @Override
@@ -218,6 +229,8 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Log.d(TAG, "onBindViewHolder: called with position = " + position
                     + " and item = " + items.get(position));
+
+            // bind the view holder to the item
             holder.bind(items.get(position));
         }
 
@@ -228,6 +241,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
         private class ViewHolder extends RecyclerView.ViewHolder {
 
+            private final TextView errorTextView;
             private final EditText editTextItemName;
             private final TextView textViewInBasket;
             private final Button buttonSetInBasket;
@@ -238,6 +252,9 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
                 Log.d(TAG, "ViewHolder: called");
 
+                errorTextView = itemView.findViewById(R.id.textViewError);
+                errorTextView.setEnabled(false);
+
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
                 buttonSetInBasket = itemView.findViewById(R.id.buttonSetInBasket);
@@ -247,7 +264,34 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
             void bind(ShoppingItemModel item) {
                 Log.d(TAG, "bind: called with item = " + item);
 
+                // update the database when the shopping item's text changes
+                TextWatcher itemTextWatcher = new TextWatcherAdapter() {
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                        boolean error = charSequence.toString().isBlank();
+                        errorTextView.setEnabled(error);
+                    }
+                };
                 editTextItemName.setText(item.getName());
+                // a dirty but necessary hack to add and remove the TextWatcher for the EditText
+                // so that it is ensured the edit text view only has one text change listener
+                // at a time
+                editTextItemName.setOnFocusChangeListener((v, hasFocus) -> {
+                    if (hasFocus) {
+                        editTextItemName.addTextChangedListener(itemTextWatcher);
+                    } else if (callbackReceiver == null) {
+                        Log.e(TAG, "bind: callbackReceiver is null");
+                    } else {
+                        editTextItemName.removeTextChangedListener(itemTextWatcher);
+                        String itemName = editTextItemName.getText().toString();
+                        if (!itemName.equals(item.getName())) {
+                            item.setName(itemName);
+                            callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
+                                    Pair.create(Constants.SHOPPING_ITEM, item)));
+                        }
+                    }
+                });
+
                 String inBasketText = "In a user's basket: " + (item.isInBasket() ? "Yes" : "No");
                 textViewInBasket.setText(inBasketText);
 
