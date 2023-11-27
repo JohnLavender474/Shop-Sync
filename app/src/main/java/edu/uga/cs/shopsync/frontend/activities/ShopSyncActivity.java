@@ -119,13 +119,12 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         }
 
         // TODO: implement landscape layout
-        /*
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_shop_sync_landscape);
         } else {
             setContentView(R.layout.activity_shop_sync);
         }
-        */
+
         // set the content view
         setContentView(R.layout.activity_shop_sync);
 
@@ -290,13 +289,13 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     public void onConfigurationChanged(@NonNull Configuration config) {
         super.onConfigurationChanged(config);
         // TODO: implement landscape layout
-        /*
+
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_shop_sync_landscape);
         } else {
             setContentView(R.layout.activity_shop_sync);
         }
-        */
+
     }
 
     @Override
