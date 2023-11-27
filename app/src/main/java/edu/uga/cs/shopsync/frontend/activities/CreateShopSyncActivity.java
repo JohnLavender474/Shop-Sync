@@ -198,6 +198,7 @@ public class CreateShopSyncActivity extends BaseActivity {
                 "Failed to invite user with email " + invitedUserEmail + " to Shop Sync " + shopSync.getName() + " (" + shopSync.getUid() + ")";
 
         // TODO: create notification
+        // dummy commit
     }
 
     public class InvitedUsersAdapter extends ArrayAdapter<String> {
