@@ -6,11 +6,19 @@
 
     <Button
         android:id="@+id/backButton"
-        android:text="@string/back"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/back" />
+
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="16dp"
+        android:text="@string/refresh" />
 
     <TextView
         android:layout_width="match_parent"
@@ -24,8 +32,8 @@
         android:id="@+id/buttonCreateShopSync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_gravity="center"
+        android:layout_marginTop="16dp"
         android:text="@string/create_shop_sync" />
 
     <androidx.recyclerview.widget.RecyclerView

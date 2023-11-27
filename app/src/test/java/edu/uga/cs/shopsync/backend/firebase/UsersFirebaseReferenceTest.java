@@ -22,16 +22,12 @@ public class UsersFirebaseReferenceTest {
     @Mock
     private DatabaseReference mockUsersCollection;
 
-    @Mock
-    private DatabaseReference mockUserEmailToUidMapCollection;
-
     private UsersFirebaseReference usersFirebaseReference;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        usersFirebaseReference = new UsersFirebaseReference(mockFirebaseAuth, mockUsersCollection,
-                                                            mockUserEmailToUidMapCollection);
+        usersFirebaseReference = new UsersFirebaseReference(mockFirebaseAuth, mockUsersCollection);
     }
 
     @Test
@@ -45,7 +41,7 @@ public class UsersFirebaseReferenceTest {
         // You may need to adjust this based on your actual implementation
 
         // Act
-        usersFirebaseReference.createUser(email, username, password, () -> {
+        usersFirebaseReference.createUser(email, username, password, userProfile -> {
             // This is the success case, do any assertions or verifications here
             // For example, you can verify that setValue() was called with the correct arguments
             verify(mockUsersCollection).child(anyString()).setValue(any(UserProfileModel.class));

@@ -149,10 +149,9 @@ public class CreateShopSyncActivity extends BaseActivity {
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
                                 UserProfileModel userProfile =
                                         child.getValue(UserProfileModel.class);
-                                if (userProfile == null) {
+                                if (userProfile == null || userProfile.getUserUid().isBlank()) {
                                     Log.e(TAG, "onCreateShopSyncButtonClick: failed to get " +
-                                            "user " +
-                                            "profile with email " + invitedUserEmail);
+                                            "user profile with email " + invitedUserEmail);
                                     createNotificationForFailedToInviteUser(shopSync,
                                                                             invitedUserEmail);
                                     return;
@@ -172,7 +171,7 @@ public class CreateShopSyncActivity extends BaseActivity {
                                 break;
                             }
                         } else {
-                            Log.e(TAG, "onCreateShopSyncButtonClick: failed to get " + "user " +
+                            Log.e(TAG, "onCreateShopSyncButtonClick: failed to get user " +
                                     "profile with email " + invitedUserEmail);
                             createNotificationForFailedToInviteUser(shopSync, invitedUserEmail);
                         }

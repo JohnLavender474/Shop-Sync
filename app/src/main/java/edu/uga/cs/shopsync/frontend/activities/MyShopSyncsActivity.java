@@ -120,6 +120,9 @@ public class MyShopSyncsActivity extends BaseActivity {
         }
     }
 
+    private List<ShopSyncDto> shopSyncs;
+    private ShopSyncsRecyclerViewAdapter adapter;
+
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +149,10 @@ public class MyShopSyncsActivity extends BaseActivity {
             finish();
         });
 
+        // set up refresh button
+        Button refreshButton = findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(v -> refresh());
+
         // set up create shop sync button
         Button createShopSyncButton = findViewById(R.id.buttonCreateShopSync);
         createShopSyncButton.setOnClickListener(v -> {
@@ -155,11 +162,18 @@ public class MyShopSyncsActivity extends BaseActivity {
         });
 
         // set up the recycler view
-        List<ShopSyncDto> shopSyncs = new ArrayList<>();
+        shopSyncs = new ArrayList<>();
         RecyclerView recyclerView = findViewById(R.id.recyclerViewShopSyncs);
-        ShopSyncsRecyclerViewAdapter adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
+        adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        refresh();
+    }
+
+    private void refresh() {
+        FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+        shopSyncs.clear();
 
         // consumer that for each shop sync uid gets the corresponding ShopSyncModel from the
         // database, then converts the model to a dto and adds the dto to the recycler adapter
@@ -182,7 +196,7 @@ public class MyShopSyncsActivity extends BaseActivity {
                                 }
 
                                 // get the shop sync model
-                                ShopSyncModel shopSyncModel =
+                                edu.uga.cs.shopsync.backend.models.ShopSyncModel shopSyncModel =
                                         dataSnapshot.getValue(ShopSyncModel.class);
                                 if (shopSyncModel == null) {
                                     throw new IllegalNullValueException("getShopSyncWithUid: " +
