@@ -55,7 +55,9 @@ public class CreateShopSyncActivity extends BaseActivity {
 
         // check if user is logged in
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
-        Log.d(TAG, "onCreate: user: " + user);
+        if (user == null) {
+            return;
+        }
 
         setContentView(R.layout.activity_create_shop_sync);
 

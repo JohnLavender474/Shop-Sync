@@ -130,6 +130,10 @@ public class MyShopSyncsActivity extends BaseActivity {
 
         // check if the user is signed in
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+        if (currentUser == null) {
+            return;
+        }
+
         Log.d(TAG,
               "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
                       currentUser.getUid() + ")");
@@ -173,6 +177,9 @@ public class MyShopSyncsActivity extends BaseActivity {
 
     private void refresh() {
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+        if (currentUser == null) {
+            return;
+        }
         shopSyncs.clear();
 
         // consumer that for each shop sync uid gets the corresponding ShopSyncModel from the

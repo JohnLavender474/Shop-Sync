@@ -84,7 +84,7 @@ public class BaseActivity extends AppCompatActivity {
 
     /**
      * Checks if the user is signed in and fetches the current user. If the user is not signed in,
-     * null is returned and the user is redirected to the main activity. It is possible this method
+     * null is returned and the app is redirected to the main activity. It is possible this method
      * can throw an {@link IllegalStateException}, though in theory this should never happen. The
      * exception is thrown when {@link UsersService#isCurrentUserSignedIn()} returns true but
      * {@link UsersService#getCurrentFirebaseUser()} returns null.
@@ -95,7 +95,7 @@ public class BaseActivity extends AppCompatActivity {
      */
     protected @Nullable FirebaseUser checkIfUserIsLoggedInAndFetch(Class<? extends Activity> activityClass) {
         if (!applicationGraph.usersService().isCurrentUserSignedIn()) {
-            Log.d(TAG, "checkIfUserIsLoggedInAndFetch: user not signed in, redirecting to " +
+            Log.e(TAG, "checkIfUserIsLoggedInAndFetch: user not signed in, redirecting to " +
                     "activity " + activityClass);
 
             Toast.makeText(this, "You must be signed in to view the requested activity.",
