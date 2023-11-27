@@ -33,12 +33,15 @@ public class ShopSyncsService {
 
     private static final String TAG = "ShopSyncsService";
 
+    private final UsersService usersService;
     private final ShopSyncsFirebaseReference shopSyncsFirebaseReference;
     private final UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference;
 
     @Inject
-    public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
+    public ShopSyncsService(@NonNull UsersService usersService,
+                            @NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
                             @NonNull UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference) {
+        this.usersService = usersService;
         this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
         this.userShopSyncMapFirebaseReference = userShopSyncMapFirebaseReference;
         Log.d(TAG, "ShopSyncsService: created");
@@ -471,8 +474,38 @@ public class ShopSyncsService {
         Log.d(TAG,
               "addPurchasedItem: adding purchased item with shopping basket uid (" +
                       shoppingBasketUid + ") and basket item (" + basketItem + ")");
-        shopSyncsFirebaseReference.addPurchasedItem(shopSyncUid, shoppingBasketUid, basketItem,
-                                                    resultConsumer, onFailure);
+
+        usersService.getUserProfileWithUid(shoppingBasketUid).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot dataSnapshot = task.getResult();
+                if (dataSnapshot == null) {
+                    Log.e(TAG, "addPurchasedItem: failed to get user profile with uid (" +
+                            shoppingBasketUid + ")");
+                    if (onFailure != null) {
+                        onFailure.accept(new ErrorHandle(
+                                ErrorType.ILLEGAL_NULL_VALUE,
+                                "Failed to get user profile with uid (" + shoppingBasketUid + ")"));
+                    }
+                    return;
+                }
+
+                String userEmail = dataSnapshot.child("email").getValue(String.class);
+                if (userEmail == null) {
+                    Log.e(TAG, "addPurchasedItem: failed to get user email with uid (" +
+                            shoppingBasketUid + ")");
+                    if (onFailure != null) {
+                        onFailure.accept(new ErrorHandle(
+                                ErrorType.ILLEGAL_NULL_VALUE,
+                                "Failed to get user email with uid (" + shoppingBasketUid + ")"));
+                    }
+                    return;
+                }
+
+                shopSyncsFirebaseReference.addPurchasedItem(shopSyncUid, shoppingBasketUid,
+                                                            basketItem, userEmail, resultConsumer,
+                                                            onFailure);
+            }
+        });
     }
 
     /**

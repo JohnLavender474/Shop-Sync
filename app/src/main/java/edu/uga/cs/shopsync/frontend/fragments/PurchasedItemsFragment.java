@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.backend.models.PurchaseGroupModel;
+import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 
 public class PurchasedItemsFragment extends Fragment implements ChildEventListener {
 
@@ -31,22 +31,15 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
         View view = inflater.inflate(R.layout.fragment_purchased_items, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewPurchasedItems);
 
-        // Initialize purchase groups (replace this with your actual data retrieval)
-        List<PurchaseGroupModel> purchaseGroups = getPurchaseGroups();
+        // TODO: Initialize purchased items (replace this with your actual data retrieval)
+        List<PurchasedItemModel> purchasedItems = new ArrayList<>();
 
         // Set up the RecyclerView and its adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        PurchasedItemsAdapter adapter = new PurchasedItemsAdapter(purchaseGroups);
+        PurchasedItemsAdapter adapter = new PurchasedItemsAdapter(purchasedItems);
         recyclerView.setAdapter(adapter);
 
         return view;
-    }
-
-    private List<PurchaseGroupModel> getPurchaseGroups() {
-        // Replace this with your actual data retrieval logic
-        List<PurchaseGroupModel> groups = new ArrayList<>();
-        // Populate the list with PurchaseGroupModel instances
-        return groups;
     }
 
     @Override
@@ -77,10 +70,10 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
     private static class PurchasedItemsAdapter
             extends RecyclerView.Adapter<PurchasedItemsAdapter.ViewHolder> {
 
-        private final List<PurchaseGroupModel> purchaseGroups;
+        private final List<PurchasedItemModel> purchasedItems;
 
-        PurchasedItemsAdapter(List<PurchaseGroupModel> purchaseGroups) {
-            this.purchaseGroups = purchaseGroups;
+        PurchasedItemsAdapter(List<PurchasedItemModel> purchasedItems) {
+            this.purchasedItems = purchasedItems;
         }
 
         @NonNull
@@ -93,12 +86,12 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.bind(purchaseGroups.get(position));
+            holder.bind(purchasedItems.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return purchaseGroups.size();
+            return purchasedItems.size();
         }
 
         private static class ViewHolder extends RecyclerView.ViewHolder {
@@ -114,11 +107,13 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
                 textViewTimeOfPurchase = itemView.findViewById(R.id.textViewTimeOfPurchase);
             }
 
-            void bind(PurchaseGroupModel purchaseGroup) {
+            void bind(PurchasedItemModel purchasedItem) {
                 // Bind data to views
-                textViewUsername.setText(purchaseGroup.getUsername());
-                textViewTotalCost.setText(String.valueOf(purchaseGroup.getTotalCost()));
-                textViewTimeOfPurchase.setText(purchaseGroup.getTimeOfPurchase());
+                textViewUsername.setText(purchasedItem.getUserEmail());
+
+                // TODO: add as meta data to the shop sync
+                // textViewTotalCost.setText(String.valueOf(purchasedItem.getTotalCost()));
+                // textViewTimeOfPurchase.setText(purchasedItem.getTimeOfPurchase());
 
                 // Set up click listener for modification (you need to implement this)
                 itemView.setOnClickListener(v -> {

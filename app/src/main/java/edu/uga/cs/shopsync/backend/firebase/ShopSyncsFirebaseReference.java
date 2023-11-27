@@ -545,6 +545,7 @@ public class ShopSyncsFirebaseReference {
      */
     public void addPurchasedItem(@NonNull String shopSyncUid, @NonNull String shoppingBasketUid,
                                  @NonNull BasketItemModel basketItem,
+                                 @NonNull String userEmail,
                                  @Nullable Consumer<PurchasedItemModel> resultConsumer,
                                  @Nullable Consumer<ErrorHandle> onFailure) {
         Log.d("ShopSyncsFirebaseReference", "addPurchasedItem: shop sync uid (" + shopSyncUid +
