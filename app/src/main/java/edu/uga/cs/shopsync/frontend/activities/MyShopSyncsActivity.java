@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -119,24 +120,67 @@ public class MyShopSyncsActivity extends BaseActivity {
         }
     }
 
+    private List<ShopSyncDto> shopSyncs;
+    private ShopSyncsRecyclerViewAdapter adapter;
+
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_shop_syncs);
 
         // check if the user is signed in
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+        if (currentUser == null) {
+            return;
+        }
+
         Log.d(TAG,
               "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
                       currentUser.getUid() + ")");
 
+        setContentView(R.layout.activity_my_shop_syncs);
+
+        // set up the action bar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // set up back button
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            Log.d(TAG, "Back button clicked");
+            finish();
+        });
+
+        // set up refresh button
+        Button refreshButton = findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(v -> refresh());
+
+        // set up create shop sync button
+        Button createShopSyncButton = findViewById(R.id.buttonCreateShopSync);
+        createShopSyncButton.setOnClickListener(v -> {
+            Log.d(TAG, "Create shop sync button clicked");
+            Intent intent = new Intent(this, CreateShopSyncActivity.class);
+            startActivity(intent);
+        });
+
         // set up the recycler view
-        List<ShopSyncDto> shopSyncs = new ArrayList<>();
+        shopSyncs = new ArrayList<>();
         RecyclerView recyclerView = findViewById(R.id.recyclerViewShopSyncs);
-        ShopSyncsRecyclerViewAdapter adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
+        adapter = new ShopSyncsRecyclerViewAdapter(this, shopSyncs);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        refresh();
+    }
+
+    private void refresh() {
+        FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+        if (currentUser == null) {
+            return;
+        }
+        shopSyncs.clear();
 
         // consumer that for each shop sync uid gets the corresponding ShopSyncModel from the
         // database, then converts the model to a dto and adds the dto to the recycler adapter
@@ -159,7 +203,7 @@ public class MyShopSyncsActivity extends BaseActivity {
                                 }
 
                                 // get the shop sync model
-                                ShopSyncModel shopSyncModel =
+                                edu.uga.cs.shopsync.backend.models.ShopSyncModel shopSyncModel =
                                         dataSnapshot.getValue(ShopSyncModel.class);
                                 if (shopSyncModel == null) {
                                     throw new IllegalNullValueException("getShopSyncWithUid: " +

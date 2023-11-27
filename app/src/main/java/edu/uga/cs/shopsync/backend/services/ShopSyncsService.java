@@ -72,7 +72,7 @@ public class ShopSyncsService {
     public void addShopSync(@NonNull String name, @Nullable String description,
                             @NonNull List<String> userUids,
                             @Nullable Consumer<ShopSyncModel> onSuccess,
-                            @Nullable Runnable onFailure) {
+                            @Nullable Consumer<ErrorHandle> onFailure) {
         // Add shop sync to shop syncs collection
         ShopSyncModel shopSync = shopSyncsFirebaseReference
                 .addShopSync(name, description, null, null, null);
@@ -81,7 +81,9 @@ public class ShopSyncsService {
         if (shopSync == null) {
             Log.e(TAG, "addShopSync: failed to add shop sync");
             if (onFailure != null) {
-                onFailure.run();
+                onFailure.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
+                                                 "Failed to add shop sync because " +
+                                                         "the fetched shop sync is null"));
             }
             return;
         }
@@ -95,6 +97,16 @@ public class ShopSyncsService {
             Log.d(TAG, "addShopSync: running on success runnable");
             onSuccess.accept(shopSync);
         }
+    }
+
+    /**
+     * Adds the shop sync with the given uid to the user with the given uid.
+     *
+     * @param userUid     the user uid
+     * @param shopSyncUid the shop sync uid
+     */
+    public void addShopSyncToUser(@NonNull String userUid, @NonNull String shopSyncUid) {
+        userShopSyncMapFirebaseReference.addShopSyncToUser(userUid, shopSyncUid);
     }
 
     /**

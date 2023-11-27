@@ -2,6 +2,8 @@ package edu.uga.cs.shopsync;
 
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -19,6 +21,45 @@ public class TemporaryStuff {
         UsersService usersService = applicationGraph.usersService();
         usersService.createUser("dawg@mail.com", "dawg", "password",
                                 userProfile -> Log.d("TemporaryStuff", "user created"), null);
+    }
+
+    public static void testFindByEmail(ApplicationGraph applicationGraph) {
+        UsersService usersService = applicationGraph.usersService();
+
+        Consumer<UserProfileModel> onSuccess = userProfile -> usersService
+                .getUserProfilesWithEmail(userProfile.getEmail())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        if (dataSnapshot == null) {
+                            Log.d("TemporaryStuff", "data snapshot is null");
+                            return;
+                        }
+
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            Log.d("TemporaryStuff", "child: " + child);
+
+                            UserProfileModel _userProfile = child.getValue(UserProfileModel.class);
+
+                            Log.d("TemporaryStuff", "expected user profile: " + userProfile);
+                            Log.d("TemporaryStuff", "actual user profile: " + _userProfile);
+
+                            if (userProfile.equals(_userProfile)) {
+                                Log.d("TemporaryStuff", "user profile matches");
+                            } else {
+                                Log.e("TemporaryStuff", "user profile does not match");
+                            }
+
+                            // there should only be one child hence the break statement
+                            break;
+                        }
+                    } else {
+                        Log.d("TemporaryStuff", "failed to get user profile");
+                    }
+                });
+
+        usersService.createUser("dawg@mail.com", "dawg", "password",
+                                onSuccess, null);
     }
 
     public static void testAddShoppingItem(ApplicationGraph applicationGraph) {

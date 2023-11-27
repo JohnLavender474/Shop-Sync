@@ -45,6 +45,9 @@ public class MyAccountActivity extends BaseActivity {
         // check if the user is logged in and fetch the current user, otherwise redirect to the
         // main activity
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
+        if (currentUser == null) {
+            return;
+        }
 
         setContentView(R.layout.activity_my_account);
 

@@ -1,11 +1,8 @@
-<!-- row_purchase_group.xml -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <!-- User Name -->
     <TextView
         android:id="@+id/textViewUserName"
         android:layout_width="wrap_content"
@@ -14,7 +11,6 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <!-- Total Cost -->
     <TextView
         android:id="@+id/textViewTotalCost"
         android:layout_width="wrap_content"
@@ -24,7 +20,6 @@
         android:text=""
         android:textSize="16sp" />
 
-    <!-- Time of Purchase -->
     <TextView
         android:id="@+id/textViewTimeOfPurchase"
         android:layout_width="wrap_content"
@@ -35,7 +30,6 @@
         android:textSize="14sp"
         android:textColor="@android:color/darker_gray" />
 
-    <!-- RecyclerView for Purchased Items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPurchasedItems"
         android:layout_width="match_parent"

@@ -90,6 +90,9 @@ public class ChangePasswordActivity extends BaseActivity {
 
         // check if user is logged in
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+        if (user == null) {
+            return;
+        }
 
         // set the layout for the activity
         setContentView(R.layout.activity_change_password);

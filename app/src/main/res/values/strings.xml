@@ -82,4 +82,11 @@
     <string name="delete">Delete</string>
     <string name="add">Add +</string>
     <string name="item_name_should_not_be_empty">WARNING: Item name should not be empty!</string>
+    <string name="shop_sync_name">Shop Sync Name</string>
+    <string name="shop_sync_description">Shop Sync Description</string>
+    <string name="invite_a_user">Invite a User +</string>
+    <string name="create">Create</string>
+    <string name="enter_email">Enter email</string>
+    <string name="create_shop_sync">Create Shop Sync</string>
+    <string name="refresh">Refresh</string>
 </resources>

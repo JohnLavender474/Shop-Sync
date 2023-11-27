@@ -114,7 +114,9 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: called");
         super.onCreate(savedInstanceState);
-        checkIfUserIsLoggedInAndFetch(true);
+        if (checkIfUserIsLoggedInAndFetch(true) == null) {
+            return;
+        }
 
         // TODO: implement landscape layout
         /*
@@ -421,6 +423,9 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
         // shopping basket uid is the same as the user's uid
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+        if (user == null) {
+            return;
+        }
 
         // fetch the shopping item from the props and add it to the basket
         ShoppingItemModel shoppingItem = props.get(Constants.SHOPPING_ITEM,

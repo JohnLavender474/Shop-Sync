@@ -23,10 +23,10 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.exceptions.UserAlreadyExistsException;
+import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.ErrorType;
 
@@ -200,6 +200,16 @@ public class UsersFirebaseReference {
      */
     public @NonNull Task<DataSnapshot> getUserProfileWithUid(String userUid) {
         return usersCollection.child(userUid).get();
+    }
+
+    /**
+     * Returns the task that fetches the user profile for the user with the given email.
+     *
+     * @param email the user's email.
+     * @return the task that fetches the user profile.
+     */
+    public Task<DataSnapshot> getUserProfilesWithEmail(String email) {
+        return usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(email).get();
     }
 
     /**

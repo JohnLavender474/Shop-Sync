@@ -42,7 +42,22 @@ public class SignInActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkIfUserIsLoggedInAndFetch(MyAccountActivity.class);
+
+        if (applicationGraph.usersService().isCurrentUserSignedIn()) {
+            Log.d(TAG, "onCreate: user already signed in, redirecting to my account activity");
+
+            Toast.makeText(getApplicationContext(), "You're already signed in!",
+                           Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(this, MyAccountActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+            finish();
+
+            return;
+        }
+
         setContentView(R.layout.activity_sign_in);
 
         editTextSignInEmail = findViewById(R.id.editTextSignInEmail);

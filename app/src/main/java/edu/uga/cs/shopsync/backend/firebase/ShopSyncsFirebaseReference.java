@@ -37,6 +37,8 @@ public class ShopSyncsFirebaseReference {
     public static final String SHOPPING_ITEMS_NESTED_COLLECTION = "shopping_items";
     public static final String SHOPPING_BASKETS_NESTED_COLLECTION = "shopping_baskets";
     public static final String PURCHASED_ITEMS_NESTED_COLLECTION = "purchased_items";
+    public static final String NAME_FIELD = "name";
+    public static final String USER_UID_FIELD = "userUid";
 
     private final DatabaseReference shopSyncsCollection;
 
@@ -249,7 +251,7 @@ public class ShopSyncsFirebaseReference {
                                                        @NonNull String name) {
         Log.d("ShopSyncsFirebaseReference", "getShoppingItemsWithName: shop sync uid (" +
                 shopSyncUid + "), name (" + name + ")");
-        return getShoppingItemsCollection(shopSyncUid).orderByChild("name").equalTo(name).get();
+        return getShoppingItemsCollection(shopSyncUid).orderByChild(NAME_FIELD).equalTo(name).get();
     }
 
     /**
@@ -654,7 +656,7 @@ public class ShopSyncsFirebaseReference {
                                                            @NonNull String userUid) {
         Log.d("ShopSyncsFirebaseReference", "getPurchasedItemsWithUserUid: shop sync uid (" +
                 shopSyncUid + "), user uid (" + userUid + ")");
-        return getPurchasedItemsCollection(shopSyncUid).orderByChild("userUid")
+        return getPurchasedItemsCollection(shopSyncUid).orderByChild(USER_UID_FIELD)
                 .equalTo(userUid).get();
     }
 
