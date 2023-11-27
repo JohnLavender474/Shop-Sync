@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -77,7 +78,7 @@ public class BaseActivity extends AppCompatActivity {
      * @param redirect Whether or not to redirect to the main activity if the user is not signed in.
      * @noinspection SameParameterValue
      */
-    protected FirebaseUser checkIfUserIsLoggedInAndFetch(boolean redirect) {
+    protected @Nullable FirebaseUser checkIfUserIsLoggedInAndFetch(boolean redirect) {
         return checkIfUserIsLoggedInAndFetch(redirect ? MainActivity.class : null);
     }
 
@@ -92,7 +93,7 @@ public class BaseActivity extends AppCompatActivity {
      *                      is null, then no redirect is performed.
      * @return The current user if signed in, null otherwise.
      */
-    protected FirebaseUser checkIfUserIsLoggedInAndFetch(Class<? extends Activity> activityClass) {
+    protected @Nullable FirebaseUser checkIfUserIsLoggedInAndFetch(Class<? extends Activity> activityClass) {
         if (!applicationGraph.usersService().isCurrentUserSignedIn()) {
             Log.d(TAG, "checkIfUserIsLoggedInAndFetch: user not signed in, redirecting to " +
                     "activity " + activityClass);
