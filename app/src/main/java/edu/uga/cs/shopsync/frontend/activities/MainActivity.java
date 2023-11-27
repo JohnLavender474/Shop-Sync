@@ -78,16 +78,12 @@ public class MainActivity extends BaseActivity {
         // set up forgot password button
         Button forgotPassword = findViewById(R.id.forgot_password_button);
         forgotPassword.setOnClickListener(v -> {
-            Toast.makeText(getApplicationContext(), "Forgot password functionality not set up yet",
-                           Toast.LENGTH_SHORT).show();
 
-            // TODO:
-            /*
-            Log.d(TAG, "onCreate: forgot password button clicked, redirecting to forgot password
-            activity");
+            Log.d(TAG, "onCreate: forgot password button clicked, redirecting to forgot password activity");
+
+            // Redirect to ForgotPasswordActivity
             Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
-             */
         });
     }
 }

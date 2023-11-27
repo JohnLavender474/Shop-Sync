@@ -14,7 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShopSync"
         tools:targetApi="31">
-
+        <activity
+            android:name=".frontend.activities.ForgotPasswordActivity"
+            android:exported="false" />
         <!-- Main Activity -->
         <activity
             android:name=".frontend.activities.MainActivity"
@@ -25,9 +27,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Registration Activity -->
+        </activity> <!-- Registration Activity -->
         <activity
             android:name=".frontend.activities.RegistrationActivity"
             android:configChanges="orientation|screenSize"
@@ -37,74 +37,68 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
-        </activity>
-
-        <!-- Sign-in Activity -->
+        </activity> <!-- Sign-in Activity -->
         <activity
             android:name=".frontend.activities.SignInActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".frontend.activities.MainActivity">
+
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
-        </activity>
+        </activity> <!-- My Shop Syncs Activity -->
 
-        <!-- My Shop Syncs Activity -->
         <activity
             android:name=".frontend.activities.MyShopSyncsActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".frontend.activities.MyAccountActivity">
+
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
-        </activity>
-
-        <!-- Create Shop Sync Activity -->
+        </activity> <!-- Create Shop Sync Activity -->
         <activity
             android:name=".frontend.activities.CreateShopSyncActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".frontend.activities.MyShopSyncsActivity">
+
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MyShopSyncsActivity" />
-        </activity>
-
-        <!-- Shop Sync Activity -->
+        </activity> <!-- Shop Sync Activity -->
         <activity
             android:name=".frontend.activities.ShopSyncActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".frontend.activities.MyShopSyncsActivity">
+
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MyShopSyncsActivity" />
-        </activity>
-
-        <!-- My Account Activity -->
+        </activity> <!-- My Account Activity -->
         <activity
             android:name=".frontend.activities.MyAccountActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".frontend.activities.MainActivity">
+
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MainActivity" />
-        </activity>
-
-        <!-- Change Password Activity -->
+        </activity> <!-- Change Password Activity -->
         <activity
             android:name=".frontend.activities.ChangePasswordActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".frontend.activities.MyAccountActivity">
+
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uga.cs.shopsync.frontend.activities.MyAccountActivity" />
         </activity>
-
     </application>
 
 </manifest>
