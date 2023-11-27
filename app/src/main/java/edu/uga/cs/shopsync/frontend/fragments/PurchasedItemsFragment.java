@@ -6,8 +6,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -176,10 +174,13 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
 
         private class ViewHolder extends RecyclerView.ViewHolder {
 
+            // TODO:
+            /*
             private final TextView textViewEmail;
             private final TextView textViewTotalCost;
             private final Button buttonUndoPurchase;
             private final Button buttonDeletePurchase;
+             */
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -193,7 +194,7 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
 
             void bind(PurchasedItemModel purchasedItem) {
                 // Bind data to views
-                textViewUsername.setText(purchasedItem.getUserEmail());
+                // TODO: textViewUsername.setText(purchasedItem.getUserEmail());
 
                 // TODO: add as meta data to the shop sync
                 // textViewTotalCost.setText(String.valueOf(purchasedItem.getTotalCost()));
