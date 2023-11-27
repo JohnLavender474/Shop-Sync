@@ -22,12 +22,16 @@ public class UsersFirebaseReferenceTest {
     @Mock
     private DatabaseReference mockUsersCollection;
 
+    @Mock
+    private DatabaseReference mockUserEmailToUidMapCollection;
+
     private UsersFirebaseReference usersFirebaseReference;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        usersFirebaseReference = new UsersFirebaseReference(mockFirebaseAuth, mockUsersCollection);
+        usersFirebaseReference = new UsersFirebaseReference(mockFirebaseAuth, mockUsersCollection,
+                                                            mockUserEmailToUidMapCollection);
     }
 
     @Test

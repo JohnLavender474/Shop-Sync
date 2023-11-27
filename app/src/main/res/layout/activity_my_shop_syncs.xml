@@ -2,13 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical">
+
+    <Button
+        android:id="@+id/backButton"
+        android:text="@string/back"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/my_shop_syncs" />
+        android:gravity="center"
+        android:text="@string/my_shop_syncs"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/buttonCreateShopSync"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:text="@string/create_shop_sync" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewShopSyncs"

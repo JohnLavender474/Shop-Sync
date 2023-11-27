@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import edu.uga.cs.shopsync.backend.firebase.UserShopSyncMapFirebaseReference;
-import edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.exceptions.UserAlreadyExistsException;
+import edu.uga.cs.shopsync.backend.firebase.UserShopSyncMapFirebaseReference;
+import edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 
@@ -37,8 +37,7 @@ public class UsersService {
 
     @Inject
     public UsersService(@NonNull UsersFirebaseReference usersFirebaseReference,
-                        @NonNull UserShopSyncMapFirebaseReference
-                                userShopSyncMapFirebaseReference) {
+                        @NonNull UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference) {
         this.usersFirebaseReference = usersFirebaseReference;
         this.userShopSyncMapFirebaseReference = userShopSyncMapFirebaseReference;
         Log.d(TAG, "UsersService: created");
@@ -66,8 +65,8 @@ public class UsersService {
     public void createUser(@NonNull String email, @NonNull String username,
                            @NonNull String password,
                            @Nullable Consumer<UserProfileModel> onSuccess,
-                           @Nullable Consumer<ErrorHandle> onError)
-            throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
+                           @Nullable Consumer<ErrorHandle> onError) throws
+            TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         usersFirebaseReference.createUser(email, username, password, onSuccess, onError);
     }
 
@@ -121,6 +120,16 @@ public class UsersService {
      */
     public @NonNull Task<DataSnapshot> getUserProfileWithUid(@NonNull String userUid) {
         return usersFirebaseReference.getUserProfileWithUid(userUid);
+    }
+
+    /**
+     * Returns the task that fetches the user profile for the user with the given email.
+     *
+     * @param email the user's email.
+     * @return the task that fetches the user profile.
+     */
+    public @NonNull Task<DataSnapshot> getUserProfilesWithEmail(@NonNull String email) {
+        return usersFirebaseReference.getUserProfilesWithEmail(email);
     }
 
     /**

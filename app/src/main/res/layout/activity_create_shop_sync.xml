@@ -1,58 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Shop Sync Name -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="@string/back"
+        app:layout_constraintBottom_toTopOf="@+id/textViewCreateShopSync"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewCreateShopSync"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/create_shop_sync"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextShopSyncName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backButton" />
+
     <EditText
         android:id="@+id/editTextShopSyncName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="16dp"
+        android:autofillHints=""
         android:hint="@string/shop_sync_name"
         android:inputType="text"
         android:maxLines="1"
-        android:layout_marginBottom="16dp"
-        android:autofillHints="" />
+        app:layout_constraintBottom_toTopOf="@+id/editTextShopSyncDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCreateShopSync" />
 
-    <!-- Shop Sync Description -->
     <EditText
         android:id="@+id/editTextShopSyncDescription"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="16dp"
+        android:autofillHints=""
         android:hint="@string/shop_sync_description"
         android:inputType="textMultiLine"
-        android:layout_below="@id/editTextShopSyncName"
-        android:layout_marginBottom="16dp"
-        android:autofillHints="" />
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutInvitedUsers"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextShopSyncName" />
 
-    <!-- Invite a User Button -->
-    <Button
-        android:id="@+id/buttonInviteUser"
+    <LinearLayout
+        android:id="@+id/linearLayoutInvitedUsers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/editTextShopSyncDescription"
-        android:layout_marginTop="16dp"
-        android:text="@string/invite_a_user"/>
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextShopSyncDescription">
 
-    <!-- Invited Users List View -->
+        <TextView
+            android:id="@+id/textViewUserCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="50dp"
+            android:width="150dp"
+            android:text="@string/placeholder" />
+
+        <Button
+            android:id="@+id/buttonInviteUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/invite_a_user"
+            app:layout_constraintBottom_toTopOf="@+id/listViewInvitedUsers"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayoutInvitedUsers" />
+
+    </LinearLayout>
+
     <ListView
         android:id="@+id/listViewInvitedUsers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/buttonInviteUser"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
         android:layout_marginTop="16dp"
         android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"/>
+        android:dividerHeight="1dp"
+        android:maxHeight="300dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonCreateShopSync"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutInvitedUsers" />
 
-    <!-- Create Shop Sync Button -->
     <Button
         android:id="@+id/buttonCreateShopSync"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/listViewInvitedUsers"
         android:layout_marginTop="16dp"
-        android:text="@string/create"/>
+        android:text="@string/create"
+        app:layout_constraintBottom_toTopOf="@id/space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listViewInvitedUsers" />
 
-</RelativeLayout>
+    <Space
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCreateShopSync" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

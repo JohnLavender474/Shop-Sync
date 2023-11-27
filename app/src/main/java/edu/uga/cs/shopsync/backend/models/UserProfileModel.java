@@ -4,11 +4,14 @@ import androidx.annotation.NonNull;
 
 public class UserProfileModel {
 
-    private String userUid = "";
-    private String email = "";
-    private String username = "";
+    private String userUid;
+    private String email;
+    private String username;
 
     public UserProfileModel() {
+        userUid = "";
+        email = "";
+        username = "";
     }
 
     public UserProfileModel(String userUid, String email, String username) {

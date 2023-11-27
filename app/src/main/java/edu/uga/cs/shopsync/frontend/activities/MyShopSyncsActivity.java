@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -123,13 +124,35 @@ public class MyShopSyncsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_shop_syncs);
 
         // check if the user is signed in
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
         Log.d(TAG,
               "onCreate: user signed in with email " + currentUser.getEmail() + " and id (" +
                       currentUser.getUid() + ")");
+
+        setContentView(R.layout.activity_my_shop_syncs);
+
+        // set up the action bar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // set up back button
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            Log.d(TAG, "Back button clicked");
+            finish();
+        });
+
+        // set up create shop sync button
+        Button createShopSyncButton = findViewById(R.id.buttonCreateShopSync);
+        createShopSyncButton.setOnClickListener(v -> {
+            Log.d(TAG, "Create shop sync button clicked");
+            Intent intent = new Intent(this, CreateShopSyncActivity.class);
+            startActivity(intent);
+        });
 
         // set up the recycler view
         List<ShopSyncDto> shopSyncs = new ArrayList<>();
