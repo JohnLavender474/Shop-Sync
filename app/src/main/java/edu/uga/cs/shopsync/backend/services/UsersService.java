@@ -129,7 +129,7 @@ public class UsersService {
      * @return the task that fetches the user profile.
      */
     public @NonNull Task<DataSnapshot> getUserProfilesWithEmail(@NonNull String email) {
-        return usersFirebaseReference.getUserProfilesWithEmail(email);
+        return usersFirebaseReference.getUserProfileWithEmail(email);
     }
 
     /**
