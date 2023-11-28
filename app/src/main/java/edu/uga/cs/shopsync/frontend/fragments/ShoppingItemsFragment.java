@@ -142,7 +142,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
             return;
         }
 
-        // TODO: this is very inefficient, try to find a better way to do this
+        // TODO: very inefficient to add to beginning of array list, a better way to do this
         shoppingItems.add(0, shoppingItem);
 
         adapter.notifyItemInserted(0);

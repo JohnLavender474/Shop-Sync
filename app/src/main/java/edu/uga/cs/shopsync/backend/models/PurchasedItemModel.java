@@ -8,7 +8,7 @@ import java.util.Map;
 public class PurchasedItemModel {
 
     private String uid;
-    private String userUid;
+    private String userEmail;
 
     // TODO:
     // include shopping item and basket item so that if user undoes purchase, the items
@@ -18,15 +18,15 @@ public class PurchasedItemModel {
 
     public PurchasedItemModel() {
         uid = "";
-        userUid = "";
+        userEmail = "";
         shoppingItem = null;
         basketItem = null;
     }
 
-    public PurchasedItemModel(String uid, String userUid, ShoppingItemModel shoppingItem,
+    public PurchasedItemModel(String uid, String userEmail, ShoppingItemModel shoppingItem,
                               BasketItemModel basketItem) {
         this.uid = uid;
-        this.userUid = userUid;
+        this.userEmail = userEmail;
         this.shoppingItem = shoppingItem;
         this.basketItem = basketItem;
     }
@@ -34,7 +34,7 @@ public class PurchasedItemModel {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("uid", uid);
-        map.put("userUid", userUid);
+        map.put("userEmail", userEmail);
         map.put("shoppingItem", shoppingItem.toMap());
         map.put("basketItem", basketItem.toMap());
         return map;
@@ -48,12 +48,12 @@ public class PurchasedItemModel {
         this.uid = uid;
     }
 
-    public String getUserUid() {
-        return userUid;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserUid(String userUid) {
-        this.userUid = userUid;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public ShoppingItemModel getShoppingItem() {
@@ -87,7 +87,7 @@ public class PurchasedItemModel {
     public String toString() {
         return "PurchasedItemModel{" +
                 "uid='" + uid + '\'' +
-                ", userUid='" + userUid + '\'' +
+                ", userEmail='" + userEmail + '\'' +
                 ", shoppingItem=" + shoppingItem +
                 ", basketItem=" + basketItem +
                 '}';

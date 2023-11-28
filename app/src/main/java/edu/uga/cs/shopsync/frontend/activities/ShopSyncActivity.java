@@ -1,5 +1,6 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
+import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.*;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_ADD_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_DELETE_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
@@ -37,6 +38,7 @@ import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
+import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
@@ -335,6 +337,18 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 }
                 deleteShoppingItem(shopSyncUid, props);
             }
+            case ACTION_UNDO_PURCHASE -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                undoPurchase(shopSyncUid, props);
+            }
+            case ACTION_DELETE_PURCHASE -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                deletePurchase(shopSyncUid, props);
+            }
         }
     }
 
@@ -447,7 +461,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 onSuccess, onFailure);
     }
 
-    private void deleteShoppingItem(String shopSyncUid, Props props) {
+    private void deleteShoppingItem(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "deleteShoppingItem: deleting shopping item");
 
         // fetch the shopping item from the props and delete it
@@ -464,6 +478,83 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         Log.d(TAG, "deleteShoppingItem: successfully deleted shopping item");
                     } else {
                         Log.e(TAG, "deleteShoppingItem: failed to delete shopping item",
+                              task.getException());
+                    }
+                });
+    }
+
+    private void undoPurchase(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "undoPurchase: undoing purchase");
+
+        // fetch the purchased item from the props and undo the purchase
+        PurchasedItemModel purchasedItem = props.get(Constants.PURCHASED_ITEM,
+                                                     PurchasedItemModel.class);
+        if (purchasedItem == null) {
+            throw new IllegalNullValueException("Purchased item is null");
+        }
+
+        // fetch shopping item to be re-added to shop sync
+        ShoppingItemModel shoppingItem = purchasedItem.getShoppingItem();
+        if (shoppingItem == null) {
+            throw new IllegalNullValueException("Shopping item is null");
+        }
+
+        // fetch basket item to be re-added to user's shopping basket
+        BasketItemModel basketItem = purchasedItem.getBasketItem();
+        if (basketItem == null) {
+            throw new IllegalNullValueException("Basket item is null");
+        }
+
+        // delete the purchased item
+        applicationGraph.shopSyncsService()
+                .deletePurchasedItem(shopSyncUid, purchasedItem.getUid())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "undoPurchase: successfully deleted purchased item");
+
+                        // re-add the shopping item to the shop sync
+                        ShoppingItemModel addedShoppingItem = applicationGraph.shopSyncsService()
+                                .addShoppingItem(shopSyncUid, shoppingItem.getName(), true);
+                        Log.d(TAG, "undoPurchase: shopping item added to db: " + shoppingItem);
+                        Log.d(TAG,
+                              "undoPurchase: shopping item returned from db: " + addedShoppingItem);
+
+                        // re-add the basket item to the user's shopping basket
+                        Consumer<BasketItemModel> onSuccess = _basketItem -> Log.d(
+                                TAG,
+                                "undoPurchase: successfully added basket item to db: " + basketItem);
+                        Consumer<ErrorHandle> onFailure = error -> Log.e(TAG, "undoPurchase: " +
+                                "failed to add basket item to db due to error: " + error);
+                        applicationGraph.shopSyncsService()
+                                .addBasketItem(shopSyncUid, basketItem.getShoppingBasketUid(),
+                                               basketItem.getShoppingItemUid(),
+                                               basketItem.getQuantity(),
+                                               basketItem.getPricePerUnit(),
+                                               onSuccess, onFailure);
+                    } else {
+                        Log.e(TAG, "undoPurchase: failed to delete purchased item",
+                              task.getException());
+                    }
+                });
+    }
+
+    private void deletePurchase(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "deletePurchase: deleting purchase");
+
+        // fetch the purchased item from the props and delete it
+        PurchasedItemModel purchasedItem = props.get(Constants.PURCHASED_ITEM,
+                                                     PurchasedItemModel.class);
+        if (purchasedItem == null) {
+            throw new IllegalNullValueException("Purchased item is null");
+        }
+
+        applicationGraph.shopSyncsService()
+                .deletePurchasedItem(shopSyncUid, purchasedItem.getUid())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "deletePurchase: successfully deleted purchased item");
+                    } else {
+                        Log.e(TAG, "deletePurchase: failed to delete purchased item",
                               task.getException());
                     }
                 });

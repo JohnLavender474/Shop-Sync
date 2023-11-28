@@ -33,12 +33,15 @@ public class ShopSyncsService {
 
     private static final String TAG = "ShopSyncsService";
 
+    private final UsersService usersService;
     private final ShopSyncsFirebaseReference shopSyncsFirebaseReference;
     private final UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference;
 
     @Inject
-    public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
+    public ShopSyncsService(@NonNull UsersService usersService,
+                            @NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
                             @NonNull UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference) {
+        this.usersService = usersService;
         this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
         this.userShopSyncMapFirebaseReference = userShopSyncMapFirebaseReference;
         Log.d(TAG, "ShopSyncsService: created");
@@ -471,8 +474,38 @@ public class ShopSyncsService {
         Log.d(TAG,
               "addPurchasedItem: adding purchased item with shopping basket uid (" +
                       shoppingBasketUid + ") and basket item (" + basketItem + ")");
-        shopSyncsFirebaseReference.addPurchasedItem(shopSyncUid, shoppingBasketUid, basketItem,
-                                                    resultConsumer, onFailure);
+
+        usersService.getUserProfileWithUid(shoppingBasketUid).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot dataSnapshot = task.getResult();
+                if (dataSnapshot == null) {
+                    Log.e(TAG, "addPurchasedItem: failed to get user profile with uid (" +
+                            shoppingBasketUid + ")");
+                    if (onFailure != null) {
+                        onFailure.accept(new ErrorHandle(
+                                ErrorType.ILLEGAL_NULL_VALUE,
+                                "Failed to get user profile with uid (" + shoppingBasketUid + ")"));
+                    }
+                    return;
+                }
+
+                String userEmail = dataSnapshot.child("email").getValue(String.class);
+                if (userEmail == null) {
+                    Log.e(TAG, "addPurchasedItem: failed to get user email with uid (" +
+                            shoppingBasketUid + ")");
+                    if (onFailure != null) {
+                        onFailure.accept(new ErrorHandle(
+                                ErrorType.ILLEGAL_NULL_VALUE,
+                                "Failed to get user email with uid (" + shoppingBasketUid + ")"));
+                    }
+                    return;
+                }
+
+                shopSyncsFirebaseReference.addPurchasedItem(shopSyncUid, shoppingBasketUid,
+                                                            basketItem, userEmail, resultConsumer,
+                                                            onFailure);
+            }
+        });
     }
 
     /**
@@ -531,13 +564,13 @@ public class ShopSyncsService {
      * Returns the task that attempts to delete the purchased item with the given item id.
      *
      * @param shopSyncUid the shop sync uid
-     * @param itemId      the item id
+     * @param purchasedItemId      the item id
      * @return the task that attempts to delete the purchased item with the given item id
      */
-    public Task<Void> deletePurchasedItem(String shopSyncUid, String itemId) {
+    public @NonNull Task<Void> deletePurchasedItem(String shopSyncUid, String purchasedItemId) {
         Log.d(TAG, "deletePurchasedItem: deleting purchased item with shop sync uid (" +
-                shopSyncUid + ") and item id (" + itemId + ")");
-        return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, itemId);
+                shopSyncUid + ") and item id (" + purchasedItemId + ")");
+        return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, purchasedItemId);
     }
 
     // TODO: un-purchase an item
