@@ -1,6 +1,10 @@
 package edu.uga.cs.shopsync.frontend.activities;
 
-import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.*;
+import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_INITIALIZE_BASKET_ITEMS;
+import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_UPDATE_BASKET_ITEM;
+import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.PROP_BASKET_ITEMS;
+import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_DELETE_PURCHASE;
+import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_UNDO_PURCHASE;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_ADD_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_DELETE_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
@@ -29,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.List;
 import java.util.Map;
@@ -40,13 +45,16 @@ import edu.uga.cs.shopsync.backend.exceptions.TaskFailureException;
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
 import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
+import edu.uga.cs.shopsync.backend.models.ShoppingBasketModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.backend.models.UserProfileModel;
 import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment;
+import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.BasketItemsAdapter;
 import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ShoppingItemsAdapter;
+import edu.uga.cs.shopsync.frontend.utils.ChildEventListenerFragment;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.Props;
@@ -60,6 +68,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     private static final String SHOPPING_ITEMS_FRAGMENT = "ShoppingItemsFragment";
     private static final String BASKET_ITEMS_FRAGMENT = "BasketItemsFragment";
     private static final String PURCHASED_ITEMS_FRAGMENT = "PurchasedItemsFragment";
+    private static final int DEFAULT_QUANTITY = 1;
+    private static final double DEFAULT_PRICE_PER_UNIT = 1.0;
 
     private enum ItemsListType {
         SHOPPING_ITEMS_LIST,
@@ -67,11 +77,19 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         PURCHASED_ITEMS_LIST
     }
 
-    private final ChildEventListener shoppingItemsEventListener = new ChildEventListener() {
+    private final class FragmentChildEventListener implements ChildEventListener {
+
+        private final Class<?> fragmentClass;
+
+        FragmentChildEventListener(Class<? extends ChildEventListenerFragment> fragmentClass) {
+            this.fragmentClass = fragmentClass;
+        }
+
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot,
                                  @Nullable String previousChildName) {
-            if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+            ChildEventListenerFragment fragment = getCurrentChildEventListenerFragment();
+            if (fragmentClass.isAssignableFrom(fragment.getClass())) {
                 fragment.onChildAdded(snapshot, previousChildName);
             }
         }
@@ -79,14 +97,16 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot,
                                    @Nullable String previousChildName) {
-            if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+            ChildEventListenerFragment fragment = getCurrentChildEventListenerFragment();
+            if (fragmentClass.isAssignableFrom(fragment.getClass())) {
                 fragment.onChildChanged(snapshot, previousChildName);
             }
         }
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+            ChildEventListenerFragment fragment = getCurrentChildEventListenerFragment();
+            if (fragmentClass.isAssignableFrom(fragment.getClass())) {
                 fragment.onChildRemoved(snapshot);
             }
         }
@@ -94,18 +114,31 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         @Override
         public void onChildMoved(@NonNull DataSnapshot snapshot,
                                  @Nullable String previousChildName) {
-            if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+            ChildEventListenerFragment fragment = getCurrentChildEventListenerFragment();
+            if (fragmentClass.isAssignableFrom(fragment.getClass())) {
                 fragment.onChildMoved(snapshot, previousChildName);
             }
         }
 
         @Override
         public void onCancelled(@NonNull DatabaseError error) {
-            if (getCurrentFragment() instanceof ShoppingItemsFragment fragment) {
+            ChildEventListenerFragment fragment = getCurrentChildEventListenerFragment();
+            if (fragmentClass.isAssignableFrom(fragment.getClass())) {
                 fragment.onCancelled(error);
             }
         }
-    };
+    }
+
+    private final FragmentChildEventListener shoppingItemsEventListener =
+            new FragmentChildEventListener(ShoppingItemsFragment.class);
+    private final FragmentChildEventListener basketItemsEventListener =
+            new FragmentChildEventListener(BasketItemsFragment.class);
+    private final FragmentChildEventListener purchasedItemsEventListener =
+            new FragmentChildEventListener(PurchasedItemsFragment.class);
+
+    private DatabaseReference shoppingItemsReference;
+    private DatabaseReference shoppingBasketReference;
+    private DatabaseReference purchasedItemsReference;
 
     private TextView shopSyncNameTextView;
     private TextView descriptionTextView;
@@ -116,16 +149,22 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: called");
         super.onCreate(savedInstanceState);
-        if (checkIfUserIsLoggedInAndFetch(true) == null) {
+
+        FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+        if (user == null) {
+            Log.e(TAG, "onCreate: user is not signed in");
+            finish();
             return;
         }
 
         // TODO: implement landscape layout
+        /*
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_shop_sync_landscape);
         } else {
             setContentView(R.layout.activity_shop_sync);
         }
+         */
 
         // set the content view
         setContentView(R.layout.activity_shop_sync);
@@ -157,13 +196,13 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         handleItemsTypeChange(shoppingItemsButton);
 
         // fetch the shop sync id from the intent and populate the metadata
-        String shopSyncId = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
-        if (shopSyncId == null) {
+        String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
+        if (shopSyncUid == null) {
             throw new IllegalStateException("ShopSync started without shop sync id");
         }
 
         // fetch the shop sync from the database
-        applicationGraph.shopSyncsService().getShopSyncWithUid(shopSyncId)
+        applicationGraph.shopSyncsService().getShopSyncWithUid(shopSyncUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
@@ -174,8 +213,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
                         ShopSyncModel shopSync = dataSnapshot.getValue(ShopSyncModel.class);
                         if (shopSync == null) {
-                            Log.e(TAG, "onCreate: no shop sync found with id: " + shopSyncId);
-                            throw new IllegalNullValueException("No shop sync found with id: " + shopSyncId);
+                            Log.e(TAG, "onCreate: no shop sync found with id: " + shopSyncUid);
+                            throw new IllegalNullValueException("No shop sync found with id: " + shopSyncUid);
                         }
 
                         Log.d(TAG, "onCreate: shop sync: " + shopSync);
@@ -183,17 +222,31 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         // populate the metadata
                         populateMetaData(shopSync);
                     } else {
-                        Log.e(TAG, "onCreate: failed to fetch shop sync with id: " + shopSyncId,
+                        Log.e(TAG, "onCreate: failed to fetch shop sync with id: " + shopSyncUid,
                               task.getException());
                         throw new TaskFailureException(task, "Failed to fetch shop sync with id: "
-                                + shopSyncId);
+                                + shopSyncUid);
                     }
                 });
 
         // add child event listener for shopping items
-        applicationGraph.shopSyncsService().getShopSyncsFirebaseReference()
-                .getShoppingItemsCollection(shopSyncId)
-                .addChildEventListener(shoppingItemsEventListener);
+        shoppingItemsReference = applicationGraph.shopSyncsService()
+                .getShopSyncsFirebaseReference()
+                .getShoppingItemsCollection(shopSyncUid);
+        shoppingItemsReference.addChildEventListener(shoppingItemsEventListener);
+
+        // add child event listener for basket items
+        shoppingBasketReference = applicationGraph.shopSyncsService()
+                .getShopSyncsFirebaseReference()
+                .getShoppingBasketsCollection(shopSyncUid)
+                .child(user.getUid());
+        shoppingBasketReference.addChildEventListener(basketItemsEventListener);
+
+        // add child event listener for purchased items
+        purchasedItemsReference = applicationGraph.shopSyncsService()
+                .getShopSyncsFirebaseReference()
+                .getPurchasedItemsCollection(shopSyncUid);
+        purchasedItemsReference.addChildEventListener(purchasedItemsEventListener);
     }
 
     @Override
@@ -201,15 +254,25 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         super.onStop();
 
         // fetch the shop sync id from the intent and populate the metadata
-        String shopSyncId = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
-        if (shopSyncId == null) {
+        String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
+        if (shopSyncUid == null) {
             throw new IllegalStateException("ShopSync started without shop sync id");
         }
 
         // remove the child event listener for shopping items
-        applicationGraph.shopSyncsService().getShopSyncsFirebaseReference()
-                .getShoppingItemsCollection(shopSyncId)
-                .removeEventListener(shoppingItemsEventListener);
+        if (shoppingItemsReference != null) {
+            shoppingItemsReference.removeEventListener(shoppingItemsEventListener);
+        }
+
+        // remove the child event listener for basket items
+        if (shoppingBasketReference != null) {
+            shoppingBasketReference.removeEventListener(basketItemsEventListener);
+        }
+
+        // remove the child event listener for purchased items
+        if (purchasedItemsReference != null) {
+            purchasedItemsReference.removeEventListener(purchasedItemsEventListener);
+        }
     }
 
     private void setFragment(ItemsListType itemsListType) {
@@ -233,9 +296,14 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         transaction.commit();
     }
 
-    private Fragment getCurrentFragment() {
+    private ChildEventListenerFragment getCurrentChildEventListenerFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        return fragmentManager.findFragmentById(R.id.fragmentContainer);
+        Fragment fragment = fragmentManager.findFragmentById(R.id.fragmentContainer);
+        if (!(fragment instanceof ChildEventListenerFragment)) {
+            throw new IllegalStateException("Current fragment is not a child event listener " +
+                                                    "fragment");
+        }
+        return (ChildEventListenerFragment) fragment;
     }
 
     private void populateMetaData(ShopSyncModel shopSync) {
@@ -291,13 +359,13 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     public void onConfigurationChanged(@NonNull Configuration config) {
         super.onConfigurationChanged(config);
         // TODO: implement landscape layout
-
+        /*
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_shop_sync_landscape);
         } else {
             setContentView(R.layout.activity_shop_sync);
         }
-
+         */
     }
 
     @Override
@@ -330,6 +398,18 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                     throw new IllegalNullValueException("Props cannot be null for " + action);
                 }
                 moveShoppingItemToBasket(shopSyncUid, props);
+            }
+            case ACTION_INITIALIZE_BASKET_ITEMS -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                initializeBasketItems(shopSyncUid, props);
+            }
+            case ACTION_UPDATE_BASKET_ITEM -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                updateBasketItem(shopSyncUid, props);
             }
             case ACTION_DELETE_SHOPPING_ITEM -> {
                 if (props == null) {
@@ -431,6 +511,28 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 });
     }
 
+    private void deleteShoppingItem(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "deleteShoppingItem: deleting shopping item");
+
+        // fetch the shopping item from the props and delete it
+        ShoppingItemModel shoppingItem = props.get(Constants.SHOPPING_ITEM,
+                                                   ShoppingItemModel.class);
+        if (shoppingItem == null) {
+            throw new IllegalNullValueException("Shopping item is null");
+        }
+
+        applicationGraph.shopSyncsService()
+                .deleteShoppingItem(shopSyncUid, shoppingItem.getShoppingItemUid())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "deleteShoppingItem: successfully deleted shopping item");
+                    } else {
+                        Log.e(TAG, "deleteShoppingItem: failed to delete shopping item",
+                              task.getException());
+                    }
+                });
+    }
+
     private void moveShoppingItemToBasket(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "moveShoppingItemToBasket: moving shopping item to basket");
 
@@ -448,37 +550,143 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         }
 
         // on-success consumer
-        Consumer<BasketItemModel> onSuccess = basketItem -> {
-            Log.d(TAG, "moveShoppingItemToBasket: successfully added shopping item to basket");
-        };
+        Consumer<BasketItemModel> onSuccess = basketItem ->
+                Log.d(TAG, "moveShoppingItemToBasket: successfully added shopping item to basket");
 
         // on-failure consumer
         Consumer<ErrorHandle> onFailure = error -> Log.e(TAG, "moveShoppingItemToBasket: " +
                 "failed to add shopping item to basket due to error: " + error);
 
         applicationGraph.shopSyncsService().addBasketItem(
-                shopSyncUid, user.getUid(), shoppingItem.getUid(), 1, 0.0,
-                onSuccess, onFailure);
+                shopSyncUid, user.getUid(), shoppingItem.getShoppingItemUid(), DEFAULT_QUANTITY,
+                DEFAULT_PRICE_PER_UNIT, onSuccess, onFailure);
     }
 
-    private void deleteShoppingItem(@NonNull String shopSyncUid, @NonNull Props props) {
-        Log.d(TAG, "deleteShoppingItem: deleting shopping item");
+    @SuppressLint("NotifyDataSetChanged")
+    @SuppressWarnings("unchecked")
+    private void initializeBasketItems(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "initializeBasketItems: initializing basket items");
 
-        // fetch the shopping item from the props and delete it
-        ShoppingItemModel shoppingItem = props.get(Constants.SHOPPING_ITEM,
-                                                   ShoppingItemModel.class);
-        if (shoppingItem == null) {
-            throw new IllegalNullValueException("Shopping item is null");
+        FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+        if (user == null) {
+            finish();
+            return;
+        }
+
+        List<BasketItemModel> basketItems = (List<BasketItemModel>) props.get(PROP_BASKET_ITEMS);
+        if (basketItems == null) {
+            Log.e(TAG, "initializeBasketItems: basket items list is null");
+            throw new IllegalNullValueException("Basket items list is null");
+        }
+
+        BasketItemsAdapter adapter = props.get(Constants.ADAPTER, BasketItemsAdapter.class);
+        if (adapter == null) {
+            Log.e(TAG, "initializeBasketItems: adapter is null");
+            throw new IllegalNullValueException("Adapter is null");
+        }
+
+        // fetch basket items list from the props and populate it
+        applicationGraph.shopSyncsService().getShoppingBasketWithUid(shopSyncUid, user.getUid())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        if (dataSnapshot == null) {
+                            Log.e(TAG, "initializeBasketItems: DataSnapshot is null");
+                            throw new IllegalNullValueException("DataSnapshot is null");
+                        }
+
+                        ShoppingBasketModel shoppingBasket = dataSnapshot.getValue(
+                                ShoppingBasketModel.class);
+                        if (shoppingBasket == null) {
+                            Log.e(TAG, "initializeBasketItems: no shopping basket found with " +
+                                    "uid: " + user.getUid());
+                            throw new IllegalNullValueException("No shopping basket found with " +
+                                                                        "uid: " + user.getUid());
+                        }
+
+                        Map<String, BasketItemModel> shoppingBasketItems =
+                                shoppingBasket.getBasketItems();
+                        if (shoppingBasketItems == null) {
+                            throw new IllegalNullValueException("Shopping basket items is null");
+                        }
+
+                        shoppingBasketItems.values().forEach(basketItem -> {
+                            // basket items extends ArraySetList so [contains] is constant time
+                            if (!basketItems.contains(basketItem)) {
+                                basketItems.add(basketItem);
+                            }
+                        });
+
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Log.e(TAG, "initializeBasketItems: failed to fetch shopping basket",
+                              task.getException());
+                        throw new TaskFailureException(task, "Failed to fetch shopping basket");
+                    }
+                });
+    }
+
+    private void updateBasketItem(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "updateBasketItem: updating basket item");
+
+        // fetch the basket item from the props and update it
+        BasketItemModel basketItem = props.get(Constants.BASKET_ITEM, BasketItemModel.class);
+        if (basketItem == null) {
+            throw new IllegalNullValueException("Basket item is null");
+        }
+
+        String shoppingItemUid = basketItem.getShoppingItemUid();
+        if (shoppingItemUid == null) {
+            throw new IllegalNullValueException("Shopping item uid is null");
+        }
+        String shoppingBasketUid = basketItem.getShoppingBasketUid();
+        if (shoppingBasketUid == null) {
+            throw new IllegalNullValueException("Shopping basket uid is null");
         }
 
         applicationGraph.shopSyncsService()
-                .deleteShoppingItem(shopSyncUid, shoppingItem.getUid())
+                .getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "deleteShoppingItem: successfully deleted shopping item");
+                        DataSnapshot dataSnapshot = task.getResult();
+                        if (dataSnapshot == null) {
+                            Log.e(TAG, "updateBasketItem: DataSnapshot is null");
+                            throw new IllegalNullValueException("DataSnapshot is null");
+                        }
+
+                        ShoppingBasketModel shoppingBasket = dataSnapshot.getValue(
+                                ShoppingBasketModel.class);
+                        if (shoppingBasket == null) {
+                            Log.e(TAG, "updateBasketItem: no shopping basket found with uid: " +
+                                    shoppingBasketUid);
+                            throw new IllegalNullValueException("No shopping basket found with " +
+                                                                        "uid: " + shoppingBasketUid);
+                        }
+
+                        Map<String, BasketItemModel> basketItems =
+                                shoppingBasket.getBasketItems();
+                        if (basketItems == null) {
+                            throw new IllegalNullValueException("Basket items is null");
+                        }
+
+                        BasketItemModel oldBasketItem = basketItems.get(shoppingItemUid);
+                        if (oldBasketItem == null) {
+                            Log.e(TAG, "updateBasketItem: no basket item found with uid: " +
+                                    shoppingItemUid);
+                            throw new IllegalNullValueException("No basket item found with uid: " +
+                                                                        shoppingItemUid);
+                        }
+
+                        // update the basket item
+                        oldBasketItem.setQuantity(basketItem.getQuantity());
+                        oldBasketItem.setPricePerUnit(basketItem.getPricePerUnit());
+                        applicationGraph.shopSyncsService()
+                                .updateShoppingBasket(shopSyncUid, shoppingBasket);
                     } else {
-                        Log.e(TAG, "deleteShoppingItem: failed to delete shopping item",
-                              task.getException());
+                        Log.e(TAG, "updateBasketItem: failed to fetch shopping basket with uid: " +
+                                shoppingBasketUid, task.getException());
+                        throw new TaskFailureException(task, "Failed to fetch shopping basket " +
+                                "with uid: " + shoppingBasketUid);
                     }
                 });
     }
@@ -507,7 +715,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
         // delete the purchased item
         applicationGraph.shopSyncsService()
-                .deletePurchasedItem(shopSyncUid, purchasedItem.getUid())
+                .deletePurchasedItem(shopSyncUid, purchasedItem.getPurchasedItemUid())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "undoPurchase: successfully deleted purchased item");
@@ -549,7 +757,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         }
 
         applicationGraph.shopSyncsService()
-                .deletePurchasedItem(shopSyncUid, purchasedItem.getUid())
+                .deletePurchasedItem(shopSyncUid, purchasedItem.getPurchasedItemUid())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "deletePurchase: successfully deleted purchased item");

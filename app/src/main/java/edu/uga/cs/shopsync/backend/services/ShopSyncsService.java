@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.services;
 
+import static edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference.USER_EMAIL_FIELD;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -110,6 +112,7 @@ public class ShopSyncsService {
      */
     public void addShopSyncToUser(@NonNull String userUid, @NonNull String shopSyncUid) {
         userShopSyncMapFirebaseReference.addShopSyncToUser(userUid, shopSyncUid);
+        addShoppingBasket(shopSyncUid, userUid);
     }
 
     /**
@@ -489,7 +492,7 @@ public class ShopSyncsService {
                     return;
                 }
 
-                String userEmail = dataSnapshot.child("email").getValue(String.class);
+                String userEmail = dataSnapshot.child(USER_EMAIL_FIELD).getValue(String.class);
                 if (userEmail == null) {
                     Log.e(TAG, "addPurchasedItem: failed to get user email with uid (" +
                             shoppingBasketUid + ")");
@@ -556,7 +559,7 @@ public class ShopSyncsService {
     public Task<Void> updatePurchasedItem(String shopSyncUid,
                                           PurchasedItemModel updatedPurchasedItem) {
         Log.d(TAG, "updatePurchasedItem: updating purchased item with shop sync uid (" +
-                shopSyncUid + ") and purchased item uid (" + updatedPurchasedItem.getUid() + ")");
+                shopSyncUid + ") and purchased item uid (" + updatedPurchasedItem.getPurchasedItemUid() + ")");
         return shopSyncsFirebaseReference.updatePurchasedItem(shopSyncUid, updatedPurchasedItem);
     }
 

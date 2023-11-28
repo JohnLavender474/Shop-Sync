@@ -120,6 +120,10 @@ public class CreateShopSyncActivity extends BaseActivity {
     private void onCreateShopSyncButtonClick(View view) {
         // check if the current user is logged in
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+        if (user == null) {
+            Log.e(TAG, "onCreateShopSyncButtonClick: user is not logged in");
+            return;
+        }
 
         // check that the shop sync name is not blank
         String shopSyncName = editTextShopSyncName.getText().toString().trim();
@@ -136,6 +140,8 @@ public class CreateShopSyncActivity extends BaseActivity {
             Log.d(TAG, "onCreateShopSyncButtonClick: shop sync created successfully");
             Toast.makeText(this, "Shop Sync created successfully", Toast.LENGTH_SHORT).show();
             finish();
+
+            invitedUserEmails.add(user.getEmail());
 
             invitedUserEmails.forEach(invitedUserEmail -> applicationGraph.usersService()
                     .getUserProfilesWithEmail(invitedUserEmail).addOnCompleteListener(task -> {
@@ -187,9 +193,8 @@ public class CreateShopSyncActivity extends BaseActivity {
             Toast.makeText(this, "Failed to create Shop Sync", Toast.LENGTH_SHORT).show();
         };
 
-        applicationGraph.shopSyncsService()
-                .addShopSync(shopSyncName, shopSyncDescription, List.of(user.getUid()), onSuccess,
-                             onFailure);
+        applicationGraph.shopSyncsService().addShopSync
+                (shopSyncName, shopSyncDescription, List.of(user.getUid()), onSuccess, onFailure);
     }
 
     private void createNotificationForFailedToInviteUser(@NonNull ShopSyncModel shopSync,

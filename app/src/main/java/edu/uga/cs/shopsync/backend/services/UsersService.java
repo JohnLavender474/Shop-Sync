@@ -65,8 +65,8 @@ public class UsersService {
     public void createUser(@NonNull String email, @NonNull String username,
                            @NonNull String password,
                            @Nullable Consumer<UserProfileModel> onSuccess,
-                           @Nullable Consumer<ErrorHandle> onError) throws
-            TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
+                           @Nullable Consumer<ErrorHandle> onError)
+            throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         usersFirebaseReference.createUser(email, username, password, onSuccess, onError);
     }
 

@@ -122,8 +122,8 @@ public class ShopSyncsFirebaseReference {
 
         Map<String, ShoppingItemModel> shoppingItemsMap = new HashMap<>();
         if (shoppingItems != null) {
-            shoppingItems.forEach(shoppingItem -> shoppingItemsMap.put(shoppingItem.getUid(),
-                                                                       shoppingItem));
+            shoppingItems.forEach(shoppingItem -> shoppingItemsMap.put(
+                    shoppingItem.getShoppingItemUid(), shoppingItem));
         }
 
         if (shoppingBaskets == null) {
@@ -132,7 +132,7 @@ public class ShopSyncsFirebaseReference {
 
         Map<String, PurchasedItemModel> purchasedItemsMap = new HashMap<>();
         if (purchasedItems != null) {
-            purchasedItems.forEach(purchasedItem -> purchasedItemsMap.put(purchasedItem.getUid(),
+            purchasedItems.forEach(purchasedItem -> purchasedItemsMap.put(purchasedItem.getPurchasedItemUid(),
                                                                           purchasedItem));
         }
 
@@ -266,7 +266,7 @@ public class ShopSyncsFirebaseReference {
         Log.d("ShopSyncsFirebaseReference", "updateShoppingItem: shop sync uid (" + shopSyncUid +
                 "), updated shopping item (" + updatedShoppingItem + ")");
 
-        String uid = updatedShoppingItem.getUid();
+        String uid = updatedShoppingItem.getShoppingItemUid();
         Map<String, Object> shoppingItemValues = updatedShoppingItem.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
@@ -544,8 +544,7 @@ public class ShopSyncsFirebaseReference {
      * @param onFailure         the consumer that accepts the error handle if the operation fails
      */
     public void addPurchasedItem(@NonNull String shopSyncUid, @NonNull String shoppingBasketUid,
-                                 @NonNull BasketItemModel basketItem,
-                                 @NonNull String userEmail,
+                                 @NonNull BasketItemModel basketItem, @NonNull String userEmail,
                                  @Nullable Consumer<PurchasedItemModel> resultConsumer,
                                  @Nullable Consumer<ErrorHandle> onFailure) {
         Log.d("ShopSyncsFirebaseReference", "addPurchasedItem: shop sync uid (" + shopSyncUid +
@@ -610,7 +609,7 @@ public class ShopSyncsFirebaseReference {
 
                     // create new purchased item
                     PurchasedItemModel newPurchasedItem = new PurchasedItemModel(
-                            uid, shoppingBasketUid, shoppingItem, basketItem);
+                            uid, userEmail, shoppingItem, basketItem);
                     purchasedItemsCollection.child(uid).setValue(newPurchasedItem);
 
                     if (resultConsumer != null) {
@@ -673,7 +672,7 @@ public class ShopSyncsFirebaseReference {
         Log.d("ShopSyncsFirebaseReference", "updatePurchasedItem: shop sync uid (" + shopSyncUid +
                 "), updated purchased item (" + updatedPurchasedItem + ")");
 
-        String uid = updatedPurchasedItem.getUid();
+        String uid = updatedPurchasedItem.getPurchasedItemUid();
         Map<String, Object> purchasedItemValues = updatedPurchasedItem.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();

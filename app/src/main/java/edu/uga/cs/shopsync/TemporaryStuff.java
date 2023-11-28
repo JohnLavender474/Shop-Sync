@@ -18,6 +18,8 @@ import edu.uga.cs.shopsync.backend.services.UsersService;
 public class TemporaryStuff {
 
     public static void testAddNewUser(ApplicationGraph applicationGraph) {
+        Log.d("TemporaryStuff", "testAddNewUser");
+
         UsersService usersService = applicationGraph.usersService();
         usersService.createUser("dawg@mail.com", "dawg", "password",
                                 userProfile -> Log.d("TemporaryStuff", "user created"), null);
@@ -120,7 +122,7 @@ public class TemporaryStuff {
 
                 // add basket item to shopping basket
                 shopSyncsService.addBasketItem(shopSync.getUid(), shoppingBasket.getUid(),
-                                               shoppingItem.getUid(), 1, 2,
+                                               shoppingItem.getShoppingItemUid(), 1, 2,
                                                addBasketItemOnSuccess, null);
             };
 
