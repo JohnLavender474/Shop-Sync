@@ -14,11 +14,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
@@ -28,12 +26,16 @@ import java.util.List;
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
 import edu.uga.cs.shopsync.frontend.Constants;
+import edu.uga.cs.shopsync.frontend.utils.ChildEventListenerFragment;
 import edu.uga.cs.shopsync.frontend.utils.TextWatcherAdapter;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 import edu.uga.cs.shopsync.utils.UtilMethods;
 
-public class BasketItemsFragment extends Fragment implements ChildEventListener {
+/**
+ * This fragment displays the basket items for the current user.
+ */
+public class BasketItemsFragment extends ChildEventListenerFragment {
 
     private static final String TAG = "BasketItemsFragment";
 
@@ -50,6 +52,9 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
 
     private CallbackReceiver callbackReceiver;
 
+    /**
+     * Default constructor for BasketItemsFragment.
+     */
     public BasketItemsFragment() {
         super();
 
@@ -128,12 +133,16 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
     @Override
     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
         BasketItemModel basketItem = snapshot.getValue(BasketItemModel.class);
-        Log.d(TAG, "onChildAdded: basketItem = " + basketItem);
-
-        if (basketItem == null) {
-            Log.e(TAG, "onChildAdded: basketItem is null");
+        if (basketItem == null || basketItem.getShoppingItemUid() == null ||
+                basketItem.getShoppingItemUid().isBlank() ||
+                basketItem.getShoppingBasketUid() == null ||
+                basketItem.getShoppingBasketUid().isBlank()) {
+            Log.d(TAG, "onChildAdded: basketItem is null or has null or blank shoppingItemUid or " +
+                    "shoppingBasketUid. Snapshot = " + snapshot);
             return;
         }
+
+        Log.d(TAG, "onChildAdded: basketItem = " + basketItem);
 
         // TODO: very inefficient to add to beginning of array list, a better way to do this
         basketItems.add(0, basketItem);
@@ -144,12 +153,16 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
         BasketItemModel basketItem = snapshot.getValue(BasketItemModel.class);
-        Log.d(TAG, "onChildChanged: basketItem = " + basketItem);
-
-        if (basketItem == null) {
-            Log.e(TAG, "onChildChanged: basketItem is null");
+        if (basketItem == null || basketItem.getShoppingItemUid() == null ||
+                basketItem.getShoppingItemUid().isBlank() ||
+                basketItem.getShoppingBasketUid() == null ||
+                basketItem.getShoppingBasketUid().isBlank()) {
+            Log.d(TAG, "onChildAdded: basketItem is null or has null or blank shoppingItemUid or " +
+                    "shoppingBasketUid. Snapshot = " + snapshot);
             return;
         }
+
+        Log.d(TAG, "onChildChanged: basketItem = " + basketItem);
 
         int index = basketItems.indexOf(basketItem);
         if (index == -1) {
@@ -164,12 +177,16 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
         BasketItemModel basketItem = snapshot.getValue(BasketItemModel.class);
-        Log.d(TAG, "onChildRemoved: basketItem = " + basketItem);
-
-        if (basketItem == null) {
-            Log.e(TAG, "onChildRemoved: basketItem is null");
+        if (basketItem == null || basketItem.getShoppingItemUid() == null ||
+                basketItem.getShoppingItemUid().isBlank() ||
+                basketItem.getShoppingBasketUid() == null ||
+                basketItem.getShoppingBasketUid().isBlank()) {
+            Log.d(TAG, "onChildAdded: basketItem is null or has null or blank shoppingItemUid or " +
+                    "shoppingBasketUid. Snapshot = " + snapshot);
             return;
         }
+
+        Log.d(TAG, "onChildRemoved: basketItem = " + basketItem);
 
         int index = basketItems.indexOf(basketItem);
         if (index == -1) {
@@ -191,7 +208,7 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
         Log.e(TAG, "onCancelled: called");
     }
 
-    private class BasketItemsAdapter extends RecyclerView.Adapter<BasketItemsAdapter.ViewHolder> {
+    public class BasketItemsAdapter extends RecyclerView.Adapter<BasketItemsAdapter.ViewHolder> {
 
         @NonNull
         @Override
@@ -272,8 +289,9 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
 
                         // update the new quantity
                         item.setQuantity(newQuantity);
-                        callbackReceiver.onCallback(ACTION_UPDATE_BASKET_ITEM,
-                                                    Props.of(Pair.create("basketItem", item)));
+                        callbackReceiver.onCallback(
+                                ACTION_UPDATE_BASKET_ITEM,
+                                Props.of(Pair.create(Constants.BASKET_ITEM, item)));
                     }
                 });
 
@@ -316,8 +334,9 @@ public class BasketItemsFragment extends Fragment implements ChildEventListener 
 
                         // update the new price per unit
                         item.setPricePerUnit(newPricePerUnit);
-                        callbackReceiver.onCallback(ACTION_UPDATE_BASKET_ITEM, Props.of(
-                                Pair.create(Constants.BASKET_ITEM, item)));
+                        callbackReceiver.onCallback(
+                                ACTION_UPDATE_BASKET_ITEM,
+                                Props.of(Pair.create(Constants.BASKET_ITEM, item)));
                     }
                 });
 

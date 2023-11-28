@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
+import edu.uga.cs.shopsync.TemporaryStuff;
 
 /**
  * The main activity for the application. This activity is the first activity that is displayed
@@ -40,7 +40,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         // TODO: remove after testing
-        // TemporaryStuff.testAddNewUser(applicationGraph);
+        TemporaryStuff.testAddNewUser(applicationGraph);
         // TemporaryStuff.testFindByEmail(applicationGraph);
         // TemporaryStuff.testAddShoppingItem(applicationGraph);
         // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);

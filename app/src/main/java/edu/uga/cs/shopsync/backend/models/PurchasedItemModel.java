@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class PurchasedItemModel {
 
-    private String uid;
+    private String purchasedItemUid;
     private String userEmail;
 
     // TODO:
@@ -17,15 +17,16 @@ public class PurchasedItemModel {
     private BasketItemModel basketItem;
 
     public PurchasedItemModel() {
-        uid = "";
-        userEmail = "";
+        purchasedItemUid = null;
+        userEmail = null;
         shoppingItem = null;
         basketItem = null;
     }
 
-    public PurchasedItemModel(String uid, String userEmail, ShoppingItemModel shoppingItem,
+    public PurchasedItemModel(String purchasedItemUid, String userEmail,
+                              ShoppingItemModel shoppingItem,
                               BasketItemModel basketItem) {
-        this.uid = uid;
+        this.purchasedItemUid = purchasedItemUid;
         this.userEmail = userEmail;
         this.shoppingItem = shoppingItem;
         this.basketItem = basketItem;
@@ -33,19 +34,19 @@ public class PurchasedItemModel {
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("uid", uid);
+        map.put("purchasedItemUid", purchasedItemUid);
         map.put("userEmail", userEmail);
         map.put("shoppingItem", shoppingItem.toMap());
         map.put("basketItem", basketItem.toMap());
         return map;
     }
 
-    public String getUid() {
-        return uid;
+    public String getPurchasedItemUid() {
+        return purchasedItemUid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setPurchasedItemUid(String purchasedItemUid) {
+        this.purchasedItemUid = purchasedItemUid;
     }
 
     public String getUserEmail() {
@@ -74,19 +75,20 @@ public class PurchasedItemModel {
 
     @Override
     public int hashCode() {
-        return uid.hashCode();
+        return purchasedItemUid.hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof PurchasedItemModel p && p.uid.equals(uid);
+        return o instanceof PurchasedItemModel p && p.purchasedItemUid != null &&
+                p.purchasedItemUid.equals(purchasedItemUid);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "PurchasedItemModel{" +
-                "uid='" + uid + '\'' +
+                "purchasedItemUid='" + purchasedItemUid + '\'' +
                 ", userEmail='" + userEmail + '\'' +
                 ", shoppingItem=" + shoppingItem +
                 ", basketItem=" + basketItem +

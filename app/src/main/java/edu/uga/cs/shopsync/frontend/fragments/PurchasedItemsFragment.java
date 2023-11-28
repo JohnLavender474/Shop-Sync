@@ -11,11 +11,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
@@ -27,11 +25,12 @@ import edu.uga.cs.shopsync.backend.models.BasketItemModel;
 import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
 import edu.uga.cs.shopsync.frontend.Constants;
+import edu.uga.cs.shopsync.frontend.utils.ChildEventListenerFragment;
 import edu.uga.cs.shopsync.utils.ArraySetList;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
-public class PurchasedItemsFragment extends Fragment implements ChildEventListener {
+public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     private static final String TAG = "PurchasedItemsFragment";
 
@@ -114,12 +113,14 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
     @Override
     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
         PurchasedItemModel purchasedItem = snapshot.getValue(PurchasedItemModel.class);
-        Log.d(TAG, "onChildAdded: purchasedItem = " + purchasedItem);
-
-        if (purchasedItem == null) {
-            Log.e(TAG, "onChildAdded: purchasedItem is null");
+        if (purchasedItem == null || purchasedItem.getPurchasedItemUid() == null ||
+                purchasedItem.getPurchasedItemUid().isBlank()) {
+            Log.d(TAG, "onChildAdded: purchasedItem is null or has null or blank uid. " +
+                    "Snapshot = " + snapshot);
             return;
         }
+
+        Log.d(TAG, "onChildAdded: purchasedItem = " + purchasedItem);
 
         // TODO: very inefficient to add to beginning of array list, a better way to do this
         // possibly implement a customer array or list adapter than allows for modifying
@@ -132,43 +133,45 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
         PurchasedItemModel purchasedItem = snapshot.getValue(PurchasedItemModel.class);
-        Log.d(TAG, "onChildChanged: purchasedItem = " + purchasedItem);
-
-        if (purchasedItem == null) {
-            Log.e(TAG, "onChildChanged: purchasedItem is null");
+        if (purchasedItem == null || purchasedItem.getPurchasedItemUid() == null ||
+                purchasedItem.getPurchasedItemUid().isBlank()) {
+            Log.d(TAG, "onChildAdded: purchasedItem is null or has null or blank uid. " +
+                    "Snapshot = " + snapshot);
             return;
         }
 
-        String purchasedItemUid = purchasedItem.getUid();
-        for (int i = 0; i < purchasedItems.size(); i++) {
-            PurchasedItemModel item = purchasedItems.get(i);
-            if (item.getUid().equals(purchasedItemUid)) {
-                purchasedItems.set(i, purchasedItem);
-                adapter.notifyItemChanged(i);
-                break;
-            }
+        Log.d(TAG, "onChildChanged: purchasedItem = " + purchasedItem);
+
+        int index = purchasedItems.indexOf(purchasedItem);
+        if (index == -1) {
+            Log.d(TAG, "onChildChanged: purchasedItem not found in purchasedItems");
+            return;
         }
+
+        purchasedItems.set(index, purchasedItem);
+        adapter.notifyItemChanged(index);
     }
 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
         PurchasedItemModel purchasedItem = snapshot.getValue(PurchasedItemModel.class);
-        Log.d(TAG, "onChildRemoved: purchasedItem = " + purchasedItem);
-
-        if (purchasedItem == null) {
-            Log.e(TAG, "onChildRemoved: purchasedItem is null");
+        if (purchasedItem == null || purchasedItem.getPurchasedItemUid() == null ||
+                purchasedItem.getPurchasedItemUid().isBlank()) {
+            Log.d(TAG, "onChildAdded: purchasedItem is null or has null or blank uid. " +
+                    "Snapshot = " + snapshot);
             return;
         }
 
-        String purchasedItemUid = purchasedItem.getUid();
-        for (int i = 0; i < purchasedItems.size(); i++) {
-            PurchasedItemModel item = purchasedItems.get(i);
-            if (item.getUid().equals(purchasedItemUid)) {
-                purchasedItems.remove(i);
-                adapter.notifyItemRemoved(i);
-                break;
-            }
+        Log.d(TAG, "onChildRemoved: purchasedItem = " + purchasedItem);
+
+        int index = purchasedItems.indexOf(purchasedItem);
+        if (index == -1) {
+            Log.d(TAG, "onChildRemoved: purchasedItem not found in purchasedItems");
+            return;
         }
+
+        purchasedItems.remove(index);
+        adapter.notifyItemRemoved(index);
     }
 
     @Override
