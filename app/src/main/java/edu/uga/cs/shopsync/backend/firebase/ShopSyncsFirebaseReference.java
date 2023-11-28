@@ -685,14 +685,15 @@ public class ShopSyncsFirebaseReference {
     /**
      * Returns the task that attempts to delete the purchased item with the given uid.
      *
-     * @param shopSyncUid the uid of the shop sync
-     * @param uid         the uid of the purchased item
+     * @param shopSyncUid      the uid of the shop sync
+     * @param purchasedItemUid the uid of the purchased item
      * @return the task that attempts to delete the purchased item with the given uid
      */
-    public Task<Void> deletePurchasedItem(@NonNull String shopSyncUid, @NonNull String uid) {
+    public Task<Void> deletePurchasedItem(@NonNull String shopSyncUid,
+                                          @NonNull String purchasedItemUid) {
         Log.d("ShopSyncsFirebaseReference", "deletePurchasedItem: shop sync uid (" + shopSyncUid +
-                "), uid (" + uid + ")");
-        return getPurchasedItemsCollection(shopSyncUid).child(uid).removeValue();
+                "), uid (" + purchasedItemUid + ")");
+        return getPurchasedItemsCollection(shopSyncUid).child(purchasedItemUid).removeValue();
     }
 
 }

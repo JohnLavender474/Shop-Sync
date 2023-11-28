@@ -564,13 +564,13 @@ public class ShopSyncsService {
      * Returns the task that attempts to delete the purchased item with the given item id.
      *
      * @param shopSyncUid the shop sync uid
-     * @param itemId      the item id
+     * @param purchasedItemId      the item id
      * @return the task that attempts to delete the purchased item with the given item id
      */
-    public Task<Void> deletePurchasedItem(String shopSyncUid, String itemId) {
+    public @NonNull Task<Void> deletePurchasedItem(String shopSyncUid, String purchasedItemId) {
         Log.d(TAG, "deletePurchasedItem: deleting purchased item with shop sync uid (" +
-                shopSyncUid + ") and item id (" + itemId + ")");
-        return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, itemId);
+                shopSyncUid + ") and item id (" + purchasedItemId + ")");
+        return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, purchasedItemId);
     }
 
     // TODO: un-purchase an item
