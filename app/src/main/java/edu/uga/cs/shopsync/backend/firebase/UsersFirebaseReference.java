@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Map;
@@ -92,11 +91,7 @@ public class UsersFirebaseReference {
             throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
         Log.d(TAG, "createUser: creating user with email " + email);
 
-        // query to check if a user profile already exists with the given email
-        Query query = usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(email);
-        Task<DataSnapshot> checkIfExistsTask = query.get();
-
-        checkIfExistsTask.addOnCompleteListener(_checkIfExistsTask -> {
+        getUserProfileWithEmail(email).addOnCompleteListener(_checkIfExistsTask -> {
             if (_checkIfExistsTask.isSuccessful()) {
                 Log.d(TAG, "createUser: task to check if username exists is complete");
                 DataSnapshot dataSnapshot = _checkIfExistsTask.getResult();
@@ -106,7 +101,7 @@ public class UsersFirebaseReference {
                     Log.e(TAG, "createUser: task to check if username exists returned null " +
                             "data snapshot");
                     if (onError != null) {
-                        onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                        onError.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
                                                        "Task to check if username exists " +
                                                                "returned null data snapshot"));
                     }
@@ -230,7 +225,7 @@ public class UsersFirebaseReference {
      * @param userProfileModel the user profile model
      * @noinspection UnusedReturnValue
      */
-    public @NonNull Task<Void> updateUserProfile(UserProfileModel userProfileModel) {
+    public @NonNull Task<Void> updateUserProfile(@NonNull UserProfileModel userProfileModel) {
         Log.d(TAG, "updateUserProfile: updating user profile with uid (" +
                 userProfileModel.getUserUid() + ")");
         return usersCollection.child(userProfileModel.getUserUid()).setValue(userProfileModel);
