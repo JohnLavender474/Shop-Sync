@@ -60,7 +60,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
 
         callbackReceiver = null;
         shoppingItems = new ArraySetList<>();
-        adapter = new ShoppingItemsAdapter(shoppingItems);
+        adapter = new ShoppingItemsAdapter();
     }
 
     @Nullable
@@ -97,7 +97,7 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
             callbackReceiver.onCallback(ACTION_ADD_SHOPPING_ITEM, Props.of());
         });
 
-        // set up the RecyclerView and its adapter
+        // set up the recycler view and its adapter
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewShoppingItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
@@ -204,18 +204,6 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
     public class ShoppingItemsAdapter
             extends RecyclerView.Adapter<ShoppingItemsAdapter.ViewHolder> {
 
-        private final List<ShoppingItemModel> items;
-
-        /**
-         * Constructor for the adapter.
-         *
-         * @param items The list of shopping items to display.
-         */
-        ShoppingItemsAdapter(List<ShoppingItemModel> items) {
-            Log.d(TAG, "ShoppingItemsAdapter: called with items = " + items);
-            this.items = items;
-        }
-
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -228,15 +216,15 @@ public class ShoppingItemsFragment extends Fragment implements ChildEventListene
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Log.d(TAG, "onBindViewHolder: called with position = " + position
-                    + " and item = " + items.get(position));
+                    + " and item = " + shoppingItems.get(position));
 
             // bind the view holder to the item
-            holder.bind(items.get(position));
+            holder.bind(shoppingItems.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return items.size();
+            return shoppingItems.size();
         }
 
         private class ViewHolder extends RecyclerView.ViewHolder {

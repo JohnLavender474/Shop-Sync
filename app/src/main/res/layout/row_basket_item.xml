@@ -5,44 +5,85 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Item Name -->
     <TextView
         android:id="@+id/textViewItemName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="@string/placeholder"
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <!-- Quantity -->
-    <EditText
-        android:id="@+id/editTextQuantity"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="4dp"
-        android:hint="@string/quantity"
-        android:inputType="number"
-        android:textSize="16sp"
-        android:autofillHints="" />
-
-    <!-- Price Per Unit -->
-    <EditText
-        android:id="@+id/editTextPricePerUnit"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="4dp"
-        android:hint="@string/price_per_unit"
-        android:inputType="numberDecimal"
-        android:textSize="16sp"
-        android:autofillHints="" />
-
-    <!-- Update Button -->
-    <Button
-        android:id="@+id/buttonUpdateItem"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/update"
-        android:textSize="16sp" />
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewQuantityWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/warning_quantity"
+                android:textColor="@color/red"
+                android:visibility="invisible" />
+
+            <EditText
+                android:id="@+id/editTextQuantity"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="4dp"
+                android:autofillHints=""
+                android:hint="@string/quantity"
+                android:inputType="number"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textViewPriceWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/warning_price"
+                android:textColor="@color/red"
+                android:visibility="invisible" />
+
+            <EditText
+                android:id="@+id/editTextPricePerUnit"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="4dp"
+                android:autofillHints=""
+                android:hint="@string/price_per_unit"
+                android:inputType="numberDecimal"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/buttonPurchase"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/purchase" />
+
+            <Button
+                android:id="@+id/buttonRemove"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="@string/remove" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

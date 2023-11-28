@@ -90,4 +90,7 @@
     <string name="create_shop_sync">Create Shop Sync</string>
     <string name="refresh">Refresh</string>
     <string name="undo">Undo</string>
+    <string name="remove">Remove</string>
+    <string name="warning_quantity">Invalid quantity!</string>
+    <string name="warning_price">Invalid price!</string>
 </resources>

@@ -60,6 +60,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     private static final String SHOPPING_ITEMS_FRAGMENT = "ShoppingItemsFragment";
     private static final String BASKET_ITEMS_FRAGMENT = "BasketItemsFragment";
     private static final String PURCHASED_ITEMS_FRAGMENT = "PurchasedItemsFragment";
+    private static final int DEFAULT_QUANTITY = 1;
+    private static final double DEFAULT_PRICE_PER_UNIT = 1.0;
 
     private enum ItemsListType {
         SHOPPING_ITEMS_LIST,
@@ -457,8 +459,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 "failed to add shopping item to basket due to error: " + error);
 
         applicationGraph.shopSyncsService().addBasketItem(
-                shopSyncUid, user.getUid(), shoppingItem.getUid(), 1, 0.0,
-                onSuccess, onFailure);
+                shopSyncUid, user.getUid(), shoppingItem.getUid(), DEFAULT_QUANTITY,
+                DEFAULT_PRICE_PER_UNIT, onSuccess, onFailure);
     }
 
     private void deleteShoppingItem(@NonNull String shopSyncUid, @NonNull Props props) {
