@@ -37,11 +37,8 @@ public class PurchasedItemsFragment extends Fragment implements ChildEventListen
 
     public static final String ACTION_INITIALIZE_PURCHASED_ITEMS =
             "ACTION_INITIALIZE_PURCHASED_ITEMS";
-    public static final String ACTION_PURCHASE_ITEM = "ACTION_UPDATE_PURCHASED_ITEM";
     public static final String ACTION_UNDO_PURCHASE = "ACTION_UNDO_PURCHASE";
     public static final String ACTION_DELETE_PURCHASE = "ACTION_DELETE_PURCHASE";
-    public static final String ACTION_EDIT_COST_PER_UNIT = "ACTION_EDIT_COST_PER_UNIT";
-    public static final String ACTION_EDIT_QUANTITY = "ACTION_EDIT_QUANTITY";
     public static final String PROP_PURCHASED_ITEMS = "PROP_PURCHASED_ITEMS";
 
     private final List<PurchasedItemModel> purchasedItems;
