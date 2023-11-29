@@ -154,11 +154,19 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         Log.d(TAG, "onCreate: called");
         super.onCreate(savedInstanceState);
 
+        // check that the user is logged in
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
         if (user == null) {
             Log.e(TAG, "onCreate: user is not signed in");
             finish();
             return;
+        }
+
+        // fetch the shop sync id from the intent to use to populate the metadata
+        String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
+        if (shopSyncUid == null) {
+            Log.e(TAG, "onCreate: ShopSync started without shop sync id");
+            throw new IllegalNullValueException("ShopSync started without shop sync id");
         }
 
         // TODO: implement landscape layout
@@ -196,12 +204,6 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 .forEach(button -> button.setOnClickListener(v -> handleItemsTypeChange(button)));
         // set the shopping items button as the default selected button
         handleItemsTypeChange(shoppingItemsButton);
-
-        // fetch the shop sync id from the intent and populate the metadata
-        String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
-        if (shopSyncUid == null) {
-            throw new IllegalStateException("ShopSync started without shop sync id");
-        }
 
         // fetch the shop sync from the database
         applicationGraph.shopSyncsService().getShopSyncWithUid(shopSyncUid)

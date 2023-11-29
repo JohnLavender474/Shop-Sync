@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
@@ -57,6 +58,7 @@ public class CreateShopSyncActivity extends BaseActivity {
         // check if user is logged in
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
         if (user == null) {
+            Log.e(TAG, "onCreate: user is not logged in");
             return;
         }
 
@@ -94,7 +96,8 @@ public class CreateShopSyncActivity extends BaseActivity {
 
         // set up the invited users array adapter
         invitedUserEmails = new ArrayList<>();
-        invitedUsersAdapter = new InvitedUsersAdapter(this, invitedUserEmails);
+        invitedUsersAdapter = new InvitedUsersAdapter(this, invitedUserEmails,
+                                                      textViewUserCount, this::getUserCount);
         ListView listViewInvitedUsers = findViewById(R.id.listViewInvitedUsers);
         listViewInvitedUsers.setAdapter(invitedUsersAdapter);
     }
@@ -106,7 +109,7 @@ public class CreateShopSyncActivity extends BaseActivity {
 
     private void onInviteUserButtonClick(View view) {
         // check if the maximum number of users has been reached
-        if (getUserCount() >= SHOP_SYNC_MAX_USER_COUNT) {
+        if (getUserCount() > SHOP_SYNC_MAX_USER_COUNT) {
             Toast.makeText(this, "Maximum number of users reached", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -150,7 +153,7 @@ public class CreateShopSyncActivity extends BaseActivity {
                         if (task.isSuccessful()) {
                             DataSnapshot dataSnapshot = task.getResult();
                             if (dataSnapshot == null) {
-                                Log.e(TAG, "onCreateShopSyncButtonClick: failed to get " + "user " +
+                                Log.e(TAG, "onCreateShopSyncButtonClick: failed to get user " +
                                         "profile with email " + invitedUserEmail);
                                 createNotificationForFailedToInviteUser(shopSync, invitedUserEmail);
                                 return;
@@ -214,10 +217,19 @@ public class CreateShopSyncActivity extends BaseActivity {
         // dummy commit
     }
 
-    public class InvitedUsersAdapter extends ArrayAdapter<String> {
+    public static class InvitedUsersAdapter extends ArrayAdapter<String> {
 
-        public InvitedUsersAdapter(Context context, List<String> invitedUsers) {
+        private final List<String> invitedUsers;
+        private final TextView textViewUserCount;
+        private final Supplier<Integer> userCountSupplier;
+
+        public InvitedUsersAdapter(@NonNull Context context, @NonNull List<String> invitedUsers,
+                                   @NonNull TextView textViewUserCount,
+                                   @NonNull Supplier<Integer> userCountSupplier) {
             super(context, 0, invitedUsers);
+            this.invitedUsers = invitedUsers;
+            this.textViewUserCount = textViewUserCount;
+            this.userCountSupplier = userCountSupplier;
         }
 
         @NonNull
@@ -236,7 +248,7 @@ public class CreateShopSyncActivity extends BaseActivity {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     Log.d(TAG, "onTextChanged: email: " + email + ", s: " + s);
-                    invitedUserEmails.set(position, s.toString());
+                    invitedUsers.set(position, s.toString());
                 }
             };
             // a dirty but necessary hack to prevent the text watcher from being added multiple
@@ -253,9 +265,10 @@ public class CreateShopSyncActivity extends BaseActivity {
             ImageButton buttonDelete = convertView.findViewById(R.id.buttonDelete);
             buttonDelete.setOnClickListener(v -> {
                 Log.d(TAG, "Delete button clicked for email: " + email);
-                invitedUserEmails.remove(email);
+                invitedUsers.remove(email);
                 textViewUserCount.setText(String.format(Locale.getDefault(), USER_COUNT_STRING,
-                                                        getUserCount(), SHOP_SYNC_MAX_USER_COUNT));
+                                                        userCountSupplier.get(),
+                                                        SHOP_SYNC_MAX_USER_COUNT));
                 notifyDataSetChanged();
             });
 
