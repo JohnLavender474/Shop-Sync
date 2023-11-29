@@ -112,6 +112,9 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildAdded: called with snapshot = " + snapshot + " and previous " +
+                "child name = " + previousChildName);
+
         PurchasedItemModel purchasedItem = snapshot.getValue(PurchasedItemModel.class);
         if (purchasedItem == null || purchasedItem.getPurchasedItemUid() == null ||
                 purchasedItem.getPurchasedItemUid().isBlank()) {
@@ -132,6 +135,9 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildChanged: called with snapshot = " + snapshot + " and previous " +
+                "child name = " + previousChildName);
+
         PurchasedItemModel purchasedItem = snapshot.getValue(PurchasedItemModel.class);
         if (purchasedItem == null || purchasedItem.getPurchasedItemUid() == null ||
                 purchasedItem.getPurchasedItemUid().isBlank()) {
@@ -154,6 +160,8 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        Log.d(TAG, "onChildRemoved: called with snapshot = " + snapshot);
+
         PurchasedItemModel purchasedItem = snapshot.getValue(PurchasedItemModel.class);
         if (purchasedItem == null || purchasedItem.getPurchasedItemUid() == null ||
                 purchasedItem.getPurchasedItemUid().isBlank()) {
@@ -176,12 +184,13 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        Log.d(TAG, "onChildMoved: called");
+        Log.d(TAG, "onChildMoved: called with snapshot = " + snapshot + " and previous " +
+                "child name = " + previousChildName);
     }
 
     @Override
     public void onCancelled(@NonNull DatabaseError error) {
-        Log.e(TAG, "onCancelled: error = " + error);
+        Log.e(TAG, "onCancelled: called with error = " + error);
     }
 
     private class PurchasedItemsAdapter

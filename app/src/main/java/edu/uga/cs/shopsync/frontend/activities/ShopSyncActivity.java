@@ -236,7 +236,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         // add child event listener for basket items
         shoppingBasketReference = applicationGraph.shopSyncsService()
                 .getShopSyncsFirebaseReference().getShoppingBasketsCollection(shopSyncUid)
-                .child(user.getUid());
+                .child(user.getUid()).child(Constants.BASKET_ITEMS_DB_KEY);
         shoppingBasketReference.addChildEventListener(basketItemsEventListener);
 
         // add child event listener for purchased items
@@ -552,6 +552,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         // shopping basket uid is the same as the user's uid
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
         if (user == null) {
+            Log.e(TAG, "moveShoppingItemToBasket: user is not signed in");
             return;
         }
 
@@ -559,16 +560,30 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         ShoppingItemModel shoppingItem = props.get(Constants.SHOPPING_ITEM,
                                                    ShoppingItemModel.class);
         if (shoppingItem == null) {
+            Log.e(TAG, "moveShoppingItemToBasket: shopping item is null");
             throw new IllegalNullValueException("Shopping item is null");
         }
 
         // on-success consumer
-        Consumer<BasketItemModel> onSuccess = basketItem -> Log.d(TAG, "moveShoppingItemToBasket:" +
-                " successfully added shopping item to basket");
+        Consumer<BasketItemModel> onSuccess = basketItem -> {
+            Log.d(TAG, "moveShoppingItemToBasket: successfully added shopping item to basket");
+
+            Runnable onSuccessRunnable = props.get(Constants.ON_SUCCESS, Runnable.class);
+            if (onSuccessRunnable != null) {
+                onSuccessRunnable.run();
+            }
+        };
 
         // on-failure consumer
-        Consumer<ErrorHandle> onFailure = error -> Log.e(TAG, "moveShoppingItemToBasket: " +
-                "failed to add shopping item to basket due to error: " + error);
+        Consumer<ErrorHandle> onFailure = error -> {
+            Log.e(TAG, "moveShoppingItemToBasket: failed to add shopping item to basket due to " +
+                    "error: " + error);
+
+            Runnable onFailureRunnable = props.get(Constants.ON_FAILURE, Runnable.class);
+            if (onFailureRunnable != null) {
+                onFailureRunnable.run();
+            }
+        };
 
         applicationGraph.shopSyncsService()
                 .addBasketItem(shopSyncUid, user.getUid(), shoppingItem.getShoppingItemUid(),

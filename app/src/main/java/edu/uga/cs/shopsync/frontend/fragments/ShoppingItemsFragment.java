@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -133,6 +134,9 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildAdded: called with snapshot = " + snapshot + " and " +
+                "previousChildName = " + previousChildName);
+
         ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
         if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
                 shoppingItem.getShoppingItemUid().isBlank()) {
@@ -151,6 +155,9 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildChanged: called with snapshot = " + snapshot + " and " +
+                "previousChildName = " + previousChildName);
+
         ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
         if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
                 shoppingItem.getShoppingItemUid().isBlank()) {
@@ -173,6 +180,8 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        Log.d(TAG, "onChildRemoved: called with snapshot = " + snapshot);
+
         ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
         if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
                 shoppingItem.getShoppingItemUid().isBlank()) {
@@ -195,7 +204,8 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        Log.d(TAG, "onChildMoved: called");
+        Log.d(TAG, "onChildMoved: called with snapshot = " + snapshot
+                + " and previousChildName = " + previousChildName);
     }
 
     @Override
@@ -237,6 +247,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
             private final TextView errorTextView;
             private final EditText editTextItemName;
             private final TextView textViewInBasket;
+            private final Button buttonUpdateShoppingItem;
             private final Button buttonSetInBasket;
             private final Button buttonDeleteItem;
 
@@ -246,10 +257,12 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 Log.d(TAG, "ViewHolder: called");
 
                 errorTextView = itemView.findViewById(R.id.textViewError);
-                errorTextView.setEnabled(false);
+                errorTextView.setVisibility(View.INVISIBLE);
 
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
+
+                buttonUpdateShoppingItem = itemView.findViewById(R.id.buttonUpdateShoppingItem);
                 buttonSetInBasket = itemView.findViewById(R.id.buttonSetInBasket);
                 buttonDeleteItem = itemView.findViewById(R.id.buttonDeleteItem);
             }
@@ -262,7 +275,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
                         boolean error = charSequence.toString().isBlank();
-                        errorTextView.setEnabled(error);
+                        errorTextView.setVisibility(error ? View.VISIBLE : View.INVISIBLE);
                     }
                 };
                 editTextItemName.setText(item.getName());
@@ -272,21 +285,16 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 editTextItemName.setOnFocusChangeListener((v, hasFocus) -> {
                     if (hasFocus) {
                         editTextItemName.addTextChangedListener(itemTextWatcher);
-                    } else if (callbackReceiver == null) {
-                        Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextItemName.removeTextChangedListener(itemTextWatcher);
-                        String itemName = editTextItemName.getText().toString();
-                        if (!itemName.equals(item.getName())) {
-                            item.setName(itemName);
-                            callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
-                                    Pair.create(Constants.SHOPPING_ITEM, item)));
-                        }
                     }
                 });
 
                 String inBasketText = "In a user's basket: " + (item.isInBasket() ? "Yes" : "No");
                 textViewInBasket.setText(inBasketText);
+
+                // set the button to update the item
+                buttonUpdateShoppingItem.setOnClickListener(v -> updateShoppingItem(item));
 
                 // set the button to set the item in the user's basket
                 buttonSetInBasket.setOnClickListener(v -> setItemInMyBasket(item));
@@ -305,6 +313,21 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 buttonDeleteItem.setOnClickListener(v -> deleteItem(item));
             }
 
+            private void updateShoppingItem(ShoppingItemModel shoppingItem) {
+                String itemName = editTextItemName.getText().toString();
+                if (!itemName.equals(shoppingItem.getName())) {
+                    shoppingItem.setName(itemName);
+                    callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
+                            Pair.create(Constants.SHOPPING_ITEM, shoppingItem)));
+
+                    Toast.makeText(getContext(), "Item updated successfully!",
+                                   Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Toast.makeText(getContext(), "No changes to update.", Toast.LENGTH_SHORT).show();
+            }
+
             private void setItemInMyBasket(ShoppingItemModel shoppingItem) {
                 Log.d(TAG, "setItemInMyBasket: called");
 
@@ -313,9 +336,19 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                     throw new IllegalNullValueException("callbackReceiver is null");
                 }
 
+                Runnable onSuccess = () -> Toast.makeText(getContext(), "Item added to your " +
+                                                                  "basket!",
+                                                          Toast.LENGTH_SHORT).show();
+
+                Runnable onFailure = () -> Toast.makeText(getContext(), "Failed to add item to " +
+                                                                  "your basket.",
+                                                          Toast.LENGTH_SHORT).show();
+
                 Log.d(TAG, "setItemInMyBasket: calling callbackReceiver.onCallback");
                 callbackReceiver.onCallback(ACTION_MOVE_SHOPPING_ITEM_TO_BASKET, Props.of(
-                        Pair.create(Constants.SHOPPING_ITEM, shoppingItem)));
+                        Pair.create(Constants.SHOPPING_ITEM, shoppingItem),
+                        Pair.create(Constants.ON_SUCCESS, onSuccess),
+                        Pair.create(Constants.ON_FAILURE, onFailure)));
             }
 
             private void deleteItem(ShoppingItemModel shoppingItem) {

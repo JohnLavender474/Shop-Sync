@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.uga.cs.shopsync.R;
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
@@ -132,6 +133,9 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildAdded: called with snapshot = " + snapshot + " and previous " +
+                "child name = " + previousChildName);
+
         BasketItemModel basketItem = snapshot.getValue(BasketItemModel.class);
         if (basketItem == null || basketItem.getShoppingItemUid() == null ||
                 basketItem.getShoppingItemUid().isBlank() ||
@@ -152,6 +156,9 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildChanged: called with snapshot = " + snapshot + " and previous " +
+                "child name = " + previousChildName);
+
         BasketItemModel basketItem = snapshot.getValue(BasketItemModel.class);
         if (basketItem == null || basketItem.getShoppingItemUid() == null ||
                 basketItem.getShoppingItemUid().isBlank() ||
@@ -174,8 +181,26 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
         adapter.notifyItemChanged(index);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        Log.d(TAG, "onChildRemoved: called with snapshot = " + snapshot);
+
+        String key = snapshot.getKey();
+        if (key == null) {
+            Log.e(TAG, "onChildRemoved: snapshot key is null");
+            return;
+        }
+        if (key.equals(Constants.BASKET_ITEMS_DB_KEY)) {
+            try {
+                Map<String, Object> map = (Map<String, Object>) snapshot.getValue();
+                Log.d(TAG, "onChildRemoved: map = " + map);
+            } catch (Exception e) {
+                Log.e(TAG, "onChildRemoved: snapshot value is not a map for key = " + key, e);
+                return;
+            }
+        }
+
         BasketItemModel basketItem = snapshot.getValue(BasketItemModel.class);
         if (basketItem == null || basketItem.getShoppingItemUid() == null ||
                 basketItem.getShoppingItemUid().isBlank() ||
@@ -200,12 +225,13 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        Log.d(TAG, "onChildMoved: called");
+        Log.d(TAG, "onChildMoved: called with snapshot = " + snapshot + " and previous " +
+                "child name = " + previousChildName);
     }
 
     @Override
     public void onCancelled(@NonNull DatabaseError error) {
-        Log.e(TAG, "onCancelled: called");
+        Log.e(TAG, "onCancelled: called with error = " + error);
     }
 
     public class BasketItemsAdapter extends RecyclerView.Adapter<BasketItemsAdapter.ViewHolder> {

@@ -5,9 +5,12 @@ package edu.uga.cs.shopsync.frontend;
  */
 public class Constants {
 
+    public static final String ON_SUCCESS = "OnSuccess";
+    public static final String ON_FAILURE = "OnFailure";
     public static final String SHOP_SYNC_UID = "ShopSyncUid";
     public static final String SHOPPING_ITEM = "ShoppingItem";
     public static final String BASKET_ITEM = "BasketItem";
+    public static final String BASKET_ITEMS_DB_KEY = "basketItems";
     public static final String PURCHASED_ITEM = "PurchasedItem";
     public static final String ADAPTER = "Adapter";
     public static final String TEXT_VIEW = "TextView";
