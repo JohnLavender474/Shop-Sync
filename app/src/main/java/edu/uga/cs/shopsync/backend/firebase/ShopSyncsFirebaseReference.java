@@ -620,9 +620,9 @@ public class ShopSyncsFirebaseReference {
         getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DataSnapshot dataSnapshot = task.getResult();
+
                 ShoppingBasketModel shoppingBasket =
                         dataSnapshot.getValue(ShoppingBasketModel.class);
-
                 if (shoppingBasket == null) {
                     Log.e(TAG, "addPurchasedItem: shopping basket is null");
                     return;

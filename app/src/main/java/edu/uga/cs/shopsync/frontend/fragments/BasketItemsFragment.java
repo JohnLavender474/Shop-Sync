@@ -181,8 +181,8 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                 basketItem.getShoppingItemUid().isBlank() ||
                 basketItem.getShoppingBasketUid() == null ||
                 basketItem.getShoppingBasketUid().isBlank()) {
-            Log.d(TAG, "onChildAdded: basketItem is null or has null or blank shoppingItemUid or " +
-                    "shoppingBasketUid. Snapshot = " + snapshot);
+            Log.d(TAG, "onChildRemoved: basketItem is null or has null or blank shoppingItemUid " +
+                    "or shoppingBasketUid. Basket item = " + basketItem + ", snapshot = " + snapshot);
             return;
         }
 

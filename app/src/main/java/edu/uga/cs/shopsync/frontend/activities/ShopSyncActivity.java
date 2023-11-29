@@ -319,8 +319,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
         Consumer<List<String>> userUidsConsumer =
                 userUids -> userUids.forEach(userUid -> applicationGraph.usersService()
-                .getUserProfileWithUid(userUid)
-                .addOnSuccessListener(data -> handleUserProfileData(data, userUid)));
+                        .getUserProfileWithUid(userUid)
+                        .addOnSuccessListener(data -> handleUserProfileData(data, userUid)));
 
         applicationGraph.shopSyncsService()
                 .getUsersForShopSync(shopSync.getUid(), userUidsConsumer, null);
