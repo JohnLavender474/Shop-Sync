@@ -292,6 +292,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                     transaction.replace(R.id.fragmentContainer, new PurchasedItemsFragment(),
                                         PURCHASED_ITEMS_FRAGMENT);
         }
+
         transaction.commit();
     }
 
@@ -724,11 +725,17 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
             throw new IllegalNullValueException("Shopping basket uid is null");
         }
 
+        Runnable onSuccessRunnable = props.get(Constants.ON_SUCCESS, Runnable.class);
+        Runnable onFailureRunnable = props.get(Constants.ON_FAILURE, Runnable.class);
+
         applicationGraph.shopSyncsService().getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
                         if (dataSnapshot == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             Log.e(TAG, "updateBasketItem: DataSnapshot is null");
                             throw new IllegalNullValueException("DataSnapshot is null");
                         }
@@ -736,6 +743,9 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         ShoppingBasketModel shoppingBasket =
                                 dataSnapshot.getValue(ShoppingBasketModel.class);
                         if (shoppingBasket == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             Log.e(TAG,
                                   "updateBasketItem: no shopping basket found with uid: " + shoppingBasketUid);
                             throw new IllegalNullValueException("No shopping basket found with " + "uid: " + shoppingBasketUid);
@@ -743,11 +753,17 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
                         Map<String, BasketItemModel> basketItems = shoppingBasket.getBasketItems();
                         if (basketItems == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             throw new IllegalNullValueException("Basket items is null");
                         }
 
                         BasketItemModel oldBasketItem = basketItems.get(shoppingItemUid);
                         if (oldBasketItem == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             Log.e(TAG,
                                   "updateBasketItem: no basket item found with uid: " + shoppingItemUid);
                             throw new IllegalNullValueException("No basket item found with uid: " +
@@ -759,12 +775,16 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         oldBasketItem.setPricePerUnit(basketItem.getPricePerUnit());
                         applicationGraph.shopSyncsService()
                                 .updateShoppingBasket(shopSyncUid, shoppingBasket);
+
+                        if (onSuccessRunnable != null) {
+                            onSuccessRunnable.run();
+                        }
                     } else {
                         Log.e(TAG,
                               "updateBasketItem: failed to fetch shopping basket with uid: " +
                                       shoppingBasketUid, task.getException());
                         throw new TaskFailureException(task,
-                                                       "Failed to fetch shopping basket " + "with" +
+                                                       "Failed to fetch shopping basket with" +
                                                                " uid: " + shoppingBasketUid);
                     }
                 });
@@ -896,7 +916,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
                         // re-add the basket item to the user's shopping basket
                         Consumer<BasketItemModel> onSuccess = _basketItem -> Log.d(TAG,
-                                "undoPurchase: successfully added basket item to db: " + basketItem);
+                                                                                   "undoPurchase:" +
+                                                                                           " successfully added basket item to db: " + basketItem);
                         Consumer<ErrorHandle> onFailure = error -> Log.e(TAG, "undoPurchase: " +
                                 "failed to add basket item to db due to error: " + error);
                         applicationGraph.shopSyncsService()

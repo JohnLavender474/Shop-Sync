@@ -261,6 +261,7 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
             private final TextView textViewQuantityWarning;
             private final EditText editTextPricePerUnit;
             private final TextView textViewPriceWarning;
+            private final Button buttonUpdate;
             private final Button buttonPurchase;
             private final Button buttonRemove;
 
@@ -271,6 +272,8 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                 textViewQuantityWarning = itemView.findViewById(R.id.textViewQuantityWarning);
                 editTextPricePerUnit = itemView.findViewById(R.id.editTextPricePerUnit);
                 textViewPriceWarning = itemView.findViewById(R.id.textViewPriceWarning);
+
+                buttonUpdate = itemView.findViewById(R.id.buttonUpdate);
                 buttonPurchase = itemView.findViewById(R.id.buttonPurchase);
                 buttonRemove = itemView.findViewById(R.id.buttonRemove);
             }
@@ -298,11 +301,10 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                 editTextQuantity.setOnFocusChangeListener((v, hasFocus) -> {
                     if (hasFocus) {
                         editTextQuantity.addTextChangedListener(quantityTextWatcher);
-                    } else if (callbackReceiver == null) {
-                        Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextQuantity.removeTextChangedListener(quantityTextWatcher);
 
+                        /*
                         String text = editTextQuantity.getText().toString();
 
                         if (!UtilMethods.isLong(text)) {
@@ -332,6 +334,8 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                         callbackReceiver.onCallback(
                                 ACTION_UPDATE_BASKET_ITEM,
                                 Props.of(Pair.create(Constants.BASKET_ITEM, item)));
+
+                         */
                     }
                 });
 
@@ -352,11 +356,10 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                 editTextPricePerUnit.setOnFocusChangeListener((v, hasFocus) -> {
                     if (hasFocus) {
                         editTextPricePerUnit.addTextChangedListener(pricePerUnitTextWatcher);
-                    } else if (callbackReceiver == null) {
-                        Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextPricePerUnit.removeTextChangedListener(pricePerUnitTextWatcher);
 
+                        /*
                         String text = editTextPricePerUnit.getText().toString();
                         if (!UtilMethods.isDouble(text)) {
                             Toast.makeText(getContext(), "Input must be a number!",
@@ -383,14 +386,76 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
 
                         // round to 2 decimal places
                         newPricePerUnit =
-                                Double.parseDouble(UtilMethods.roundToDecimalPlaces(newPricePerUnit, 2));
+                                Double.parseDouble(UtilMethods.roundToDecimalPlaces
+                                (newPricePerUnit, 2));
 
                         // update the new price per unit
                         item.setPricePerUnit(newPricePerUnit);
                         callbackReceiver.onCallback(
                                 ACTION_UPDATE_BASKET_ITEM,
                                 Props.of(Pair.create(Constants.BASKET_ITEM, item)));
+
+                         */
                     }
+                });
+
+                // set up update button
+                buttonUpdate.setOnClickListener(v -> {
+                    String text = editTextQuantity.getText().toString();
+
+                    if (!UtilMethods.isLong(text)) {
+                        Toast.makeText(getContext(), "Input must be a number!",
+                                       Toast.LENGTH_SHORT).show();
+                        editTextQuantity.setText(String.valueOf(item.getQuantity()));
+                        return;
+                    }
+
+                    long newQuantity = Long.parseLong(editTextQuantity.getText().toString());
+
+                    // check if the new quantity is 0
+                    if (newQuantity <= 0) {
+                        Toast.makeText(getContext(), "Quantity cannot be 0!",
+                                       Toast.LENGTH_SHORT).show();
+                        editTextQuantity.setText(String.valueOf(item.getQuantity()));
+                        return;
+                    }
+
+                    text = editTextPricePerUnit.getText().toString();
+
+                    // check that price per unit is a number
+                    if (!UtilMethods.isDouble(text)) {
+                        Toast.makeText(getContext(), "Price per unit must be a number!",
+                                       Toast.LENGTH_SHORT).show();
+                        editTextPricePerUnit.setText(String.valueOf(item.getPricePerUnit()));
+                        return;
+                    }
+                    double newPricePerUnit = Double.parseDouble(editTextPricePerUnit.getText()
+                                                                        .toString());
+
+                    // check that price per unit is not negative
+                    if (newPricePerUnit < 0) {
+                        Toast.makeText(getContext(), "Price per unit cannot be negative!",
+                                       Toast.LENGTH_SHORT).show();
+                        editTextPricePerUnit.setText(String.valueOf(item.getPricePerUnit()));
+                        return;
+                    }
+
+                    // round to 2 decimal places
+                    newPricePerUnit = Double.parseDouble(UtilMethods.roundToDecimalPlaces
+                            (newPricePerUnit, 2));
+
+                    Runnable onSuccess = () -> Toast.makeText(getContext(), "Basket item updated!",
+                                                              Toast.LENGTH_SHORT).show();
+                    Runnable onFailure = () -> Toast.makeText(getContext(), "Failed to update " +
+                            "basket item!", Toast.LENGTH_SHORT).show();
+
+                    // update the values of the basket item
+                    item.setQuantity(newQuantity);
+                    item.setPricePerUnit(newPricePerUnit);
+                    callbackReceiver.onCallback(ACTION_UPDATE_BASKET_ITEM, Props.of(
+                            Pair.create(Constants.BASKET_ITEM, item),
+                            Pair.create(Constants.ON_SUCCESS, onSuccess),
+                            Pair.create(Constants.ON_FAILURE, onFailure)));
                 });
 
                 // set up purchase button
