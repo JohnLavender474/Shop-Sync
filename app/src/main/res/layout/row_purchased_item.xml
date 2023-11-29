@@ -31,28 +31,28 @@
             <TextView
                 android:id="@+id/quantityTextView"
                 android:layout_width="200dp"
-                android:layout_height="50dp"
+                android:layout_height="25dp"
                 android:layout_marginBottom="4dp"
                 android:autofillHints=""
                 android:text="@string/placeholder"
-                android:textSize="20sp" />
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/pricePerUnitTextView"
                 android:layout_width="200dp"
-                android:layout_height="50dp"
+                android:layout_height="25dp"
                 android:layout_marginBottom="4dp"
                 android:hint="@string/price_per_unit"
                 android:text="@string/placeholder"
-                android:textSize="20sp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/totalCostTextView"
                 android:layout_width="200dp"
-                android:layout_height="wrap_content"
+                android:layout_height="25dp"
                 android:layout_marginTop="5dp"
                 android:text="@string/placeholder"
-                android:textSize="20sp" />
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -64,20 +64,18 @@
 
             <Button
                 android:id="@+id/undoPurchaseButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="15dp"
                 android:text="@string/undo" />
 
             <Button
                 android:id="@+id/deletePurchaseButton"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="15dp"
                 android:text="@string/delete" />
 
         </LinearLayout>

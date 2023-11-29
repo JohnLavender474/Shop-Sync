@@ -193,7 +193,7 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
         Log.e(TAG, "onCancelled: called with error = " + error);
     }
 
-    private class PurchasedItemsAdapter
+    public class PurchasedItemsAdapter
             extends RecyclerView.Adapter<PurchasedItemsAdapter.ViewHolder> {
 
         private final List<PurchasedItemModel> purchasedItems;
