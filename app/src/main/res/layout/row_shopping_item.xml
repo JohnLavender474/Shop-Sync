@@ -18,7 +18,8 @@
     <EditText
         android:id="@+id/editTextItemName"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
+        android:autofillHints=""
         android:hint="@string/item_name"
         android:inputType="text"
         android:textSize="12sp" />
@@ -27,16 +28,16 @@
         android:id="@+id/textViewInBasket"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/inBasket"
         android:gravity="center_horizontal"
+        android:text="@string/inBasket"
         android:textSize="12sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
         android:gravity="center_vertical"
-        android:layout_marginTop="4dp"> >
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/buttonUpdateShoppingItem"

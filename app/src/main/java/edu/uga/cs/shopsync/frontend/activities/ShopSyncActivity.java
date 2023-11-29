@@ -667,7 +667,6 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     private void fetchItemNameByShoppingItemUid(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "fetchItemNameByShoppingItemUid: fetching item name");
 
-        // fetch the item name
         String shoppingItemUid = props.get(Constants.SHOPPING_ITEM, String.class);
         if (shoppingItemUid == null) {
             throw new IllegalNullValueException("Shopping item uid cannot be null");
