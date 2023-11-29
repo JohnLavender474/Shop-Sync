@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
 import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
@@ -581,27 +582,8 @@ public class ShopSyncsFirebaseReference {
                     }
 
                     // delete the corresponding basket item from the shopping basket
-                    getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DataSnapshot dataSnapshot = task.getResult();
-                            ShoppingBasketModel shoppingBasket =
-                                    dataSnapshot.getValue(ShoppingBasketModel.class);
-
-                            if (shoppingBasket == null) {
-                                Log.e(TAG, "addPurchasedItem: shopping basket is null");
-                                return;
-                            }
-
-                            shoppingBasket.getBasketItems().remove(basketItem.getShoppingItemUid());
-                            updateShoppingBasket(shopSyncUid, shoppingBasket);
-                        } else {
-                            Log.e(TAG, "addPurchasedItem: failed to get shopping basket");
-                            if (onFailure != null) {
-                                onFailure.accept(new ErrorHandle(ErrorType.TASK_FAILED,
-                                                                 "Failed to get shopping basket"));
-                            }
-                        }
-                    });
+                    deleteBasketItem(shopSyncUid, shoppingBasketUid,
+                                     basketItem.getShoppingItemUid(), onFailure, false);
 
                     // delete the shopping item
                     getShoppingItemsCollection(shopSyncUid).child(basketItem.getShoppingItemUid())
@@ -616,6 +598,76 @@ public class ShopSyncsFirebaseReference {
                         resultConsumer.accept(newPurchasedItem);
                     }
                 });
+    }
+
+    /**
+     * Delete the basket item.
+     *
+     * @param shopSyncUid                      the shop sync uid
+     * @param shoppingBasketUid                the shopping basket uid
+     * @param shoppingItemUid                  the shopping item uid
+     * @param onFailure                        the consumer for when a failure occurs
+     * @param updateShoppingItemInBasketStatus if the "in basket" status of the corresponding
+     *                                         shopping item should be updated to "false"; this
+     *                                         should be false if the shopping item is about to be
+     *                                         deleted immediately.
+     */
+    public void deleteBasketItem(@NonNull String shopSyncUid,
+                                 @NonNull String shoppingBasketUid,
+                                 @NonNull String shoppingItemUid,
+                                 @Nullable Consumer<ErrorHandle> onFailure,
+                                 boolean updateShoppingItemInBasketStatus) {
+        getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot dataSnapshot = task.getResult();
+
+                ShoppingBasketModel shoppingBasket =
+                        dataSnapshot.getValue(ShoppingBasketModel.class);
+                if (shoppingBasket == null) {
+                    Log.e(TAG, "addPurchasedItem: shopping basket is null");
+                    return;
+                }
+
+                BasketItemModel basketItem = shoppingBasket.getBasketItems()
+                        .remove(shoppingItemUid);
+                updateShoppingBasket(shopSyncUid, shoppingBasket);
+
+                if (updateShoppingItemInBasketStatus && basketItem != null) {
+                    getShoppingItemWithUid(shopSyncUid, basketItem.getShoppingItemUid())
+                            .addOnCompleteListener(shoppingItemTask -> {
+                                if (shoppingItemTask.isSuccessful()) {
+                                    DataSnapshot shoppingItemDataSnapshot =
+                                            shoppingItemTask.getResult();
+                                    if (shoppingItemDataSnapshot == null) {
+                                        Log.e(TAG, "Shopping item data snapshot is null");
+                                        throw new IllegalNullValueException("Shopping item data " +
+                                                                                    "snapshot is " +
+                                                                                    "null");
+                                    }
+
+                                    ShoppingItemModel shoppingItem =
+                                            shoppingItemDataSnapshot.getValue(ShoppingItemModel.class);
+                                    if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
+                                            shoppingItem.getShoppingItemUid().isBlank()) {
+                                        Log.e(TAG, "Shopping item uid is null or blank");
+                                        throw new IllegalNullValueException("Shopping item uid is" +
+                                                                                    " null or " +
+                                                                                    "blank: " + shoppingItem);
+                                    }
+
+                                    shoppingItem.setInBasket(false);
+                                    updateShoppingItem(shopSyncUid, shoppingItem);
+                                }
+                            });
+                }
+            } else {
+                Log.e(TAG, "addPurchasedItem: failed to get shopping basket");
+                if (onFailure != null) {
+                    onFailure.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                     "Failed to get shopping basket"));
+                }
+            }
+        });
     }
 
     /**

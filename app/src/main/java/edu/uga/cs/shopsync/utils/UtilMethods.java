@@ -32,4 +32,36 @@ public class UtilMethods {
         return String.format("%." + decimalPlaces + "f", value);
     }
 
+    /**
+     * Checks that the given string is a long.
+     *
+     * @param s the string
+     * @return if the string is a long
+     */
+    public static boolean isLong(String s) {
+        boolean isLong = false;
+        try {
+            Long.parseLong(s);
+            isLong = true;
+        } catch (NumberFormatException ignored) {
+        }
+        return isLong;
+    }
+
+    /**
+     * Checks the the given string is a double.
+     *
+     * @param s the string
+     * @return if the string is a double
+     */
+    public static boolean isDouble(String s) {
+        boolean isDouble = false;
+        try {
+            Double.parseDouble(s);
+            isDouble = true;
+        } catch (NumberFormatException ignored) {
+        }
+        return isDouble;
+    }
+
 }

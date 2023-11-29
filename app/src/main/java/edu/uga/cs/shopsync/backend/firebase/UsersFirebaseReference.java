@@ -92,6 +92,8 @@ public class UsersFirebaseReference {
         Log.d(TAG, "createUser: creating user with email " + email);
 
         getUserProfileWithEmail(email).addOnCompleteListener(_checkIfExistsTask -> {
+            Log.d(TAG, "createUser: task to check if username exists is complete");
+
             if (_checkIfExistsTask.isSuccessful()) {
                 Log.d(TAG, "createUser: task to check if username exists is complete");
                 DataSnapshot dataSnapshot = _checkIfExistsTask.getResult();
@@ -214,8 +216,8 @@ public class UsersFirebaseReference {
      * @param email the user's email.
      * @return the task that fetches the user profile.
      */
-    public Task<DataSnapshot> getUserProfilesWithEmail(String email) {
-        Log.d(TAG, "getUserProfilesWithEmail: getting user profile with email (" + email + ")");
+    public Task<DataSnapshot> getUserProfileWithEmail(String email) {
+        Log.d(TAG, "getUserProfileWithEmail: getting user profile with email (" + email + ")");
         return usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(email).get();
     }
 

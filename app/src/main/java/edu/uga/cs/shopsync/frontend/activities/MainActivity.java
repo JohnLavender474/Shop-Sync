@@ -7,7 +7,6 @@ import android.widget.Button;
 
 import edu.uga.cs.shopsync.ApplicationGraph;
 import edu.uga.cs.shopsync.R;
-import edu.uga.cs.shopsync.TemporaryStuff;
 
 /**
  * The main activity for the application. This activity is the first activity that is displayed
@@ -40,7 +39,11 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         // TODO: remove after testing
-        TemporaryStuff.testAddNewUser(applicationGraph);
+        /*
+        if (TemporaryStuff.testAddNewUser(applicationGraph)) {
+            return;
+        }
+         */
         // TemporaryStuff.testFindByEmail(applicationGraph);
         // TemporaryStuff.testAddShoppingItem(applicationGraph);
         // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
@@ -79,7 +82,8 @@ public class MainActivity extends BaseActivity {
         Button forgotPassword = findViewById(R.id.forgot_password_button);
         forgotPassword.setOnClickListener(v -> {
 
-            Log.d(TAG, "onCreate: forgot password button clicked, redirecting to forgot password activity");
+            Log.d(TAG, "onCreate: forgot password button clicked, redirecting to forgot password " +
+                    "activity");
 
             // Redirect to ForgotPasswordActivity
             Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);

@@ -512,6 +512,28 @@ public class ShopSyncsService {
     }
 
     /**
+     * Delete the basket item.
+     *
+     * @param shopSyncUid                      the shop sync uid
+     * @param shoppingBasketUid                the shopping basket uid
+     * @param shoppingItemUid                  the shopping item uid
+     * @param onFailure                        the consumer for when a failure occurs
+     * @param updateShoppingItemInBasketStatus if the "in basket" status of the corresponding
+     *                                         shopping item should be updated to "false"; this
+     *                                         should be false if the shopping item is about to be
+     *                                         deleted immediately.
+     */
+    public void deleteBasketItem(@NonNull String shopSyncUid,
+                                 @NonNull String shoppingBasketUid,
+                                 @NonNull String shoppingItemUid,
+                                 @Nullable Consumer<ErrorHandle> onFailure,
+                                 boolean updateShoppingItemInBasketStatus) {
+        shopSyncsFirebaseReference.deleteBasketItem(shopSyncUid, shoppingBasketUid,
+                                                    shoppingItemUid, onFailure,
+                                                    updateShoppingItemInBasketStatus);
+    }
+
+    /**
      * Returns the task that attempts to get the purchased item with the given uid.
      *
      * @param shopSyncUid the shop sync uid
@@ -566,8 +588,8 @@ public class ShopSyncsService {
     /**
      * Returns the task that attempts to delete the purchased item with the given item id.
      *
-     * @param shopSyncUid the shop sync uid
-     * @param purchasedItemId      the item id
+     * @param shopSyncUid     the shop sync uid
+     * @param purchasedItemId the item id
      * @return the task that attempts to delete the purchased item with the given item id
      */
     public @NonNull Task<Void> deletePurchasedItem(String shopSyncUid, String purchasedItemId) {
