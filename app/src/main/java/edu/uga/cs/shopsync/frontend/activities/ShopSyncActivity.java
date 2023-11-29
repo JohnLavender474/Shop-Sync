@@ -6,7 +6,9 @@ import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_
 import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_REMOVE_BASKET_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_UPDATE_BASKET_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.PROP_BASKET_ITEMS;
+import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.*;
 import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_DELETE_PURCHASE;
+import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_INITIALIZE_PURCHASED_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_UNDO_PURCHASE;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_ADD_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_DELETE_SHOPPING_ITEM;
@@ -55,6 +57,7 @@ import edu.uga.cs.shopsync.frontend.Constants;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.BasketItemsAdapter;
 import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment;
+import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.PurchasedItemsAdapter;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ShoppingItemsAdapter;
 import edu.uga.cs.shopsync.frontend.utils.ChildEventListenerFragment;
@@ -430,6 +433,12 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                 }
                 removeBasketItem(shopSyncUid, props);
             }
+            case ACTION_INITIALIZE_PURCHASED_ITEMS -> {
+                if (props == null) {
+                    throw new IllegalNullValueException("Props cannot be null for " + action);
+                }
+                initializePurchasedItems(shopSyncUid, props);
+            }
             case ACTION_UNDO_PURCHASE -> {
                 if (props == null) {
                     throw new IllegalNullValueException("Props cannot be null for " + action);
@@ -471,6 +480,22 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     private void initializeShoppingItems(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "initializeShoppingItems: initializing shopping items");
 
+        // fetch the adapter from the props
+        ShoppingItemsAdapter adapter = (ShoppingItemsAdapter) props.get(Constants.ADAPTER);
+        if (adapter == null) {
+            Log.e(TAG, "populateShoppingItems: adapter is null");
+            throw new IllegalNullValueException("Adapter is null");
+        }
+
+        // fetch the shopping items list from the props
+        List<ShoppingItemModel> shoppingItems =
+                (List<ShoppingItemModel>) props.get(PROP_SHOPPING_ITEMS);
+        if (shoppingItems == null) {
+            Log.e(TAG, "populateShoppingItems: shopping items list is null");
+            throw new IllegalNullValueException("Shopping items list is null");
+        }
+        Log.d(TAG, "populateShoppingItems: shopping items list size: " + shoppingItems.size());
+
         // fetch the shopping items list from the props and populate it
         applicationGraph.shopSyncsService().getShoppingItemsWithShopSyncUid(shopSyncUid)
                 .addOnCompleteListener(task -> {
@@ -480,23 +505,6 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                             throw new IllegalNullValueException("DataSnapshot is null");
                         }
 
-                        ShoppingItemsAdapter adapter =
-                                (ShoppingItemsAdapter) props.get(Constants.ADAPTER);
-                        if (adapter == null) {
-                            Log.e(TAG, "populateShoppingItems: adapter is null");
-                            throw new IllegalNullValueException("Adapter is null");
-                        }
-
-                        // fetch the shopping items list from the props
-                        List<ShoppingItemModel> shoppingItems =
-                                (List<ShoppingItemModel>) props.get(PROP_SHOPPING_ITEMS);
-                        if (shoppingItems == null) {
-                            Log.e(TAG, "populateShoppingItems: shopping items list is null");
-                            throw new IllegalNullValueException("Shopping items list is null");
-                        }
-                        Log.d(TAG,
-                              "populateShoppingItems: shopping items list size: " + shoppingItems.size());
-
                         // populate the shopping items list and notify the adapter
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             // fetch and add the shopping item
@@ -504,8 +512,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                                     child.getValue(ShoppingItemModel.class);
                             if (shoppingItem == null) {
                                 Log.e(TAG,
-                                      "populateShoppingItems: no shopping item found with " + "id" +
-                                              ": " + child.getKey());
+                                      "populateShoppingItems: no shopping item found with id: " +
+                                              child.getKey());
                                 throw new IllegalNullValueException("No shopping item found with "
                                                                             + "id: " + child.getKey());
                             }
@@ -786,6 +794,62 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         applicationGraph.shopSyncsService()
                 .deleteBasketItem(shopSyncUid, basketItem.getShoppingBasketUid(),
                                   basketItem.getShoppingItemUid(), null, true);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @SuppressWarnings("unchecked")
+    private void initializePurchasedItems(@NonNull String shopSyncUid, @NonNull Props props) {
+        Log.d(TAG, "initializePurchasedItems: initializing purchased items");
+
+        // fetch the purchased items list from the props and populate it
+        List<PurchasedItemModel> purchasedItems =
+                (List<PurchasedItemModel>) props.get(PROP_PURCHASED_ITEMS);
+        if (purchasedItems == null) {
+            Log.e(TAG, "initializePurchasedItems: purchased items list is null");
+            throw new IllegalNullValueException("Purchased items list is null");
+        }
+
+        PurchasedItemsAdapter adapter = props.get(Constants.ADAPTER, PurchasedItemsAdapter.class);
+        if (adapter == null) {
+            Log.e(TAG, "initializePurchasedItems: adapter is null");
+            throw new IllegalNullValueException("Adapter is null");
+        }
+
+        applicationGraph.shopSyncsService()
+                .getPurchasedItemsWithShopSyncUid(shopSyncUid)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "initializePurchasedItems: successfully fetched purchased " +
+                                "items");
+
+                        DataSnapshot dataSnapshot = task.getResult();
+                        if (dataSnapshot == null) {
+                            Log.e(TAG, "initializePurchasedItems: DataSnapshot is null");
+                            throw new IllegalNullValueException("DataSnapshot is null");
+                        }
+
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            PurchasedItemModel purchasedItem =
+                                    child.getValue(PurchasedItemModel.class);
+                            if (purchasedItem == null) {
+                                Log.e(TAG, "initializePurchasedItems: no purchased item found " +
+                                        "with id: " + child.getKey());
+                                throw new IllegalNullValueException("No purchased item found with" +
+                                                                            " id: " + child.getKey());
+                            }
+                            Log.d(TAG,
+                                  "initializePurchasedItems: purchased item: " + purchasedItem);
+                            if (!purchasedItems.contains(purchasedItem)) {
+                                purchasedItems.add(purchasedItem);
+                            }
+                        }
+
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Log.e(TAG, "initializePurchasedItems: failed to fetch purchased items",
+                              task.getException());
+                    }
+                });
     }
 
     private void undoPurchase(@NonNull String shopSyncUid, @NonNull Props props) {
