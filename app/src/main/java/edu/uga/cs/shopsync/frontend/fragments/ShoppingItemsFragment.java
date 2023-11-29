@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -246,6 +247,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
             private final TextView errorTextView;
             private final EditText editTextItemName;
             private final TextView textViewInBasket;
+            private final Button buttonUpdateShoppingItem;
             private final Button buttonSetInBasket;
             private final Button buttonDeleteItem;
 
@@ -259,6 +261,8 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
+
+                buttonUpdateShoppingItem = itemView.findViewById(R.id.buttonUpdateShoppingItem);
                 buttonSetInBasket = itemView.findViewById(R.id.buttonSetInBasket);
                 buttonDeleteItem = itemView.findViewById(R.id.buttonDeleteItem);
             }
@@ -283,23 +287,14 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                         editTextItemName.addTextChangedListener(itemTextWatcher);
                     } else {
                         editTextItemName.removeTextChangedListener(itemTextWatcher);
-                        // TODO:
-                        // this part introduces race condition where if "set in basket" is
-                        // clicked while this view is still in focus, then the item's "in basket"
-                        // field will remain false while the item is in the user's basket
-                        /*
-                        String itemName = editTextItemName.getText().toString();
-                        if (!itemName.equals(item.getName())) {
-                            item.setName(itemName);
-                            callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
-                                    Pair.create(Constants.SHOPPING_ITEM, item)));
-                        }
-                         */
                     }
                 });
 
                 String inBasketText = "In a user's basket: " + (item.isInBasket() ? "Yes" : "No");
                 textViewInBasket.setText(inBasketText);
+
+                // set the button to update the item
+                buttonUpdateShoppingItem.setOnClickListener(v -> updateShoppingItem(item));
 
                 // set the button to set the item in the user's basket
                 buttonSetInBasket.setOnClickListener(v -> setItemInMyBasket(item));
@@ -318,6 +313,21 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 buttonDeleteItem.setOnClickListener(v -> deleteItem(item));
             }
 
+            private void updateShoppingItem(ShoppingItemModel shoppingItem) {
+                String itemName = editTextItemName.getText().toString();
+                if (!itemName.equals(shoppingItem.getName())) {
+                    shoppingItem.setName(itemName);
+                    callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
+                            Pair.create(Constants.SHOPPING_ITEM, shoppingItem)));
+
+                    Toast.makeText(getContext(), "Item updated successfully!",
+                                   Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Toast.makeText(getContext(), "No changes to update.", Toast.LENGTH_SHORT).show();
+            }
+
             private void setItemInMyBasket(ShoppingItemModel shoppingItem) {
                 Log.d(TAG, "setItemInMyBasket: called");
 
@@ -326,9 +336,19 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                     throw new IllegalNullValueException("callbackReceiver is null");
                 }
 
+                Runnable onSuccess = () -> Toast.makeText(getContext(), "Item added to your " +
+                                                                  "basket!",
+                                                          Toast.LENGTH_SHORT).show();
+
+                Runnable onFailure = () -> Toast.makeText(getContext(), "Failed to add item to " +
+                                                                  "your basket.",
+                                                          Toast.LENGTH_SHORT).show();
+
                 Log.d(TAG, "setItemInMyBasket: calling callbackReceiver.onCallback");
                 callbackReceiver.onCallback(ACTION_MOVE_SHOPPING_ITEM_TO_BASKET, Props.of(
-                        Pair.create(Constants.SHOPPING_ITEM, shoppingItem)));
+                        Pair.create(Constants.SHOPPING_ITEM, shoppingItem),
+                        Pair.create(Constants.ON_SUCCESS, onSuccess),
+                        Pair.create(Constants.ON_FAILURE, onFailure)));
             }
 
             private void deleteItem(ShoppingItemModel shoppingItem) {

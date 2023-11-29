@@ -565,12 +565,25 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         }
 
         // on-success consumer
-        Consumer<BasketItemModel> onSuccess = basketItem -> Log.d(TAG, "moveShoppingItemToBasket:" +
-                " successfully added shopping item to basket");
+        Consumer<BasketItemModel> onSuccess = basketItem -> {
+            Log.d(TAG, "moveShoppingItemToBasket: successfully added shopping item to basket");
+
+            Runnable onSuccessRunnable = props.get(Constants.ON_SUCCESS, Runnable.class);
+            if (onSuccessRunnable != null) {
+                onSuccessRunnable.run();
+            }
+        };
 
         // on-failure consumer
-        Consumer<ErrorHandle> onFailure = error -> Log.e(TAG, "moveShoppingItemToBasket: " +
-                "failed to add shopping item to basket due to error: " + error);
+        Consumer<ErrorHandle> onFailure = error -> {
+            Log.e(TAG, "moveShoppingItemToBasket: failed to add shopping item to basket due to " +
+                    "error: " + error);
+
+            Runnable onFailureRunnable = props.get(Constants.ON_FAILURE, Runnable.class);
+            if (onFailureRunnable != null) {
+                onFailureRunnable.run();
+            }
+        };
 
         applicationGraph.shopSyncsService()
                 .addBasketItem(shopSyncUid, user.getUid(), shoppingItem.getShoppingItemUid(),
