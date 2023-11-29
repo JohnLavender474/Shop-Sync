@@ -1,123 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:fillViewport="true">
 
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="@string/back"
-        app:layout_constraintBottom_toTopOf="@+id/textViewCreateShopSync"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textViewCreateShopSync"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/create_shop_sync"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/editTextShopSyncName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/backButton" />
-
-    <EditText
-        android:id="@+id/editTextShopSyncName"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="16dp"
-        android:autofillHints=""
-        android:hint="@string/shop_sync_name"
-        android:inputType="text"
-        android:maxLines="1"
-        app:layout_constraintBottom_toTopOf="@+id/editTextShopSyncDescription"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCreateShopSync" />
-
-    <EditText
-        android:id="@+id/editTextShopSyncDescription"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
-        android:autofillHints=""
-        android:hint="@string/shop_sync_description"
-        android:inputType="textMultiLine"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayoutInvitedUsers"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextShopSyncName" />
-
-    <LinearLayout
-        android:id="@+id/linearLayoutInvitedUsers"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextShopSyncDescription">
-
-        <TextView
-            android:id="@+id/textViewUserCount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="50dp"
-            android:width="150dp"
-            android:text="@string/placeholder" />
+        android:padding="16dp">
 
         <Button
-            android:id="@+id/buttonInviteUser"
+            android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/invite_a_user"
-            app:layout_constraintBottom_toTopOf="@+id/listViewInvitedUsers"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="5dp"
+            android:text="@string/back"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayoutInvitedUsers" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/textViewCreateShopSync"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/create_shop_sync"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/backButton" />
 
-    <ListView
-        android:id="@+id/listViewInvitedUsers"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="16dp"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        android:maxHeight="300dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonCreateShopSync"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutInvitedUsers" />
+        <EditText
+            android:id="@+id/editTextShopSyncName"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/shop_sync_name"
+            android:inputType="text"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewCreateShopSync" />
 
-    <Button
-        android:id="@+id/buttonCreateShopSync"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/create"
-        app:layout_constraintBottom_toTopOf="@id/space"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listViewInvitedUsers" />
+        <EditText
+            android:id="@+id/editTextShopSyncDescription"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:hint="@string/shop_sync_description"
+            android:inputType="textMultiLine"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextShopSyncName" />
 
-    <Space
-        android:id="@+id/space"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCreateShopSync" />
+        <LinearLayout
+            android:id="@+id/linearLayoutInvitedUsers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextShopSyncDescription">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/textViewUserCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/placeholder" />
 
+            <Button
+                android:id="@+id/buttonInviteUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/invite_a_user" />
+
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listViewInvitedUsers"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayoutInvitedUsers"
+            app:layout_constraintBottom_toTopOf="@+id/buttonCreateShopSync"
+            app:layout_constraintHeight_max="150dp" />
+
+        <Button
+            android:id="@+id/buttonCreateShopSync"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/listViewInvitedUsers" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
