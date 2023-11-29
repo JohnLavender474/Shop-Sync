@@ -1,5 +1,7 @@
 package edu.uga.cs.shopsync.backend.services;
 
+import static edu.uga.cs.shopsync.backend.firebase.UsersFirebaseReference.USER_EMAIL_FIELD;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -33,12 +35,15 @@ public class ShopSyncsService {
 
     private static final String TAG = "ShopSyncsService";
 
+    private final UsersService usersService;
     private final ShopSyncsFirebaseReference shopSyncsFirebaseReference;
     private final UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference;
 
     @Inject
-    public ShopSyncsService(@NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
+    public ShopSyncsService(@NonNull UsersService usersService,
+                            @NonNull ShopSyncsFirebaseReference shopSyncsFirebaseReference,
                             @NonNull UserShopSyncMapFirebaseReference userShopSyncMapFirebaseReference) {
+        this.usersService = usersService;
         this.shopSyncsFirebaseReference = shopSyncsFirebaseReference;
         this.userShopSyncMapFirebaseReference = userShopSyncMapFirebaseReference;
         Log.d(TAG, "ShopSyncsService: created");
@@ -107,6 +112,7 @@ public class ShopSyncsService {
      */
     public void addShopSyncToUser(@NonNull String userUid, @NonNull String shopSyncUid) {
         userShopSyncMapFirebaseReference.addShopSyncToUser(userUid, shopSyncUid);
+        addShoppingBasket(shopSyncUid, userUid);
     }
 
     /**
@@ -471,8 +477,60 @@ public class ShopSyncsService {
         Log.d(TAG,
               "addPurchasedItem: adding purchased item with shopping basket uid (" +
                       shoppingBasketUid + ") and basket item (" + basketItem + ")");
-        shopSyncsFirebaseReference.addPurchasedItem(shopSyncUid, shoppingBasketUid, basketItem,
-                                                    resultConsumer, onFailure);
+
+        usersService.getUserProfileWithUid(shoppingBasketUid).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot dataSnapshot = task.getResult();
+                if (dataSnapshot == null) {
+                    Log.e(TAG, "addPurchasedItem: failed to get user profile with uid (" +
+                            shoppingBasketUid + ")");
+                    if (onFailure != null) {
+                        onFailure.accept(new ErrorHandle(
+                                ErrorType.ILLEGAL_NULL_VALUE,
+                                "Failed to get user profile with uid (" + shoppingBasketUid + ")"));
+                    }
+                    return;
+                }
+
+                String userEmail = dataSnapshot.child(USER_EMAIL_FIELD).getValue(String.class);
+                if (userEmail == null) {
+                    Log.e(TAG, "addPurchasedItem: failed to get user email with uid (" +
+                            shoppingBasketUid + ")");
+                    if (onFailure != null) {
+                        onFailure.accept(new ErrorHandle(
+                                ErrorType.ILLEGAL_NULL_VALUE,
+                                "Failed to get user email with uid (" + shoppingBasketUid + ")"));
+                    }
+                    return;
+                }
+
+                shopSyncsFirebaseReference.addPurchasedItem(shopSyncUid, shoppingBasketUid,
+                                                            basketItem, userEmail, resultConsumer,
+                                                            onFailure);
+            }
+        });
+    }
+
+    /**
+     * Delete the basket item.
+     *
+     * @param shopSyncUid                      the shop sync uid
+     * @param shoppingBasketUid                the shopping basket uid
+     * @param shoppingItemUid                  the shopping item uid
+     * @param onFailure                        the consumer for when a failure occurs
+     * @param updateShoppingItemInBasketStatus if the "in basket" status of the corresponding
+     *                                         shopping item should be updated to "false"; this
+     *                                         should be false if the shopping item is about to be
+     *                                         deleted immediately.
+     */
+    public void deleteBasketItem(@NonNull String shopSyncUid,
+                                 @NonNull String shoppingBasketUid,
+                                 @NonNull String shoppingItemUid,
+                                 @Nullable Consumer<ErrorHandle> onFailure,
+                                 boolean updateShoppingItemInBasketStatus) {
+        shopSyncsFirebaseReference.deleteBasketItem(shopSyncUid, shoppingBasketUid,
+                                                    shoppingItemUid, onFailure,
+                                                    updateShoppingItemInBasketStatus);
     }
 
     /**
@@ -523,21 +581,21 @@ public class ShopSyncsService {
     public Task<Void> updatePurchasedItem(String shopSyncUid,
                                           PurchasedItemModel updatedPurchasedItem) {
         Log.d(TAG, "updatePurchasedItem: updating purchased item with shop sync uid (" +
-                shopSyncUid + ") and purchased item uid (" + updatedPurchasedItem.getUid() + ")");
+                shopSyncUid + ") and purchased item uid (" + updatedPurchasedItem.getPurchasedItemUid() + ")");
         return shopSyncsFirebaseReference.updatePurchasedItem(shopSyncUid, updatedPurchasedItem);
     }
 
     /**
      * Returns the task that attempts to delete the purchased item with the given item id.
      *
-     * @param shopSyncUid the shop sync uid
-     * @param itemId      the item id
+     * @param shopSyncUid     the shop sync uid
+     * @param purchasedItemId the item id
      * @return the task that attempts to delete the purchased item with the given item id
      */
-    public Task<Void> deletePurchasedItem(String shopSyncUid, String itemId) {
+    public @NonNull Task<Void> deletePurchasedItem(String shopSyncUid, String purchasedItemId) {
         Log.d(TAG, "deletePurchasedItem: deleting purchased item with shop sync uid (" +
-                shopSyncUid + ") and item id (" + itemId + ")");
-        return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, itemId);
+                shopSyncUid + ") and item id (" + purchasedItemId + ")");
+        return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, purchasedItemId);
     }
 
     // TODO: un-purchase an item

@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Map;
@@ -37,8 +36,8 @@ import edu.uga.cs.shopsync.utils.ErrorType;
 public class UsersFirebaseReference {
 
     private static final String TAG = "UsersFirebaseReference";
-    private static final String USER_PROFILES_COLLECTION = "user_profiles";
-    private static final String USER_EMAIL_FIELD = "email";
+    public static final String USER_PROFILES_COLLECTION = "user_profiles";
+    public static final String USER_EMAIL_FIELD = "email";
 
     private final FirebaseAuth firebaseAuth;
     private final DatabaseReference usersCollection;
@@ -85,24 +84,26 @@ public class UsersFirebaseReference {
      * @param password  the user's password
      * @param onSuccess the runnable for if the task succeeds
      */
-    public void createUser(String email, String username, String password,
+    public void createUser(@NonNull String email, @NonNull String username,
+                           @NonNull String password,
                            @Nullable Consumer<UserProfileModel> onSuccess,
                            @Nullable Consumer<ErrorHandle> onError)
             throws TaskFailureException, UserAlreadyExistsException, IllegalNullValueException {
-        // query to check if a user profile already exists with the given email
-        Query query = usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(username);
-        Task<DataSnapshot> checkIfExistsTask = query.get();
+        Log.d(TAG, "createUser: creating user with email " + email);
 
-        checkIfExistsTask.addOnCompleteListener(_checkIfExistsTask -> {
+        getUserProfileWithEmail(email).addOnCompleteListener(_checkIfExistsTask -> {
+            Log.d(TAG, "createUser: task to check if username exists is complete");
+
             if (_checkIfExistsTask.isSuccessful()) {
+                Log.d(TAG, "createUser: task to check if username exists is complete");
                 DataSnapshot dataSnapshot = _checkIfExistsTask.getResult();
 
                 // the data snapshot object should not be null
                 if (dataSnapshot == null) {
-                    Log.d(TAG, "createUser: task to check if username exists returned null " +
+                    Log.e(TAG, "createUser: task to check if username exists returned null " +
                             "data snapshot");
                     if (onError != null) {
-                        onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                        onError.accept(new ErrorHandle(ErrorType.ILLEGAL_NULL_VALUE,
                                                        "Task to check if username exists " +
                                                                "returned null data snapshot"));
                     }
@@ -112,7 +113,7 @@ public class UsersFirebaseReference {
                 // if the data snapshot exists, a user with the provided email already exists and
                 // the task should fail
                 if (dataSnapshot.exists()) {
-                    Log.d(TAG, "createUser: user already exists with the email: " + email);
+                    Log.e(TAG, "createUser: user already exists with the email: " + email);
                     if (onError != null) {
                         onError.accept(new ErrorHandle(ErrorType.ENTITY_ALREADY_EXISTS, Map.of(
                                 "email", email), "User already exists with the email: "
@@ -127,10 +128,14 @@ public class UsersFirebaseReference {
                         .createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(_createUserTask -> {
                             if (_createUserTask.isSuccessful()) {
+                                Log.d(TAG, "createUser: successfully created user with username " +
+                                        username);
                                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                                 // the user should not be null after successful creation
                                 if (user == null) {
+                                    Log.e(TAG, "createUser: user should not be null after " +
+                                            "successful creation");
                                     throw new IllegalNullValueException("User should not be null " +
                                                                                 "after successful" +
                                                                                 " creation");
@@ -151,7 +156,7 @@ public class UsersFirebaseReference {
                                 }
                             } else {
                                 // if the task to create the user fails, throw an exception
-                                Log.d(TAG,
+                                Log.e(TAG,
                                       "createUser: failed to create user with username " + username +
                                               " - " + _createUserTask.getException());
                                 if (onError != null) {
@@ -162,7 +167,7 @@ public class UsersFirebaseReference {
                             }
                         });
             } else {
-                Log.d(TAG, "createUser: task to check if username exists failed - " +
+                Log.e(TAG, "createUser: task to check if username exists failed - " +
                         _checkIfExistsTask.getException());
                 if (onError != null) {
                     onError.accept(new ErrorHandle(ErrorType.TASK_FAILED,
@@ -180,6 +185,7 @@ public class UsersFirebaseReference {
      * @return the task that attempts to sign in the user
      */
     public @NonNull Task<AuthResult> signInUser(String email, String password) {
+        Log.d(TAG, "signInUser: signing in user with email " + email);
         return firebaseAuth.signInWithEmailAndPassword(email, password);
     }
 
@@ -189,6 +195,7 @@ public class UsersFirebaseReference {
      * @return if there is a user currently signed in.
      */
     public boolean isCurrentUserSignedIn() {
+        Log.d(TAG, "isCurrentUserSignedIn: checking if current user is signed in");
         return getCurrentFirebaseUser() != null;
     }
 
@@ -199,6 +206,7 @@ public class UsersFirebaseReference {
      * @return the task that fetches the user profile.
      */
     public @NonNull Task<DataSnapshot> getUserProfileWithUid(String userUid) {
+        Log.d(TAG, "getUserProfileWithUid: getting user profile with uid (" + userUid + ")");
         return usersCollection.child(userUid).get();
     }
 
@@ -208,7 +216,8 @@ public class UsersFirebaseReference {
      * @param email the user's email.
      * @return the task that fetches the user profile.
      */
-    public Task<DataSnapshot> getUserProfilesWithEmail(String email) {
+    public Task<DataSnapshot> getUserProfileWithEmail(String email) {
+        Log.d(TAG, "getUserProfileWithEmail: getting user profile with email (" + email + ")");
         return usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(email).get();
     }
 
@@ -218,7 +227,9 @@ public class UsersFirebaseReference {
      * @param userProfileModel the user profile model
      * @noinspection UnusedReturnValue
      */
-    public @NonNull Task<Void> updateUserProfile(UserProfileModel userProfileModel) {
+    public @NonNull Task<Void> updateUserProfile(@NonNull UserProfileModel userProfileModel) {
+        Log.d(TAG, "updateUserProfile: updating user profile with uid (" +
+                userProfileModel.getUserUid() + ")");
         return usersCollection.child(userProfileModel.getUserUid()).setValue(userProfileModel);
     }
 
@@ -229,10 +240,14 @@ public class UsersFirebaseReference {
      * @return the task that fetches the user profile of the current user.
      */
     public @Nullable Task<DataSnapshot> getCurrentUserProfile() {
+        Log.d(TAG, "getCurrentUserProfile: getting current user profile");
+
         FirebaseUser user = getCurrentFirebaseUser();
         if (user == null) {
+            Log.d(TAG, "getCurrentUserProfile: current user is not signed in");
             return null;
         }
+
         return getUserProfileWithUid(user.getUid());
     }
 
@@ -249,6 +264,7 @@ public class UsersFirebaseReference {
      * Signs out the current user.
      */
     public void signOut() {
+        Log.d(TAG, "signOut: signing out current user");
         firebaseAuth.signOut();
     }
 
@@ -261,8 +277,11 @@ public class UsersFirebaseReference {
      */
     public String deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
                              @Nullable Runnable onFailure) {
+        Log.d(TAG, "deleteUser: deleting user");
+
         FirebaseUser user = getCurrentFirebaseUser();
         if (user == null) {
+            Log.e(TAG, "deleteUser: cannot delete user if user is not logged in");
             throw new IllegalStateException("Cannot delete user if user is not logged in");
         }
 
@@ -281,8 +300,11 @@ public class UsersFirebaseReference {
     public void changeUserPassword(@NonNull String oldPassword, @NonNull String newPassword,
                                    @Nullable Runnable onUpdatePasswordListener,
                                    @Nullable Runnable onFailureToAuthenticate) {
+        Log.d(TAG, "changeUserPassword: changing user password");
+
         FirebaseUser user = getCurrentFirebaseUser();
         if (user == null) {
+            Log.e(TAG, "changeUserPassword: cannot change password if user is not logged in");
             throw new IllegalStateException("Cannot change password if user is not logged in");
         }
 
@@ -305,6 +327,8 @@ public class UsersFirebaseReference {
 
     private void deleteUser(@NonNull FirebaseUser user, @Nullable Runnable onSuccess,
                             @Nullable Runnable onFailure) {
+        Log.d(TAG, "deleteUser: deleting user with uid (" + user.getUid() + ")");
+
         user.delete().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // remove the user account and profile
@@ -315,6 +339,8 @@ public class UsersFirebaseReference {
                     onSuccess.run();
                 }
             } else if (onFailure != null) {
+                Log.e(TAG, "deleteUser: failed to delete user with uid (" + user.getUid() + ")",
+                      task.getException());
                 onFailure.run();
             }
         });
@@ -323,18 +349,25 @@ public class UsersFirebaseReference {
     private void reauthenticateAndRun(@NonNull FirebaseUser user, @NonNull String password,
                                       @Nullable Runnable onSuccess, @Nullable Runnable onFailure)
             throws IllegalNullValueException {
+        Log.d(TAG, "reauthenticateAndRun: re-authenticating user with uid (" + user.getUid() + ")");
+
         String email = user.getEmail();
         if (email == null) {
+            Log.e(TAG, "reauthenticateAndRun: user email cannot be null");
             throw new IllegalNullValueException("User email cannot be null");
         }
 
         AuthCredential credential = getCredential(email, password);
         user.reauthenticate(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                Log.d(TAG, "reauthenticateAndRun: successfully re-authenticated user with uid (" +
+                        user.getUid() + ")");
                 if (onSuccess != null) {
                     onSuccess.run();
                 }
             } else if (onFailure != null) {
+                Log.e(TAG, "reauthenticateAndRun: failed to re-authenticate user with uid (" +
+                        user.getUid() + ")", task.getException());
                 onFailure.run();
             }
         });
@@ -345,6 +378,8 @@ public class UsersFirebaseReference {
                                                  @NonNull String newPassword,
                                                  @Nullable Runnable onUpdatePassword,
                                                  @Nullable Runnable onFailureToAuthenticate) {
+        Log.d(TAG, "reauthenticateAndUpdatePassword: re-authenticating and updating password " +
+                "for user with uid (" + user.getUid() + ")");
         reauthenticateAndRun(user, oldPassword, () -> updatePassword(user, newPassword,
                                                                      onUpdatePassword),
                              onFailureToAuthenticate);
@@ -352,6 +387,7 @@ public class UsersFirebaseReference {
 
     private void updatePassword(FirebaseUser user, String newPassword,
                                 @Nullable Runnable onUpdatePassword) {
+        Log.d(TAG, "updatePassword: updating password for user with uid (" + user.getUid() + ")");
         Task<Void> updatePasswordTask = user.updatePassword(newPassword);
         if (onUpdatePassword != null) {
             updatePasswordTask.addOnCompleteListener(t -> onUpdatePassword.run());

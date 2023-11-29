@@ -89,4 +89,9 @@
     <string name="enter_email">Enter email</string>
     <string name="create_shop_sync">Create Shop Sync</string>
     <string name="refresh">Refresh</string>
+    <string name="undo">Undo</string>
+    <string name="remove">Remove</string>
+    <string name="warning_quantity">Invalid quantity!</string>
+    <string name="warning_price">Invalid price!</string>
+    <string name="update_name">Update Name</string>
 </resources>

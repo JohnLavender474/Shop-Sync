@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import edu.uga.cs.shopsync.backend.exceptions.IllegalNullValueException;
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
 import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
@@ -122,8 +123,8 @@ public class ShopSyncsFirebaseReference {
 
         Map<String, ShoppingItemModel> shoppingItemsMap = new HashMap<>();
         if (shoppingItems != null) {
-            shoppingItems.forEach(shoppingItem -> shoppingItemsMap.put(shoppingItem.getUid(),
-                                                                       shoppingItem));
+            shoppingItems.forEach(shoppingItem -> shoppingItemsMap.put(
+                    shoppingItem.getShoppingItemUid(), shoppingItem));
         }
 
         if (shoppingBaskets == null) {
@@ -132,7 +133,7 @@ public class ShopSyncsFirebaseReference {
 
         Map<String, PurchasedItemModel> purchasedItemsMap = new HashMap<>();
         if (purchasedItems != null) {
-            purchasedItems.forEach(purchasedItem -> purchasedItemsMap.put(purchasedItem.getUid(),
+            purchasedItems.forEach(purchasedItem -> purchasedItemsMap.put(purchasedItem.getPurchasedItemUid(),
                                                                           purchasedItem));
         }
 
@@ -266,7 +267,7 @@ public class ShopSyncsFirebaseReference {
         Log.d("ShopSyncsFirebaseReference", "updateShoppingItem: shop sync uid (" + shopSyncUid +
                 "), updated shopping item (" + updatedShoppingItem + ")");
 
-        String uid = updatedShoppingItem.getUid();
+        String uid = updatedShoppingItem.getShoppingItemUid();
         Map<String, Object> shoppingItemValues = updatedShoppingItem.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
@@ -428,10 +429,9 @@ public class ShopSyncsFirebaseReference {
                               @NonNull String shoppingItemUid, long quantity,
                               double pricePerUnit, @Nullable Consumer<BasketItemModel> onSuccess,
                               @Nullable Consumer<ErrorHandle> onFailure) {
-        Log.d("ShopSyncsFirebaseReference", "addBasketItem: shop sync uid (" + shopSyncUid +
-                "), shopping basket uid (" + shoppingBasketUid + "), shopping item uid (" +
-                shoppingItemUid + "), quantity (" + quantity + "), price per unit (" +
-                pricePerUnit + ")");
+        Log.d(TAG, "addBasketItem: shop sync uid (" + shopSyncUid + "), shopping basket uid " +
+                "(" + shoppingBasketUid + "), shopping item uid (" + shoppingItemUid + "), " +
+                "quantity (" + quantity + "), price per unit (" + pricePerUnit + ")");
 
         getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -467,8 +467,8 @@ public class ShopSyncsFirebaseReference {
                 updateShoppingBasket(shopSyncUid, shoppingBasket);
 
                 // set the shopping item's "in basket" flag to true
-                getShoppingItemsCollection(shopSyncUid).child(shoppingItemUid).child("inBasket")
-                        .setValue(true);
+                getShoppingItemsCollection(shopSyncUid).child(shoppingItemUid)
+                        .child("inBasket").setValue(true);
 
                 if (onSuccess != null) {
                     onSuccess.accept(newBasketItem);
@@ -544,7 +544,7 @@ public class ShopSyncsFirebaseReference {
      * @param onFailure         the consumer that accepts the error handle if the operation fails
      */
     public void addPurchasedItem(@NonNull String shopSyncUid, @NonNull String shoppingBasketUid,
-                                 @NonNull BasketItemModel basketItem,
+                                 @NonNull BasketItemModel basketItem, @NonNull String userEmail,
                                  @Nullable Consumer<PurchasedItemModel> resultConsumer,
                                  @Nullable Consumer<ErrorHandle> onFailure) {
         Log.d("ShopSyncsFirebaseReference", "addPurchasedItem: shop sync uid (" + shopSyncUid +
@@ -581,27 +581,8 @@ public class ShopSyncsFirebaseReference {
                     }
 
                     // delete the corresponding basket item from the shopping basket
-                    getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DataSnapshot dataSnapshot = task.getResult();
-                            ShoppingBasketModel shoppingBasket =
-                                    dataSnapshot.getValue(ShoppingBasketModel.class);
-
-                            if (shoppingBasket == null) {
-                                Log.e(TAG, "addPurchasedItem: shopping basket is null");
-                                return;
-                            }
-
-                            shoppingBasket.getBasketItems().remove(basketItem.getShoppingItemUid());
-                            updateShoppingBasket(shopSyncUid, shoppingBasket);
-                        } else {
-                            Log.e(TAG, "addPurchasedItem: failed to get shopping basket");
-                            if (onFailure != null) {
-                                onFailure.accept(new ErrorHandle(ErrorType.TASK_FAILED,
-                                                                 "Failed to get shopping basket"));
-                            }
-                        }
-                    });
+                    deleteBasketItem(shopSyncUid, shoppingBasketUid,
+                                     basketItem.getShoppingItemUid(), onFailure, false);
 
                     // delete the shopping item
                     getShoppingItemsCollection(shopSyncUid).child(basketItem.getShoppingItemUid())
@@ -609,13 +590,83 @@ public class ShopSyncsFirebaseReference {
 
                     // create new purchased item
                     PurchasedItemModel newPurchasedItem = new PurchasedItemModel(
-                            uid, shoppingBasketUid, shoppingItem, basketItem);
+                            uid, userEmail, shoppingItem, basketItem);
                     purchasedItemsCollection.child(uid).setValue(newPurchasedItem);
 
                     if (resultConsumer != null) {
                         resultConsumer.accept(newPurchasedItem);
                     }
                 });
+    }
+
+    /**
+     * Delete the basket item.
+     *
+     * @param shopSyncUid                      the shop sync uid
+     * @param shoppingBasketUid                the shopping basket uid
+     * @param shoppingItemUid                  the shopping item uid
+     * @param onFailure                        the consumer for when a failure occurs
+     * @param updateShoppingItemInBasketStatus if the "in basket" status of the corresponding
+     *                                         shopping item should be updated to "false"; this
+     *                                         should be false if the shopping item is about to be
+     *                                         deleted immediately.
+     */
+    public void deleteBasketItem(@NonNull String shopSyncUid,
+                                 @NonNull String shoppingBasketUid,
+                                 @NonNull String shoppingItemUid,
+                                 @Nullable Consumer<ErrorHandle> onFailure,
+                                 boolean updateShoppingItemInBasketStatus) {
+        getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot dataSnapshot = task.getResult();
+
+                ShoppingBasketModel shoppingBasket =
+                        dataSnapshot.getValue(ShoppingBasketModel.class);
+                if (shoppingBasket == null) {
+                    Log.e(TAG, "addPurchasedItem: shopping basket is null");
+                    return;
+                }
+
+                BasketItemModel basketItem = shoppingBasket.getBasketItems()
+                        .remove(shoppingItemUid);
+                updateShoppingBasket(shopSyncUid, shoppingBasket);
+
+                if (updateShoppingItemInBasketStatus && basketItem != null) {
+                    getShoppingItemWithUid(shopSyncUid, basketItem.getShoppingItemUid())
+                            .addOnCompleteListener(shoppingItemTask -> {
+                                if (shoppingItemTask.isSuccessful()) {
+                                    DataSnapshot shoppingItemDataSnapshot =
+                                            shoppingItemTask.getResult();
+                                    if (shoppingItemDataSnapshot == null) {
+                                        Log.e(TAG, "Shopping item data snapshot is null");
+                                        throw new IllegalNullValueException("Shopping item data " +
+                                                                                    "snapshot is " +
+                                                                                    "null");
+                                    }
+
+                                    ShoppingItemModel shoppingItem =
+                                            shoppingItemDataSnapshot.getValue(ShoppingItemModel.class);
+                                    if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
+                                            shoppingItem.getShoppingItemUid().isBlank()) {
+                                        Log.e(TAG, "Shopping item uid is null or blank");
+                                        throw new IllegalNullValueException("Shopping item uid is" +
+                                                                                    " null or " +
+                                                                                    "blank: " + shoppingItem);
+                                    }
+
+                                    shoppingItem.setInBasket(false);
+                                    updateShoppingItem(shopSyncUid, shoppingItem);
+                                }
+                            });
+                }
+            } else {
+                Log.e(TAG, "addPurchasedItem: failed to get shopping basket");
+                if (onFailure != null) {
+                    onFailure.accept(new ErrorHandle(ErrorType.TASK_FAILED,
+                                                     "Failed to get shopping basket"));
+                }
+            }
+        });
     }
 
     /**
@@ -672,7 +723,7 @@ public class ShopSyncsFirebaseReference {
         Log.d("ShopSyncsFirebaseReference", "updatePurchasedItem: shop sync uid (" + shopSyncUid +
                 "), updated purchased item (" + updatedPurchasedItem + ")");
 
-        String uid = updatedPurchasedItem.getUid();
+        String uid = updatedPurchasedItem.getPurchasedItemUid();
         Map<String, Object> purchasedItemValues = updatedPurchasedItem.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
@@ -684,14 +735,15 @@ public class ShopSyncsFirebaseReference {
     /**
      * Returns the task that attempts to delete the purchased item with the given uid.
      *
-     * @param shopSyncUid the uid of the shop sync
-     * @param uid         the uid of the purchased item
+     * @param shopSyncUid      the uid of the shop sync
+     * @param purchasedItemUid the uid of the purchased item
      * @return the task that attempts to delete the purchased item with the given uid
      */
-    public Task<Void> deletePurchasedItem(@NonNull String shopSyncUid, @NonNull String uid) {
+    public Task<Void> deletePurchasedItem(@NonNull String shopSyncUid,
+                                          @NonNull String purchasedItemUid) {
         Log.d("ShopSyncsFirebaseReference", "deletePurchasedItem: shop sync uid (" + shopSyncUid +
-                "), uid (" + uid + ")");
-        return getPurchasedItemsCollection(shopSyncUid).child(uid).removeValue();
+                "), uid (" + purchasedItemUid + ")");
+        return getPurchasedItemsCollection(shopSyncUid).child(purchasedItemUid).removeValue();
     }
 
 }

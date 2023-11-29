@@ -7,36 +7,36 @@ import java.util.Map;
 
 public class ShoppingItemModel {
 
-    private String uid;
+    private String shoppingItemUid;
     private String name;
     private boolean inBasket;
 
     public ShoppingItemModel() {
-        uid = "";
-        name = "";
+        shoppingItemUid = null;
+        name = null;
         inBasket = false;
     }
 
-    public ShoppingItemModel(String uid, String name, boolean inBasket) {
-        this.uid = uid;
+    public ShoppingItemModel(String shoppingItemUid, String name, boolean inBasket) {
+        this.shoppingItemUid = shoppingItemUid;
         this.name = name;
         this.inBasket = inBasket;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("uid", uid);
+        map.put("shoppingItemUid", shoppingItemUid);
         map.put("name", name);
         map.put("inBasket", inBasket);
         return map;
     }
 
-    public String getUid() {
-        return uid;
+    public String getShoppingItemUid() {
+        return shoppingItemUid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setShoppingItemUid(String shoppingItemUid) {
+        this.shoppingItemUid = shoppingItemUid;
     }
 
     public String getName() {
@@ -57,19 +57,20 @@ public class ShoppingItemModel {
 
     @Override
     public int hashCode() {
-        return uid.hashCode();
+        return shoppingItemUid.hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof ShoppingItemModel s && s.uid.equals(uid);
+        return o instanceof ShoppingItemModel s && s.shoppingItemUid != null &&
+                s.shoppingItemUid.equals(shoppingItemUid);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ShoppingItemModel{" +
-                "uid='" + uid + '\'' +
+                "shoppingItemUid='" + shoppingItemUid + '\'' +
                 ", name='" + name + '\'' +
                 ", inBasket=" + inBasket +
                 '}';

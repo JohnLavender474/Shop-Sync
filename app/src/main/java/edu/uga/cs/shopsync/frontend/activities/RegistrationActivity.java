@@ -177,31 +177,38 @@ public class RegistrationActivity extends BaseActivity {
         String confirmPassword = editTextConfirmPassword.getText().toString().replace("\\s+", "");
 
         if (!isValidEmail(email)) {
+            Log.e(TAG, "Email is not valid");
             showToast("Invalid email");
             return;
         }
 
         if (!isValidUsername(username)) {
+            Log.e(TAG,
+                  "Username must be between " + USERNAME_MIN_LENGTH + " and " + USERNAME_MAX_LENGTH + " characters long");
             showToast("Username must be between " + USERNAME_MIN_LENGTH + " and " + USERNAME_MAX_LENGTH + " characters long");
             return;
         }
 
         if (!isValidPassword(password)) {
+            Log.e(TAG, "Password is not valid");
             showToast("Password is not valid");
             return;
         }
 
         if (!password.equals(confirmPassword)) {
+            Log.e(TAG, "Passwords do not match");
             showToast("Passwords do not match");
             return;
         }
 
         Consumer<UserProfileModel> onSuccess = userProfile -> {
+            Log.d(TAG, "User registered successfully");
             showToast("User registered successfully");
             redirectToMyAccountActivity();
         };
 
         Consumer<ErrorHandle> onFailure = errorHandle -> {
+            Log.e(TAG, "User registration failed due to an internal error: " + errorHandle);
             handleRegistrationFailure(errorHandle, email);
         };
 
@@ -302,6 +309,7 @@ public class RegistrationActivity extends BaseActivity {
     }
 
     private void redirectToMyAccountActivity() {
+        Log.d(TAG, "Redirecting to MyAccountActivity");
         Intent intent = new Intent(RegistrationActivity.this, MyAccountActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
