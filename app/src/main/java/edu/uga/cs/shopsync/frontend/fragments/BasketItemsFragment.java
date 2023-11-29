@@ -259,6 +259,10 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                 TextWatcher quantityTextWatcher = new TextWatcherAdapter() {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (!UtilMethods.isLong(s.toString())) {
+                            textViewQuantityWarning.setVisibility(View.VISIBLE);
+                            return;
+                        }
                         long quantity = Long.parseLong(s.toString());
                         textViewQuantityWarning.setVisibility(quantity == 0 ? View.VISIBLE :
                                                                       View.INVISIBLE);
@@ -272,11 +276,21 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                         Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextQuantity.removeTextChangedListener(quantityTextWatcher);
+
+                        String text = editTextQuantity.getText().toString();
+
+                        if (!UtilMethods.isLong(text)) {
+                            Toast.makeText(getContext(), "Input must be a number!",
+                                           Toast.LENGTH_SHORT).show();
+                            editTextQuantity.setText(String.valueOf(item.getQuantity()));
+                            return;
+                        }
+
                         long newQuantity = Long.parseLong(editTextQuantity.getText().toString());
 
                         // check if the new quantity is 0
-                        if (newQuantity == 0) {
-                            Toast.makeText(getContext(), "Quantity cannot be 0",
+                        if (newQuantity <= 0) {
+                            Toast.makeText(getContext(), "Quantity cannot be 0!",
                                            Toast.LENGTH_SHORT).show();
                             editTextQuantity.setText(String.valueOf(item.getQuantity()));
                             return;
@@ -299,6 +313,10 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                 TextWatcher pricePerUnitTextWatcher = new TextWatcherAdapter() {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (!UtilMethods.isDouble(s.toString())) {
+                            textViewPriceWarning.setVisibility(View.VISIBLE);
+                            return;
+                        }
                         double pricePerUnit = Double.parseDouble(s.toString());
                         textViewPriceWarning.setVisibility(pricePerUnit == 0 ? View.VISIBLE :
                                                                    View.INVISIBLE);
@@ -312,6 +330,15 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                         Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextPricePerUnit.removeTextChangedListener(pricePerUnitTextWatcher);
+
+                        String text = editTextPricePerUnit.getText().toString();
+                        if (!UtilMethods.isDouble(text)) {
+                            Toast.makeText(getContext(), "Input must be a number!",
+                                           Toast.LENGTH_SHORT).show();
+                            editTextPricePerUnit.setText(String.valueOf(item.getPricePerUnit()));
+                            return;
+                        }
+
                         double newPricePerUnit = Double.parseDouble(editTextPricePerUnit.getText()
                                                                             .toString());
 
