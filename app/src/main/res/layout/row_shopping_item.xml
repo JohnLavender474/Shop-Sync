@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="4dp"> <!-- Reduced padding -->
+    android:padding="4dp">
 
     <TextView
         android:id="@+id/textViewError"
@@ -11,7 +11,7 @@
         android:visibility="gone"
         android:text="@string/item_name_should_not_be_empty"
         android:textColor="@color/red"
-        android:textSize="12sp" /> <!-- Smaller text size -->
+        android:textSize="12sp" />
 
     <EditText
         android:id="@+id/editTextItemName"
@@ -19,23 +19,22 @@
         android:layout_height="40dp"
         android:hint="@string/item_name"
         android:inputType="text"
-        android:textSize="12sp" /> <!-- Smaller text size, removed margins -->
+        android:textSize="12sp" />
 
-    <!-- Removed margins, use padding if necessary -->
     <TextView
         android:id="@+id/textViewInBasket"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/inBasket"
         android:gravity="center_horizontal"
-        android:textSize="12sp" /> <!-- Smaller text size -->
+        android:textSize="12sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="4dp"> <!-- Reduced top margin -->
+        android:layout_marginTop="4dp"> >
 
         <Button
             android:id="@+id/buttonSetInBasket"
