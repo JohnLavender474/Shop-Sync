@@ -429,10 +429,9 @@ public class ShopSyncsFirebaseReference {
                               @NonNull String shoppingItemUid, long quantity,
                               double pricePerUnit, @Nullable Consumer<BasketItemModel> onSuccess,
                               @Nullable Consumer<ErrorHandle> onFailure) {
-        Log.d("ShopSyncsFirebaseReference", "addBasketItem: shop sync uid (" + shopSyncUid +
-                "), shopping basket uid (" + shoppingBasketUid + "), shopping item uid (" +
-                shoppingItemUid + "), quantity (" + quantity + "), price per unit (" +
-                pricePerUnit + ")");
+        Log.d(TAG, "addBasketItem: shop sync uid (" + shopSyncUid + "), shopping basket uid " +
+                "(" + shoppingBasketUid + "), shopping item uid (" + shoppingItemUid + "), " +
+                "quantity (" + quantity + "), price per unit (" + pricePerUnit + ")");
 
         getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -468,8 +467,8 @@ public class ShopSyncsFirebaseReference {
                 updateShoppingBasket(shopSyncUid, shoppingBasket);
 
                 // set the shopping item's "in basket" flag to true
-                getShoppingItemsCollection(shopSyncUid).child(shoppingItemUid).child("inBasket")
-                        .setValue(true);
+                getShoppingItemsCollection(shopSyncUid).child(shoppingItemUid)
+                        .child("inBasket").setValue(true);
 
                 if (onSuccess != null) {
                     onSuccess.accept(newBasketItem);

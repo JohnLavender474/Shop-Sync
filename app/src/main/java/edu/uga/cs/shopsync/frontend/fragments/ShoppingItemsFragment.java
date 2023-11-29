@@ -133,6 +133,9 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildAdded: called with snapshot = " + snapshot + " and " +
+                "previousChildName = " + previousChildName);
+
         ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
         if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
                 shoppingItem.getShoppingItemUid().isBlank()) {
@@ -151,6 +154,9 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        Log.d(TAG, "onChildChanged: called with snapshot = " + snapshot + " and " +
+                "previousChildName = " + previousChildName);
+
         ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
         if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
                 shoppingItem.getShoppingItemUid().isBlank()) {
@@ -173,6 +179,8 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        Log.d(TAG, "onChildRemoved: called with snapshot = " + snapshot);
+
         ShoppingItemModel shoppingItem = snapshot.getValue(ShoppingItemModel.class);
         if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
                 shoppingItem.getShoppingItemUid().isBlank()) {
@@ -195,7 +203,8 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
 
     @Override
     public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        Log.d(TAG, "onChildMoved: called");
+        Log.d(TAG, "onChildMoved: called with snapshot = " + snapshot
+                + " and previousChildName = " + previousChildName);
     }
 
     @Override
@@ -246,7 +255,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 Log.d(TAG, "ViewHolder: called");
 
                 errorTextView = itemView.findViewById(R.id.textViewError);
-                errorTextView.setEnabled(false);
+                errorTextView.setVisibility(View.INVISIBLE);
 
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
@@ -262,7 +271,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
                         boolean error = charSequence.toString().isBlank();
-                        errorTextView.setEnabled(error);
+                        errorTextView.setVisibility(error ? View.VISIBLE : View.INVISIBLE);
                     }
                 };
                 editTextItemName.setText(item.getName());
@@ -272,16 +281,20 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 editTextItemName.setOnFocusChangeListener((v, hasFocus) -> {
                     if (hasFocus) {
                         editTextItemName.addTextChangedListener(itemTextWatcher);
-                    } else if (callbackReceiver == null) {
-                        Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
                         editTextItemName.removeTextChangedListener(itemTextWatcher);
+                        // TODO:
+                        // this part introduces race condition where if "set in basket" is
+                        // clicked while this view is still in focus, then the item's "in basket"
+                        // field will remain false while the item is in the user's basket
+                        /*
                         String itemName = editTextItemName.getText().toString();
                         if (!itemName.equals(item.getName())) {
                             item.setName(itemName);
                             callbackReceiver.onCallback(ACTION_UPDATE_SHOPPING_ITEM, Props.of(
                                     Pair.create(Constants.SHOPPING_ITEM, item)));
                         }
+                         */
                     }
                 });
 
