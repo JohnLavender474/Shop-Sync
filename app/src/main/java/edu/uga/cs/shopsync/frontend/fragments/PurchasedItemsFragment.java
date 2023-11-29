@@ -269,13 +269,15 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
                 }
                 textViewItemName.setText(itemName);
 
-                // set the price per unit
-                String pricePerUnit = String.valueOf(basketItem.getPricePerUnit());
-                textViewQuantity.setText(pricePerUnit);
-
                 // set the quantity
                 String quantity = String.valueOf(basketItem.getQuantity());
-                textViewPricePerUnit.setText(quantity);
+                String quantityText = "Quantity: " + quantity;
+                textViewQuantity.setText(quantityText);
+
+                // set the price per unit
+                String pricePerUnit = String.valueOf(basketItem.getPricePerUnit());
+                String pricePerUnitText = "Price per unit: $" + pricePerUnit;
+                textViewPricePerUnit.setText(pricePerUnitText);
 
                 // set up the undo purchase button click listener
                 buttonUndoPurchase.setOnClickListener(v -> {

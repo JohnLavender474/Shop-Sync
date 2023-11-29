@@ -292,6 +292,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                     transaction.replace(R.id.fragmentContainer, new PurchasedItemsFragment(),
                                         PURCHASED_ITEMS_FRAGMENT);
         }
+
         transaction.commit();
     }
 
@@ -605,6 +606,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
         if (user == null) {
+            Log.e(TAG, "initializeBasketItems: user is not signed in");
             finish();
             return;
         }
@@ -636,7 +638,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         if (shoppingBasket == null) {
                             Log.e(TAG, "initializeBasketItems: no shopping basket found with " +
                                     "uid: " + user.getUid());
-                            throw new IllegalNullValueException("No shopping basket found with " + "uid: " + user.getUid());
+                            throw new IllegalNullValueException("No shopping basket found with " +
+                                                                        "uid: " + user.getUid());
                         }
 
                         Map<String, BasketItemModel> shoppingBasketItems =
@@ -686,12 +689,14 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
                         ShoppingItemModel shoppingItem =
                                 dataSnapshot.getValue(ShoppingItemModel.class);
-                        if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null || shoppingItem.getShoppingItemUid()
-                                .isBlank()) {
-                            Log.e(TAG, "fetchItemNameByShoppingItemUid: no shopping item" + " " +
-                                    "found for shop sync uid = " + shopSyncUid + " and shopping " + "item uid = " + shoppingItemUid);
-                            throw new IllegalNullValueException("No shopping item found for shop " +
-                                                                        "sync uid = " + shopSyncUid + " and shopping item uid = " + shoppingItemUid);
+                        if (shoppingItem == null || shoppingItem.getShoppingItemUid() == null ||
+                                shoppingItem.getShoppingItemUid().isBlank()) {
+                            Log.e(TAG, "fetchItemNameByShoppingItemUid: no shopping item " +
+                                    "found for shop sync uid = " + shopSyncUid + " and shopping " +
+                                    "item uid = " + shoppingItemUid);
+                            throw new IllegalNullValueException(
+                                    "No shopping item found for shop sync uid = " + shopSyncUid +
+                                            " and shopping item uid = " + shoppingItemUid);
                         }
 
                         // set the name of the item in the text view
@@ -720,11 +725,17 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
             throw new IllegalNullValueException("Shopping basket uid is null");
         }
 
+        Runnable onSuccessRunnable = props.get(Constants.ON_SUCCESS, Runnable.class);
+        Runnable onFailureRunnable = props.get(Constants.ON_FAILURE, Runnable.class);
+
         applicationGraph.shopSyncsService().getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();
                         if (dataSnapshot == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             Log.e(TAG, "updateBasketItem: DataSnapshot is null");
                             throw new IllegalNullValueException("DataSnapshot is null");
                         }
@@ -732,6 +743,9 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         ShoppingBasketModel shoppingBasket =
                                 dataSnapshot.getValue(ShoppingBasketModel.class);
                         if (shoppingBasket == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             Log.e(TAG,
                                   "updateBasketItem: no shopping basket found with uid: " + shoppingBasketUid);
                             throw new IllegalNullValueException("No shopping basket found with " + "uid: " + shoppingBasketUid);
@@ -739,14 +753,21 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
                         Map<String, BasketItemModel> basketItems = shoppingBasket.getBasketItems();
                         if (basketItems == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             throw new IllegalNullValueException("Basket items is null");
                         }
 
                         BasketItemModel oldBasketItem = basketItems.get(shoppingItemUid);
                         if (oldBasketItem == null) {
+                            if (onFailureRunnable != null) {
+                                onFailureRunnable.run();
+                            }
                             Log.e(TAG,
                                   "updateBasketItem: no basket item found with uid: " + shoppingItemUid);
-                            throw new IllegalNullValueException("No basket item found with uid: " + shoppingItemUid);
+                            throw new IllegalNullValueException("No basket item found with uid: " +
+                                                                        shoppingItemUid);
                         }
 
                         // update the basket item
@@ -754,11 +775,16 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                         oldBasketItem.setPricePerUnit(basketItem.getPricePerUnit());
                         applicationGraph.shopSyncsService()
                                 .updateShoppingBasket(shopSyncUid, shoppingBasket);
+
+                        if (onSuccessRunnable != null) {
+                            onSuccessRunnable.run();
+                        }
                     } else {
                         Log.e(TAG,
-                              "updateBasketItem: failed to fetch shopping basket with uid: " + shoppingBasketUid, task.getException());
+                              "updateBasketItem: failed to fetch shopping basket with uid: " +
+                                      shoppingBasketUid, task.getException());
                         throw new TaskFailureException(task,
-                                                       "Failed to fetch shopping basket " + "with" +
+                                                       "Failed to fetch shopping basket with" +
                                                                " uid: " + shoppingBasketUid);
                     }
                 });
@@ -896,7 +922,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                                 "failed to add basket item to db due to error: " + error);
                         applicationGraph.shopSyncsService()
                                 .addBasketItem(shopSyncUid, basketItem.getShoppingBasketUid(),
-                                               basketItem.getShoppingItemUid(),
+                                               addedShoppingItem.getShoppingItemUid(),
                                                basketItem.getQuantity(),
                                                basketItem.getPricePerUnit(), onSuccess, onFailure);
                     } else {
