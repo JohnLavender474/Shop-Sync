@@ -153,10 +153,6 @@ public class MyShopSyncsActivity extends BaseActivity {
             finish();
         });
 
-        // set up refresh button
-        Button refreshButton = findViewById(R.id.refreshButton);
-        refreshButton.setOnClickListener(v -> refresh());
-
         // set up create shop sync button
         Button createShopSyncButton = findViewById(R.id.buttonCreateShopSync);
         createShopSyncButton.setOnClickListener(v -> {
@@ -172,10 +168,10 @@ public class MyShopSyncsActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        refresh();
+        populateShopSyncs();
     }
 
-    private void refresh() {
+    private void populateShopSyncs() {
         FirebaseUser currentUser = checkIfUserIsLoggedInAndFetch(true);
         if (currentUser == null) {
             return;
@@ -223,7 +219,7 @@ public class MyShopSyncsActivity extends BaseActivity {
                                 Consumer<List<String>> userUidsConsumer = userUids -> {
                                     shopSyncDto.setUserUids(userUids);
                                     shopSyncs.add(shopSyncDto);
-                                    adapter.notifyDataSetChanged();
+                                    adapter.notifyItemInserted(shopSyncs.size() - 1);
                                 };
 
                                 // get the user uids for the shop sync

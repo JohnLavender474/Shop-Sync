@@ -3,6 +3,7 @@ package edu.uga.cs.shopsync.frontend.activities;
 import static edu.uga.cs.shopsync.frontend.Constants.SHOP_SYNC_MAX_USER_COUNT;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -139,8 +140,9 @@ public class CreateShopSyncActivity extends BaseActivity {
         Consumer<ShopSyncModel> onSuccess = shopSync -> {
             Log.d(TAG, "onCreateShopSyncButtonClick: shop sync created successfully");
             Toast.makeText(this, "Shop Sync created successfully", Toast.LENGTH_SHORT).show();
-            finish();
 
+            // add the current user to the list of invited users so that the current user is
+            // automatically added to the shop sync
             invitedUserEmails.add(user.getEmail());
 
             invitedUserEmails.forEach(invitedUserEmail -> applicationGraph.usersService()
@@ -174,6 +176,10 @@ public class CreateShopSyncActivity extends BaseActivity {
 
                                 applicationGraph.shopSyncsService().addShopSyncToUser(
                                         userProfile.getUserUid(), shopSync.getUid());
+
+                                Intent intent = new Intent(this, MyShopSyncsActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
 
                                 // there should only be one child hence the break statement
                                 break;
