@@ -6,10 +6,10 @@ import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_
 import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_REMOVE_BASKET_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.ACTION_UPDATE_BASKET_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.BasketItemsFragment.PROP_BASKET_ITEMS;
-import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.*;
 import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_DELETE_PURCHASE;
 import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_INITIALIZE_PURCHASED_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.ACTION_UNDO_PURCHASE;
+import static edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.PROP_PURCHASED_ITEMS;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_ADD_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_DELETE_SHOPPING_ITEM;
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTION_INITIALIZE_SHOPPING_ITEMS;
@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
@@ -62,6 +63,7 @@ import edu.uga.cs.shopsync.frontend.fragments.PurchasedItemsFragment.PurchasedIt
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment;
 import edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ShoppingItemsAdapter;
 import edu.uga.cs.shopsync.frontend.utils.ChildEventListenerFragment;
+import edu.uga.cs.shopsync.utils.ArraySetList;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.Props;
@@ -203,6 +205,9 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
             startActivity(intent);
         });
 
+        // set up button for settling the cost
+        Button settleTheCostButton = findViewById(R.id.buttonSettleTheCost);
+        settleTheCostButton.setOnClickListener(v -> settleTheCost());
 
         // set up the views for displaying the shop sync
         // metadata
@@ -286,6 +291,19 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         if (purchasedItemsReference != null) {
             purchasedItemsReference.removeEventListener(purchasedItemsEventListener);
         }
+    }
+
+    private void settleTheCost() {
+        Log.d(TAG, "settleTheCost: called");
+
+        Consumer<List<PurchasedItemModel>> consumer = purchasedItems -> {
+            // TODO: calculate cost for each user
+            //  then display the cost for each user in a separate activity
+            //  and also email the results to each user
+        };
+
+        onCallback(ACTION_INITIALIZE_PURCHASED_ITEMS, Props.of(
+                Pair.create(Constants.CONSUMER, consumer)));
     }
 
     private void setFragment(ItemsListType itemsListType) {
@@ -840,20 +858,6 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     private void initializePurchasedItems(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "initializePurchasedItems: initializing purchased items");
 
-        // fetch the purchased items list from the props and populate it
-        List<PurchasedItemModel> purchasedItems =
-                (List<PurchasedItemModel>) props.get(PROP_PURCHASED_ITEMS);
-        if (purchasedItems == null) {
-            Log.e(TAG, "initializePurchasedItems: purchased items list is null");
-            throw new IllegalNullValueException("Purchased items list is null");
-        }
-
-        PurchasedItemsAdapter adapter = props.get(Constants.ADAPTER, PurchasedItemsAdapter.class);
-        if (adapter == null) {
-            Log.e(TAG, "initializePurchasedItems: adapter is null");
-            throw new IllegalNullValueException("Adapter is null");
-        }
-
         applicationGraph.shopSyncsService()
                 .getPurchasedItemsWithShopSyncUid(shopSyncUid)
                 .addOnCompleteListener(task -> {
@@ -867,6 +871,26 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                             throw new IllegalNullValueException("DataSnapshot is null");
                         }
 
+                        // fetch or initialize the purchased items list
+                        List<PurchasedItemModel> purchasedItems =
+                                (List<PurchasedItemModel>) props.get(PROP_PURCHASED_ITEMS);
+                        if (purchasedItems == null) {
+                            purchasedItems = new ArraySetList<>();
+                        }
+                        Log.d(TAG,
+                              "initializePurchasedItems: purchased items list = " + purchasedItems);
+
+                        // fetch the adapter from the props if one exists
+                        PurchasedItemsAdapter adapter = props.get(Constants.ADAPTER,
+                                                                  PurchasedItemsAdapter.class);
+                        Log.d(TAG, "initializePurchasedItems: adapter: " + adapter);
+
+                        // fetch the items consumer from the props if one exists
+                        Consumer<List<PurchasedItemModel>> itemsConsumer =
+                                (Consumer<List<PurchasedItemModel>>) props.get(Constants.CONSUMER);
+                        Log.d(TAG, "initializePurchasedItems: itemsConsumer: " + itemsConsumer);
+
+                        // collect the purchased items from the data snapshot
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             PurchasedItemModel purchasedItem =
                                     child.getValue(PurchasedItemModel.class);
@@ -883,7 +907,15 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                             }
                         }
 
-                        adapter.notifyDataSetChanged();
+                        // if the adapter is not null, then notify it of the data set change
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        // if the items consumer is not null, then pass the purchased items to it
+                        if (itemsConsumer != null) {
+                            itemsConsumer.accept(purchasedItems);
+                        }
                     } else {
                         Log.e(TAG, "initializePurchasedItems: failed to fetch purchased items",
                               task.getException());
