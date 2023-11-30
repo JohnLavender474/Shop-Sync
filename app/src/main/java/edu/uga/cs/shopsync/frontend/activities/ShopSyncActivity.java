@@ -18,6 +18,7 @@ import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.ACTIO
 import static edu.uga.cs.shopsync.frontend.fragments.ShoppingItemsFragment.PROP_SHOPPING_ITEMS;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -185,11 +186,28 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
             Log.d(TAG, "Back button clicked");
+
+            Intent intent = new Intent(this, MyShopSyncsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
             finish();
         });
 
-        // set up the views for displaying the shop sync metadata
-        shopSyncNameTextView = findViewById(R.id.textViewShopSyncName);
+        // set up button for editing the shop sync
+        Button editShopSyncButton = findViewById(R.id.buttonEditShopSync);
+        editShopSyncButton.setOnClickListener(v -> {
+            Log.d(TAG, "Edit shop sync button clicked");
+            Intent intent = new Intent(this, EditShopSyncActivity.class);
+            intent.putExtra(Constants.SHOP_SYNC_UID, shopSyncUid);
+            startActivity(intent);
+        });
+
+
+        // set up the views for displaying the shop sync
+        // metadata
+        shopSyncNameTextView =
+                findViewById(R.id.textViewShopSyncName);
         descriptionTextView = findViewById(R.id.textViewDescription);
         usernamesTable = findViewById(R.id.tableLayoutUsernames);
 
@@ -253,12 +271,6 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     @Override
     protected void onStop() {
         super.onStop();
-
-        // fetch the shop sync id from the intent and populate the metadata
-        String shopSyncUid = getIntent().getStringExtra(Constants.SHOP_SYNC_UID);
-        if (shopSyncUid == null) {
-            throw new IllegalStateException("ShopSync started without shop sync id");
-        }
 
         // remove the child event listener for shopping items
         if (shoppingItemsReference != null) {

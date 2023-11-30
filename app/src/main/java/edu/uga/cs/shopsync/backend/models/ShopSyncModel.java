@@ -23,8 +23,9 @@ public class ShopSyncModel {
         purchasedItems = new HashMap<>();
     }
 
-    public ShopSyncModel(String uid, String name, String description, Map<String,
-            ShoppingItemModel> shoppingItems, Map<String, ShoppingBasketModel> shoppingBaskets,
+    public ShopSyncModel(String uid, String name, String description,
+                         Map<String, ShoppingItemModel> shoppingItems,
+                         Map<String, ShoppingBasketModel> shoppingBaskets,
                          Map<String, PurchasedItemModel> purchasedItems) {
         this.uid = uid;
         this.name = name;
@@ -43,6 +44,39 @@ public class ShopSyncModel {
         result.put("shoppingBaskets", shoppingBaskets);
         result.put("purchasedItems", purchasedItems);
         return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void fromMap(@NonNull Map<String, Object> map) {
+        String _uid = (String) map.get("uid");
+        if (_uid != null) {
+            uid = _uid;
+        }
+
+        String _name = (String) map.get("name");
+        if (_name != null) {
+            name = _name;
+        }
+
+        String _description = (String) map.get("description");
+        if (_description != null) {
+            description = _description;
+        }
+
+        Object _shoppingItems = map.get("shoppingItems");
+        if (_shoppingItems instanceof Map) {
+            shoppingItems = (Map<String, ShoppingItemModel>) _shoppingItems;
+        }
+
+        Object _shoppingBaskets = map.get("shoppingBaskets");
+        if (_shoppingBaskets instanceof Map) {
+            shoppingBaskets = (Map<String, ShoppingBasketModel>) _shoppingBaskets;
+        }
+
+        Object _purchasedItems = map.get("purchasedItems");
+        if (_purchasedItems instanceof Map) {
+            purchasedItems = (Map<String, PurchasedItemModel>) _purchasedItems;
+        }
     }
 
     public String getUid() {

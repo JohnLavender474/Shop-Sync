@@ -126,6 +126,8 @@ public class CreateShopSyncActivity extends BaseActivity {
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
         if (user == null) {
             Log.e(TAG, "onCreateShopSyncButtonClick: user is not logged in");
+            Toast.makeText(this, "User is not logged in", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
@@ -162,7 +164,8 @@ public class CreateShopSyncActivity extends BaseActivity {
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
                                 UserProfileModel userProfile =
                                         child.getValue(UserProfileModel.class);
-                                if (userProfile == null || userProfile.getUserUid().isBlank()) {
+                                if (userProfile == null || userProfile.getUserUid() == null ||
+                                        userProfile.getUserUid().isBlank()) {
                                     Log.e(TAG, "onCreateShopSyncButtonClick: failed to get " +
                                             "user profile with email " + invitedUserEmail);
                                     createNotificationForFailedToInviteUser(shopSync,

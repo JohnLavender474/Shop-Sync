@@ -35,9 +35,9 @@ public class ShopSyncsFirebaseReference {
 
     private static final String TAG = "ShopSyncsFirebaseReference";
     public static final String SHOP_SYNCS_COLLECTION = "shop_syncs";
-    public static final String SHOPPING_ITEMS_NESTED_COLLECTION = "shopping_items";
-    public static final String SHOPPING_BASKETS_NESTED_COLLECTION = "shopping_baskets";
-    public static final String PURCHASED_ITEMS_NESTED_COLLECTION = "purchased_items";
+    public static final String SHOPPING_ITEMS_NESTED_COLLECTION = "shoppingItems";
+    public static final String SHOPPING_BASKETS_NESTED_COLLECTION = "shoppingBaskets";
+    public static final String PURCHASED_ITEMS_NESTED_COLLECTION = "purchasedItems";
     public static final String NAME_FIELD = "name";
     public static final String USER_UID_FIELD = "userUid";
 
@@ -60,6 +60,15 @@ public class ShopSyncsFirebaseReference {
     ShopSyncsFirebaseReference(@NonNull DatabaseReference shopSyncsCollection) {
         this.shopSyncsCollection = shopSyncsCollection;
         Log.d("ShopSyncsFirebaseReference", "ShopSyncsFirebaseReference: created");
+    }
+
+    /**
+     * Returns the shop syncs collection.
+     *
+     * @return the shop syncs collection
+     */
+    public DatabaseReference getShopSyncsCollection() {
+        return shopSyncsCollection;
     }
 
     /**

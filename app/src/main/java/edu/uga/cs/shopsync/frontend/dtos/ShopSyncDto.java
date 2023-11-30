@@ -9,12 +9,16 @@ import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 
 public class ShopSyncDto {
 
-    private String uid = "";
-    private String name = "";
-    private String description = "";
-    private List<String> userUids = new ArrayList<>();
+    private String uid;
+    private String name;
+    private String description;
+    private List<String> userUids;
 
     public ShopSyncDto() {
+        uid = "";
+        name = "";
+        description = "";
+        userUids = new ArrayList<>();
     }
 
     public ShopSyncDto(String uid, String name, String description, List<String> userUids) {
@@ -64,7 +68,6 @@ public class ShopSyncDto {
     @NonNull
     @Override
     public String toString() {
-        return "ShopSyncDto{" + "uid=" + uid + ", name=" + name + ", description=" + description +
-                ", userUids=" + userUids + '}';
+        return "ShopSyncDto{" + "uid=" + uid + ", name=" + name + ", description=" + description + "}";
     }
 }
