@@ -533,5 +533,67 @@ public class ShopSyncsFirebaseReferenceTest {
         assertEquals(TEST_SHOP_SYNC_UID, shopSyncUidWrapper.get());
         assertEquals(true, setInBasketWrapper.get());
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testCheckIfPurchasedItemExistsForBasketItem() {
+        // Arrange
+        Query mockOrderByChildQuery = mock(Query.class);
+        when(mockPurchasedItemsCollection.orderByChild("basketItem/uid"))
+                .thenReturn(mockOrderByChildQuery);
+
+        Query mockEqualToQuery = mock(Query.class);
+        when(mockOrderByChildQuery.equalTo(TEST_PURCHASED_ITEM_UID)).thenReturn(mockEqualToQuery);
+
+        when(mockEqualToQuery.get()).thenReturn(mockDataTask);
+        when(mockDataTask.isSuccessful()).thenReturn(true);
+        when(mockDataTask.getResult()).thenReturn(mock(DataSnapshot.class));
+        when(mockDataTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            ((OnCompleteListener<DataSnapshot>) args[0]).onComplete(mockDataTask);
+            return null;
+        });
+
+        Consumer<Boolean> mockResultConsumer = mock(Consumer.class);
+
+        // Act
+        shopSyncsFirebaseReference.checkIfPurchasedItemExistsForBasketItem(
+                TEST_SHOP_SYNC_UID, TEST_PURCHASED_ITEM_UID, mockResultConsumer);
+
+        // Assert
+        verify(mockPurchasedItemsCollection).orderByChild("basketItem/uid");
+        verify(mockResultConsumer).accept(false);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testCheckIfPurchasedItemExistsForShoppingItem() {
+        // Arrange
+        Query mockOrderByChildQuery = mock(Query.class);
+        when(mockPurchasedItemsCollection.orderByChild("shoppingItem/uid"))
+                .thenReturn(mockOrderByChildQuery);
+
+        Query mockEqualToQuery = mock(Query.class);
+        when(mockOrderByChildQuery.equalTo(TEST_SHOPPING_ITEM_UID)).thenReturn(mockEqualToQuery);
+
+        when(mockEqualToQuery.get()).thenReturn(mockDataTask);
+        when(mockDataTask.isSuccessful()).thenReturn(true);
+        when(mockDataTask.getResult()).thenReturn(mock(DataSnapshot.class));
+        when(mockDataTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            ((OnCompleteListener<DataSnapshot>) args[0]).onComplete(mockDataTask);
+            return null;
+        });
+
+        Consumer<Boolean> mockResultConsumer = mock(Consumer.class);
+
+        // Act
+        shopSyncsFirebaseReference.checkIfPurchasedItemExistsForShoppingItem(
+                TEST_SHOP_SYNC_UID, TEST_SHOPPING_ITEM_UID, mockResultConsumer);
+
+        // Assert
+        verify(mockPurchasedItemsCollection).orderByChild("shoppingItem/uid");
+        verify(mockResultConsumer).accept(false);
+    }
 }
 
