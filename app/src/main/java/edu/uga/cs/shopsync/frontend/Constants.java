@@ -8,6 +8,7 @@ public class Constants {
     public static final String ON_SUCCESS = "OnSuccess";
     public static final String ON_FAILURE = "OnFailure";
     public static final String CONSUMER = "Consumer";
+    public static final String USER_EMAIL = "UserEmail";
     public static final String SHOP_SYNC_UID = "ShopSyncUid";
     public static final String SHOPPING_ITEM = "ShoppingItem";
     public static final String BASKET_ITEM = "BasketItem";
