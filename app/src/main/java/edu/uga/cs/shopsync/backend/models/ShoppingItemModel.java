@@ -31,6 +31,23 @@ public class ShoppingItemModel {
         return map;
     }
 
+    public void fromMap(Map<String, Object> map) {
+        String _shoppingItemUid = (String) map.get("shoppingItemUid");
+        if (_shoppingItemUid != null) {
+            shoppingItemUid = _shoppingItemUid;
+        }
+
+        String _name = (String) map.get("name");
+        if (_name != null) {
+            name = _name;
+        }
+
+        Object _inBasket = map.get("inBasket");
+        if (_inBasket instanceof Boolean) {
+            inBasket = (Boolean) _inBasket;
+        }
+    }
+
     public String getShoppingItemUid() {
         return shoppingItemUid;
     }

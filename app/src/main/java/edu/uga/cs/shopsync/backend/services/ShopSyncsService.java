@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,15 @@ public class ShopSyncsService {
      */
     public UserShopSyncMapFirebaseReference getUserShopSyncMapFirebaseReference() {
         return userShopSyncMapFirebaseReference;
+    }
+
+    /**
+     * Returns the shop syncs database reference.
+     *
+     * @return the shop syncs database reference
+     */
+    public DatabaseReference getShopSyncsDatabaseReference() {
+        return shopSyncsFirebaseReference.getShopSyncsCollection();
     }
 
     /**
