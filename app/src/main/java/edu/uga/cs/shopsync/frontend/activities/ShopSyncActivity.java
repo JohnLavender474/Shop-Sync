@@ -841,19 +841,44 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
     private void purchaseBasketItem(@NonNull String shopSyncUid, @NonNull Props props) {
         Log.d(TAG, "purchaseBasketItem: purchasing basket item");
 
+        Runnable onSuccessRunnable = props.get(Constants.ON_SUCCESS, Runnable.class);
+        Runnable onFailureRunnable = props.get(Constants.ON_FAILURE, Runnable.class);
+
         FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
         if (user == null) {
+            if (onFailureRunnable != null) {
+                onFailureRunnable.run();
+            }
             throw new IllegalNullValueException("User is null");
         }
 
         BasketItemModel basketItem = props.get(Constants.BASKET_ITEM, BasketItemModel.class);
         if (basketItem == null) {
+            if (onFailureRunnable != null) {
+                onFailureRunnable.run();
+            }
             Log.e(TAG, "purchaseBasketItem: basket item is null");
             throw new IllegalNullValueException("Basket item is null");
         }
 
+        Consumer<PurchasedItemModel> onSuccess = purchasedItem -> {
+            Log.d(TAG,
+                  "purchaseBasketItem: successfully created new purchased item = " + purchasedItem);
+            if (onSuccessRunnable != null) {
+                onSuccessRunnable.run();
+            }
+        };
+
+        Consumer<ErrorHandle> onFailure = error -> {
+            Log.e(TAG,
+                  "purchaseBasketItem: failed to create new purchased item with error = " + error);
+            if (onFailureRunnable != null) {
+                onFailureRunnable.run();
+            }
+        };
+
         applicationGraph.shopSyncsService()
-                .addPurchasedItem(shopSyncUid, user.getUid(), basketItem, null, null);
+                .addPurchasedItem(shopSyncUid, user.getUid(), basketItem, onSuccess, onFailure);
     }
 
     private void removeBasketItem(@NonNull String shopSyncUid, @NonNull Props props) {

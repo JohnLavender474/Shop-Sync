@@ -463,8 +463,22 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                     if (callbackReceiver == null) {
                         Log.e(TAG, "bind: callbackReceiver is null");
                     } else {
+                        Runnable onSuccess = () -> {
+                            Log.d(TAG, "purchase successful");
+                            Toast.makeText(getContext(), "Basket item purchased successfully",
+                                           Toast.LENGTH_SHORT).show();
+                        };
+
+                        Runnable onFailure = () -> {
+                            Log.e(TAG, "purchase failed");
+                            Toast.makeText(getContext(), "Failed to purchase basket item!",
+                                           Toast.LENGTH_SHORT).show();
+                        };
+
                         callbackReceiver.onCallback(ACTION_PURCHASE_BASKET_ITEM, Props.of(
-                                Pair.create(Constants.BASKET_ITEM, item)));
+                                Pair.create(Constants.BASKET_ITEM, item),
+                                Pair.create(Constants.ON_SUCCESS, onSuccess),
+                                Pair.create(Constants.ON_FAILURE, onFailure)));
                     }
                 });
 
