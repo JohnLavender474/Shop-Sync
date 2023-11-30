@@ -444,6 +444,8 @@ public class ShopSyncsFirebaseReference {
 
         getShoppingBasketWithUid(shopSyncUid, shoppingBasketUid).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                Log.d(TAG, "addBasketItem: task completed for getting shopping basket");
+
                 DataSnapshot dataSnapshot = task.getResult();
                 ShoppingBasketModel shoppingBasket =
                         dataSnapshot.getValue(ShoppingBasketModel.class);
@@ -468,9 +470,8 @@ public class ShopSyncsFirebaseReference {
                 }
 
                 // add the basket item to the shopping cart
-                BasketItemModel newBasketItem = new BasketItemModel(shoppingBasketUid,
-                                                                    shoppingItemUid,
-                                                                    quantity, pricePerUnit);
+                BasketItemModel newBasketItem = new BasketItemModel(
+                        shoppingBasketUid, shoppingItemUid, quantity, pricePerUnit);
                 shoppingBasket.getBasketItems().put(shoppingItemUid, newBasketItem);
                 // update the shopping cart
                 updateShoppingBasket(shopSyncUid, shoppingBasket);
@@ -480,6 +481,7 @@ public class ShopSyncsFirebaseReference {
                         .child("inBasket").setValue(true);
 
                 if (onSuccess != null) {
+                    Log.d(TAG, "addBasketItem: successfully added basket item to shopping basket");
                     onSuccess.accept(newBasketItem);
                 }
             } else if (onFailure != null) {
