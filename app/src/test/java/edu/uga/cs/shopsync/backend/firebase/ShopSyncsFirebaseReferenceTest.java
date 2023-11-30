@@ -46,6 +46,7 @@ import edu.uga.cs.shopsync.utils.DataWrapper;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("unchecked")
 public class ShopSyncsFirebaseReferenceTest {
 
     private static final String TEST_NAME = "Test Shop Sync";
@@ -73,7 +74,7 @@ public class ShopSyncsFirebaseReferenceTest {
     private ShopSyncsFirebaseReference shopSyncsFirebaseReference;
 
     @Before
-    @SuppressWarnings("unchecked")
+
     public void setUp() {
         // set up mock shop syncs collection
         mockShopSyncsCollection = mock(DatabaseReference.class);
@@ -351,7 +352,7 @@ public class ShopSyncsFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+
     public void testCheckIfShoppingBasketExists() {
         // Arrange
         DataSnapshot mockDataSnapshot = mock(DataSnapshot.class);
@@ -427,7 +428,7 @@ public class ShopSyncsFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+
     public void testDeleteShoppingBasket() {
         // Arrange
         BasketItemModel basketItem = new BasketItemModel(
@@ -479,7 +480,7 @@ public class ShopSyncsFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+
     public void testAddBasketItem() {
         // Arrange
         ShoppingBasketModel shoppingBasket = new ShoppingBasketModel(
@@ -542,7 +543,7 @@ public class ShopSyncsFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+
     public void testDeleteBasketItem() {
         // Arrange
         Map<String, BasketItemModel> basketItems = new HashMap<>();
@@ -618,7 +619,7 @@ public class ShopSyncsFirebaseReferenceTest {
 
 
     @Test
-    @SuppressWarnings("unchecked")
+
     public void testCheckIfPurchasedItemExistsForBasketItem() {
         // Arrange
         Query mockOrderByChildQuery = mock(Query.class);
@@ -649,7 +650,7 @@ public class ShopSyncsFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+
     public void testCheckIfPurchasedItemExistsForShoppingItem() {
         // Arrange
         Query mockOrderByChildQuery = mock(Query.class);

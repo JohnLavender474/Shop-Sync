@@ -113,9 +113,9 @@ public class UserShopSyncMapFirebaseReference {
 
                 // for each shop sync associated with the user, remove the user from the shop sync
                 for (DataSnapshot shopSyncSnapshot : dataSnapshot.getChildren()) {
-                    String shopSyncId = shopSyncSnapshot.getKey();
-                    if (shopSyncId != null) {
-                        removeUserShopSyncMapping(userId, shopSyncId);
+                    String shopSyncUid = shopSyncSnapshot.getKey();
+                    if (shopSyncUid != null) {
+                        removeUserShopSyncMapping(userId, shopSyncUid);
                     }
                 }
 

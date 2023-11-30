@@ -36,6 +36,7 @@ import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.ErrorType;
 
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("unchecked")
 public class UsersFirebaseReferenceTest {
 
     private static final String TEST_UID = "testUid";
@@ -55,7 +56,7 @@ public class UsersFirebaseReferenceTest {
 
 
     @Before
-    @SuppressWarnings("unchecked")
+    
     public void setUp() {
         // mocks
         mockFirebaseAuth = mock(FirebaseAuth.class);
@@ -324,7 +325,7 @@ public class UsersFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+    
     public void testDeleteUser_Success() {
         // Arrange
         doReturn(mockAuthCredential).when(usersFirebaseReference).getCredential(TEST_EMAIL,
@@ -377,7 +378,7 @@ public class UsersFirebaseReferenceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+    
     public void testChangeUserPassword_Success() {
         // Arrange
         DataWrapper<String> newPasswordWrapper = new DataWrapper<>(null);
@@ -435,7 +436,7 @@ public class UsersFirebaseReferenceTest {
     }
 
 
-    @SuppressWarnings("unchecked")
+    
     private void setUpTaskGetUserProfileWithEmail(boolean existsValue, boolean successfulValue) {
         doReturn(mockDataTask).when(usersFirebaseReference).getUserProfileWithEmail(any());
         when(mockDataTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
@@ -449,7 +450,7 @@ public class UsersFirebaseReferenceTest {
         when(mockDataTask.isSuccessful()).thenReturn(successfulValue);
     }
 
-    @SuppressWarnings("unchecked")
+    
     private void setUpCreateUserTask(boolean successfulValue) {
         when(mockAuthTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
