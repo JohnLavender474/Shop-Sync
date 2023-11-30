@@ -294,7 +294,7 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                         }
                         long quantity = Long.parseLong(s.toString());
                         textViewQuantityWarning.setVisibility(quantity == 0 ? View.VISIBLE :
-                                                                      View.INVISIBLE);
+                                                                      View.GONE);
                     }
                 };
                 editTextQuantity.setText(String.valueOf(item.getQuantity()));
@@ -349,7 +349,7 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                         }
                         double pricePerUnit = Double.parseDouble(s.toString());
                         textViewPriceWarning.setVisibility(pricePerUnit == 0 ? View.VISIBLE :
-                                                                   View.INVISIBLE);
+                                                                   View.GONE);
                     }
                 };
                 editTextPricePerUnit.setText(String.valueOf(item.getPricePerUnit()));

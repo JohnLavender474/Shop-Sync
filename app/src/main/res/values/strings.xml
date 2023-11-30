@@ -98,4 +98,5 @@
     <string name="settle_the_cost">Settle the Cost</string>
     <string name="userCosts">User\'s Total Cost</string>
     <string name="cost_per_user">Cost per User</string>
+    <string name="shopping_cart">Shopping cart</string>
 </resources>
