@@ -36,8 +36,8 @@ public class PurchasedItemModel {
         Map<String, Object> map = new HashMap<>();
         map.put("purchasedItemUid", purchasedItemUid);
         map.put("userEmail", userEmail);
-        map.put("shoppingItem", shoppingItem.toMap());
-        map.put("basketItem", basketItem.toMap());
+        map.put("shoppingItem", shoppingItem == null ? null : shoppingItem.toMap());
+        map.put("basketItem", basketItem == null ? null : basketItem.toMap());
         return map;
     }
 

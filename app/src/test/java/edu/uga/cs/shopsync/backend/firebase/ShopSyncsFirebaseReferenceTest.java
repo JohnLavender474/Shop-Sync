@@ -1,7 +1,9 @@
 package edu.uga.cs.shopsync.backend.firebase;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -12,6 +14,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference.NAME_FIELD;
+import static edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference.PURCHASED_ITEMS_NESTED_COLLECTION;
+import static edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference.SHOPPING_BASKETS_NESTED_COLLECTION;
+import static edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference.SHOPPING_ITEMS_NESTED_COLLECTION;
+import static edu.uga.cs.shopsync.backend.firebase.ShopSyncsFirebaseReference.USER_UID_FIELD;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +38,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import edu.uga.cs.shopsync.backend.models.BasketItemModel;
+import edu.uga.cs.shopsync.backend.models.PurchasedItemModel;
 import edu.uga.cs.shopsync.backend.models.ShopSyncModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingBasketModel;
 import edu.uga.cs.shopsync.backend.models.ShoppingItemModel;
@@ -42,7 +50,7 @@ public class ShopSyncsFirebaseReferenceTest {
 
     private static final String TEST_NAME = "Test Shop Sync";
     private static final String TEST_DESCRIPTION = "Test Description";
-    private static final String TEST_SHOP_SYNC_UID = "testShopSyncUid";
+    private static final String TEST_SHOP_SYNC_UID = "TEST_SHOP_SYNC_UID";
     private static final String TEST_USER_UID = "testUserUid";
     private static final String TEST_SHOPPING_ITEM_UID = "testItemUid";
     private static final String TEST_PURCHASED_ITEM_UID = "testPurchasedItemUid";
@@ -57,6 +65,7 @@ public class ShopSyncsFirebaseReferenceTest {
     private DatabaseReference mockShoppingBasketChildReference;
 
     private DatabaseReference mockPurchasedItemsCollection;
+    private DatabaseReference mockPurchasedItemChildReference;
 
     private DatabaseReference mockNewEntryReference;
     private Task<DataSnapshot> mockDataTask;
@@ -66,34 +75,40 @@ public class ShopSyncsFirebaseReferenceTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() {
-        // mocks
-
-        // set up shop syncs collection
+        // set up mock shop syncs collection
         mockShopSyncsCollection = mock(DatabaseReference.class);
         mockShopSyncChildReference = mock(DatabaseReference.class);
         when(mockShopSyncsCollection.child(TEST_SHOP_SYNC_UID))
                 .thenReturn(mockShopSyncChildReference);
 
-        // set up shopping items collection and shopping item child reference
+        // set up mock shopping items collection and shopping item child reference
         mockShoppingItemsCollection = mock(DatabaseReference.class);
-        when(mockShopSyncChildReference.child(ShopSyncsFirebaseReference.SHOPPING_ITEMS_NESTED_COLLECTION))
+        when(mockShopSyncChildReference.child(
+                SHOPPING_ITEMS_NESTED_COLLECTION))
                 .thenReturn(mockShoppingItemsCollection);
         mockShoppingItemChildReference = mock(DatabaseReference.class);
         when(mockShoppingItemsCollection.child(TEST_SHOPPING_ITEM_UID))
                 .thenReturn(mockShoppingItemChildReference);
 
-        // set up shopping baskets collection and shopping basket child reference
+        // set up mock shopping baskets collection and shopping basket child reference
         mockShoppingBasketsCollection = mock(DatabaseReference.class);
-        when(mockShopSyncChildReference.child(ShopSyncsFirebaseReference.SHOPPING_BASKETS_NESTED_COLLECTION))
+        when(mockShopSyncChildReference.child(
+                SHOPPING_BASKETS_NESTED_COLLECTION))
                 .thenReturn(mockShoppingBasketsCollection);
         mockShoppingBasketChildReference = mock(DatabaseReference.class);
         when(mockShoppingBasketsCollection.child(TEST_USER_UID))
                 .thenReturn(mockShoppingBasketChildReference);
 
+        // set up mock purchased items collection and purchased item child reference
         mockPurchasedItemsCollection = mock(DatabaseReference.class);
-        when(mockShopSyncChildReference.child(ShopSyncsFirebaseReference.PURCHASED_ITEMS_NESTED_COLLECTION))
+        when(mockShopSyncChildReference.child(
+                PURCHASED_ITEMS_NESTED_COLLECTION))
                 .thenReturn(mockPurchasedItemsCollection);
+        mockPurchasedItemChildReference = mock(DatabaseReference.class);
+        when(mockPurchasedItemsCollection.child(TEST_PURCHASED_ITEM_UID))
+                .thenReturn(mockPurchasedItemChildReference);
 
+        // other mocks
         mockNewEntryReference = mock(DatabaseReference.class);
         mockDataTask = mock(Task.class);
         mockVoidTask = mock(Task.class);
@@ -285,7 +300,7 @@ public class ShopSyncsFirebaseReferenceTest {
         String testName = "Test Item";
 
         Query mockOrderByChildQuery = mock(Query.class);
-        when(mockShoppingItemsCollection.orderByChild(ShopSyncsFirebaseReference.NAME_FIELD))
+        when(mockShoppingItemsCollection.orderByChild(NAME_FIELD))
                 .thenReturn(mockOrderByChildQuery);
 
         Query mockEqualToQuery = mock(Query.class);
@@ -340,13 +355,6 @@ public class ShopSyncsFirebaseReferenceTest {
     public void testCheckIfShoppingBasketExists() {
         // Arrange
         DataSnapshot mockDataSnapshot = mock(DataSnapshot.class);
-        when(mockDataTask.isSuccessful()).thenReturn(true);
-        when(mockDataTask.getResult()).thenReturn(mockDataSnapshot);
-        when(mockDataTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            ((OnCompleteListener<Void>) args[0]).onComplete(mockVoidTask);
-            return null;
-        });
         when(mockDataSnapshot.exists()).thenReturn(true);
 
         Task<DataSnapshot> shoppingBasketDataTask = mock(Task.class);
@@ -433,7 +441,6 @@ public class ShopSyncsFirebaseReferenceTest {
                 TEST_SHOP_SYNC_UID, TEST_USER_UID);
         DataSnapshot getShoppingBasketData = mock(DataSnapshot.class);
         when(getShoppingBasketData.getValue(ShoppingBasketModel.class)).thenReturn(shoppingBasket);
-        when(getShoppingBasketTask.getResult()).thenReturn(getShoppingBasketData);
         when(getShoppingBasketTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             ((OnSuccessListener<DataSnapshot>) args[0]).onSuccess(getShoppingBasketData);
@@ -536,6 +543,82 @@ public class ShopSyncsFirebaseReferenceTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void testDeleteBasketItem() {
+        // Arrange
+        Map<String, BasketItemModel> basketItems = new HashMap<>();
+        basketItems.put(TEST_SHOPPING_ITEM_UID, new BasketItemModel(
+                TEST_USER_UID, TEST_SHOPPING_ITEM_UID, 1, 10.0));
+
+        ShoppingBasketModel shoppingBasket = new ShoppingBasketModel(TEST_USER_UID, basketItems);
+
+        DataSnapshot mockDataSnapshot = mock(DataSnapshot.class);
+        when(mockDataSnapshot.getValue(ShoppingBasketModel.class)).thenReturn(shoppingBasket);
+
+        Task<DataSnapshot> mockShoppingBasketDataTask = mock(Task.class);
+        when(mockShoppingBasketDataTask.isSuccessful()).thenReturn(true);
+        when(mockShoppingBasketDataTask.getResult()).thenReturn(mockDataSnapshot);
+        when(mockShoppingBasketDataTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            ((OnCompleteListener<DataSnapshot>) args[0]).onComplete(mockShoppingBasketDataTask);
+            return null;
+        });
+
+        doReturn(mockShoppingBasketDataTask).when(shopSyncsFirebaseReference)
+                .getShoppingBasketWithUid(TEST_SHOP_SYNC_UID, TEST_USER_UID);
+
+        DataWrapper<String> shopSyncUidWrapper = new DataWrapper<>(null);
+        DataWrapper<ShoppingBasketModel> shoppingBasketWrapper = new DataWrapper<>(null);
+        doAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            shopSyncUidWrapper.set((String) args[0]);
+            shoppingBasketWrapper.set((ShoppingBasketModel) args[1]);
+            return null;
+        }).when(shopSyncsFirebaseReference).updateShoppingBasket(any(), any());
+
+        ShoppingItemModel shoppingItem = new ShoppingItemModel(
+                TEST_SHOPPING_ITEM_UID, "Test Item", true);
+
+        DataSnapshot shoppingItemDataSnapshot = mock(DataSnapshot.class);
+        when(shoppingItemDataSnapshot.getValue(ShoppingItemModel.class)).thenReturn(shoppingItem);
+
+        Task<DataSnapshot> shoppingItemDataTask = mock(Task.class);
+        when(shoppingItemDataTask.isSuccessful()).thenReturn(true);
+        when(shoppingItemDataTask.getResult()).thenReturn(shoppingItemDataSnapshot);
+        when(shoppingItemDataTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            ((OnCompleteListener<DataSnapshot>) args[0]).onComplete(shoppingItemDataTask);
+            return null;
+        });
+
+        doReturn(shoppingItemDataTask).when(shopSyncsFirebaseReference).getShoppingItemWithUid(
+                TEST_SHOP_SYNC_UID, TEST_SHOPPING_ITEM_UID);
+
+        DataWrapper<ShoppingItemModel> shoppingItemDataWrapper = new DataWrapper<>(null);
+        doAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            shoppingItemDataWrapper.set((ShoppingItemModel) args[1]);
+            return null;
+        }).when(shopSyncsFirebaseReference).updateShoppingItem(any(), any());
+
+        // Act
+        shopSyncsFirebaseReference.deleteBasketItem(
+                TEST_SHOP_SYNC_UID, TEST_USER_UID, TEST_SHOPPING_ITEM_UID, null, true);
+
+        // Assert
+        ShoppingBasketModel updatedShoppingBasket = shoppingBasketWrapper.get();
+        assertNotNull(updatedShoppingBasket);
+        assertTrue(basketItems.isEmpty());
+
+        ShoppingItemModel updatedShoppingItem = shoppingItemDataWrapper.get();
+        assertNotNull(updatedShoppingItem);
+        assertFalse(updatedShoppingItem.isInBasket());
+
+        assertEquals(TEST_SHOP_SYNC_UID, shopSyncUidWrapper.get());
+    }
+
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void testCheckIfPurchasedItemExistsForBasketItem() {
         // Arrange
         Query mockOrderByChildQuery = mock(Query.class);
@@ -594,6 +677,106 @@ public class ShopSyncsFirebaseReferenceTest {
         // Assert
         verify(mockPurchasedItemsCollection).orderByChild("shoppingItem/uid");
         verify(mockResultConsumer).accept(false);
+    }
+
+    @Test
+    public void testGetPurchasedItemWithUid() {
+        // Arrange
+        when(mockPurchasedItemChildReference.get()).thenReturn(mockDataTask);
+
+        // Act
+        Task<DataSnapshot> result =
+                shopSyncsFirebaseReference.getPurchasedItemWithUid(TEST_SHOP_SYNC_UID,
+                                                                   TEST_PURCHASED_ITEM_UID);
+
+        // Assert
+        assertNotNull(result);
+        verify(mockPurchasedItemsCollection).child(TEST_PURCHASED_ITEM_UID);
+        verify(mockPurchasedItemChildReference).get();
+    }
+
+    @Test
+    public void testGetPurchasedItemsWithShopSyncUid() {
+        // Arrange
+        when(mockPurchasedItemsCollection.get()).thenReturn(mockDataTask);
+
+        // Act
+        Task<DataSnapshot> result =
+                shopSyncsFirebaseReference.getPurchasedItemsWithShopSyncUid(TEST_SHOP_SYNC_UID);
+
+        // Assert
+        assertNotNull(result);
+        verify(mockPurchasedItemsCollection).get();
+    }
+
+    @Test
+    public void testGetPurchasedItemsWithUserUid() {
+        // Arrange
+        Query mockOrderByChildQuery = mock(Query.class);
+        when(mockPurchasedItemsCollection.orderByChild(USER_UID_FIELD))
+                .thenReturn(mockOrderByChildQuery);
+
+        Query mockEqualToQuery = mock(Query.class);
+        when(mockOrderByChildQuery.equalTo(TEST_USER_UID)).thenReturn(mockEqualToQuery);
+
+        when(mockEqualToQuery.get()).thenReturn(mockDataTask);
+
+        // Act
+        Task<DataSnapshot> result = shopSyncsFirebaseReference.getPurchasedItemsWithUserUid(
+                TEST_SHOP_SYNC_UID, TEST_USER_UID);
+
+        // Assert
+        assertNotNull(result);
+        verify(mockPurchasedItemsCollection).orderByChild(USER_UID_FIELD);
+        verify(mockOrderByChildQuery).equalTo(TEST_USER_UID);
+        verify(mockEqualToQuery).get();
+        assertEquals(mockDataTask, result);
+    }
+
+    @Test
+    public void testUpdatePurchasedItem() {
+        // Arrange
+        PurchasedItemModel updatedPurchasedItem = new PurchasedItemModel(
+                TEST_PURCHASED_ITEM_UID, null, null, null);
+        when(mockPurchasedItemsCollection.updateChildren(anyMap())).thenReturn(mockVoidTask);
+
+        // Act
+        Task<Void> result = shopSyncsFirebaseReference.updatePurchasedItem(
+                TEST_SHOP_SYNC_UID, updatedPurchasedItem);
+
+        // Assert
+        assertNotNull(result);
+        Map<String, Object> expectedMap = Map.of("/" + TEST_PURCHASED_ITEM_UID,
+                                                 updatedPurchasedItem.toMap());
+        verify(mockPurchasedItemsCollection).updateChildren(expectedMap);
+    }
+
+    @Test
+    public void testDeletePurchasedItem() {
+        // Arrange
+        when(mockPurchasedItemChildReference.removeValue()).thenReturn(mockVoidTask);
+
+        // Act
+        Task<Void> result = shopSyncsFirebaseReference.deletePurchasedItem(
+                TEST_SHOP_SYNC_UID, TEST_PURCHASED_ITEM_UID);
+
+        // Assert
+        assertNotNull(result);
+        verify(mockPurchasedItemsCollection).child(TEST_PURCHASED_ITEM_UID);
+        verify(mockPurchasedItemChildReference).removeValue();
+    }
+
+    @Test
+    public void testDeleteAllPurchasedItems() {
+        // Arrange
+        when(mockPurchasedItemsCollection.removeValue()).thenReturn(mockVoidTask);
+
+        // Act
+        Task<Void> result = shopSyncsFirebaseReference.deleteAllPurchasedItems(TEST_SHOP_SYNC_UID);
+
+        // Assert
+        assertNotNull(result);
+        verify(mockPurchasedItemsCollection).removeValue();
     }
 }
 
