@@ -337,9 +337,22 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
             case BASKET_ITEMS_LIST ->
                     transaction.replace(R.id.fragmentContainer, new BasketItemsFragment(),
                                         BASKET_ITEMS_FRAGMENT);
-            case PURCHASED_ITEMS_LIST ->
-                    transaction.replace(R.id.fragmentContainer, new PurchasedItemsFragment(),
-                                        PURCHASED_ITEMS_FRAGMENT);
+            case PURCHASED_ITEMS_LIST -> {
+                FirebaseUser user = checkIfUserIsLoggedInAndFetch(true);
+                if (user == null || user.isAnonymous()) {
+                    Log.e(TAG, "setFragment: user is not signed in");
+                    finish();
+                    return;
+                }
+                String userEmail = user.getEmail();
+                if (userEmail == null) {
+                    Log.e(TAG, "setFragment: user email is null");
+                    throw new IllegalNullValueException("User email is null");
+                }
+                transaction.replace(R.id.fragmentContainer,
+                                    PurchasedItemsFragment.newInstance(userEmail),
+                                    PURCHASED_ITEMS_FRAGMENT);
+            }
         }
 
         transaction.commit();
@@ -796,7 +809,8 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
                             }
                             Log.e(TAG,
                                   "updateBasketItem: no shopping basket found with uid: " + shoppingBasketUid);
-                            throw new IllegalNullValueException("No shopping basket found with " + "uid: " + shoppingBasketUid);
+                            throw new IllegalNullValueException("No shopping basket found with " +
+                                                                        "uid: " + shoppingBasketUid);
                         }
 
                         Map<String, BasketItemModel> basketItems = shoppingBasket.getBasketItems();

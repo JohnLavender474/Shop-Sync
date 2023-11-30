@@ -61,6 +61,20 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
         adapter = new PurchasedItemsAdapter(purchasedItems);
     }
 
+    /**
+     * Returns a new instance of PurchasedItemsFragment.
+     *
+     * @param userEmail the email of the currently logged-in user
+     * @return a new instance of PurchasedItemsFragment
+     */
+    public static PurchasedItemsFragment newInstance(String userEmail) {
+        PurchasedItemsFragment fragment = new PurchasedItemsFragment();
+        Bundle args = new Bundle();
+        args.putString(Constants.USER_EMAIL, userEmail);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -235,6 +249,7 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
             private final TextView textViewItemName;
             private final TextView textViewQuantity;
             private final TextView textViewPricePerUnit;
+            private final TextView textViewPurchaser;
             private final Button buttonUndoPurchase;
             private final Button buttonDeletePurchase;
 
@@ -246,6 +261,8 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
                 textViewItemName = itemView.findViewById(R.id.itemNameTextView);
                 textViewQuantity = itemView.findViewById(R.id.quantityTextView);
                 textViewPricePerUnit = itemView.findViewById(R.id.pricePerUnitTextView);
+                textViewPurchaser = itemView.findViewById(R.id.purchaserTextView);
+
                 buttonUndoPurchase = itemView.findViewById(R.id.undoPurchaseButton);
                 buttonDeletePurchase = itemView.findViewById(R.id.deletePurchaseButton);
             }
@@ -285,12 +302,35 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
                 String pricePerUnitText = "Price per unit: $" + pricePerUnit;
                 textViewPricePerUnit.setText(pricePerUnitText);
 
+                // set the purchaser
+                String purchaserEmail = purchasedItem.getUserEmail();
+                if (purchaserEmail == null) {
+                    throw new IllegalNullValueException("Purchased item cannot have null user" +
+                                                                " email field");
+                }
+                textViewPurchaser.setText(purchaserEmail);
+
+                // if the current user is not the user who purchased the item, then hide the
+                // undo purchase and delete purchase buttons
+                Bundle args = getArguments();
+                if (args == null) {
+                    throw new IllegalNullValueException("Arguments cannot be null");
+                }
+                String userEmail = args.getString(Constants.USER_EMAIL);
+                if (userEmail == null) {
+                    throw new IllegalNullValueException("User uid cannot be null");
+                }
+                if (!purchaserEmail.equals(userEmail)) {
+                    buttonUndoPurchase.setVisibility(View.GONE);
+                    buttonDeletePurchase.setVisibility(View.GONE);
+                    return;
+                }
+
                 // set up the undo purchase button click listener
                 buttonUndoPurchase.setOnClickListener(v -> {
                     // Perform undo purchase logic
                     undoPurchase(purchasedItem);
                 });
-
                 // set up the delete purchase button click listener
                 buttonDeletePurchase.setOnClickListener(v -> {
                     // Perform delete purchase logic
