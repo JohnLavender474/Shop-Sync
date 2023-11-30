@@ -355,7 +355,7 @@ public class UsersFirebaseReferenceTest {
         Runnable onFailure = () -> failure.set(true);
 
         // Act
-        String result = usersFirebaseReference.deleteUser(TEST_PASSWORD, onSuccess, onFailure);
+        String result = usersFirebaseReference.deleteCurrentUser(TEST_PASSWORD, onSuccess, onFailure);
 
         // Assert
         assertEquals(TEST_UID, result);
@@ -374,7 +374,7 @@ public class UsersFirebaseReferenceTest {
         when(mockFirebaseAuth.getCurrentUser()).thenReturn(null);
 
         // Assert
-        usersFirebaseReference.deleteUser(TEST_PASSWORD, null, null);
+        usersFirebaseReference.deleteCurrentUser(TEST_PASSWORD, null, null);
     }
 
     @Test

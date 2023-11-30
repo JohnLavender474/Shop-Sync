@@ -277,13 +277,13 @@ public class UsersFirebaseReference {
      * @param onFailure the runnable for if the task fails
      * @return the uid of the deleted user
      */
-    public String deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
-                             @Nullable Runnable onFailure) {
-        Log.d(TAG, "deleteUser: deleting user");
+    public String deleteCurrentUser(@NonNull String password, @Nullable Runnable onSuccess,
+                                    @Nullable Runnable onFailure) {
+        Log.d(TAG, "deleteCurrentUser: deleting user");
 
         FirebaseUser user = getCurrentFirebaseUser();
         if (user == null) {
-            Log.e(TAG, "deleteUser: cannot delete user if user is not logged in");
+            Log.e(TAG, "deleteCurrentUser: cannot delete user if user is not logged in");
             throw new IllegalStateException("Cannot delete user if user is not logged in");
         }
 
