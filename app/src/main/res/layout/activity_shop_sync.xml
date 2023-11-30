@@ -44,18 +44,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        app:layout_constraintBottom_toTopOf="@id/buttonEditShopSync"
+        app:layout_constraintBottom_toTopOf="@id/linearLayoutEditAndSettle"
         app:layout_constraintTop_toBottomOf="@+id/textViewDescription" />
 
-    <Button
-        android:id="@+id/buttonEditShopSync"
-        android:layout_width="150dp"
+    <LinearLayout
+        android:id="@+id/linearLayoutEditAndSettle"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="@string/edit_shop_sync"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/buttonItems"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tableLayoutUsernames" />
+        app:layout_constraintTop_toBottomOf="@+id/tableLayoutUsernames">
+
+        <Button
+            android:id="@+id/buttonEditShopSync"
+            android:layout_width="145dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:text="@string/edit_shop_sync"
+            style="?android:attr/buttonBarButtonStyle" />
+
+        <Button
+            android:id="@+id/buttonSettleTheCost"
+            android:layout_width="145dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:text="@string/settle_the_cost"
+            style="?android:attr/buttonBarButtonStyle" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/buttonItems"
@@ -66,7 +89,7 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonEditShopSync">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutEditAndSettle">
 
         <!-- Button for Shopping Items -->
         <Button

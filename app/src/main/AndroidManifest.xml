@@ -102,6 +102,18 @@
                 android:value="edu.uga.cs.shopsync.frontend.activities.ShopSyncActivity" />
         </activity>
 
+        <!-- Settle the Cost Activity -->
+        <activity
+            android:name=".frontend.activities.SettleTheCostActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".frontend.activities.ShopSyncActivity">
+
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uga.cs.shopsync.frontend.activities.ShopSyncActivity" />
+        </activity>
+
         <!-- My Account Activity -->
         <activity
             android:name=".frontend.activities.MyAccountActivity"

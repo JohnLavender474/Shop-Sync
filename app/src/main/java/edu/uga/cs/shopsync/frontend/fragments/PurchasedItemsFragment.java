@@ -30,6 +30,9 @@ import edu.uga.cs.shopsync.utils.ArraySetList;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.Props;
 
+/**
+ * This class contains the logic for the purchased items fragment.
+ */
 public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     private static final String TAG = "PurchasedItemsFragment";
@@ -45,6 +48,9 @@ public class PurchasedItemsFragment extends ChildEventListenerFragment {
 
     private CallbackReceiver callbackReceiver;
 
+    /**
+     * Default constructor for PurchasedItemsFragment.
+     */
     public PurchasedItemsFragment() {
         super();
 

@@ -95,4 +95,7 @@
     <string name="warning_price">Invalid price!</string>
     <string name="update_name">Update Name</string>
     <string name="edit_shop_sync">Edit Shop Sync</string>
+    <string name="settle_the_cost">Settle the Cost</string>
+    <string name="userCosts">User\'s Total Cost</string>
+    <string name="cost_per_user">Cost per User</string>
 </resources>
