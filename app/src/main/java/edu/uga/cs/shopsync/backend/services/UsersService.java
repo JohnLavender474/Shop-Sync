@@ -159,9 +159,9 @@ public class UsersService {
      * @param onSuccess the runnable for if the task succeeds
      * @param onFailure the runnable for if the task fails
      */
-    public void deleteUser(@NonNull String password, @Nullable Runnable onSuccess,
-                           @Nullable Runnable onFailure) {
-        String userUid = usersFirebaseReference.deleteUser(password, onSuccess, onFailure);
+    public void deleteCurrentUser(@NonNull String password, @Nullable Runnable onSuccess,
+                                  @Nullable Runnable onFailure) {
+        String userUid = usersFirebaseReference.deleteCurrentUser(password, onSuccess, onFailure);
         userShopSyncMapFirebaseReference.removeUser(userUid);
     }
 }
