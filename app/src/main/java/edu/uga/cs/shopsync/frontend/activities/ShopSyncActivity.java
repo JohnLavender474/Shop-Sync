@@ -67,6 +67,7 @@ import edu.uga.cs.shopsync.utils.ArraySetList;
 import edu.uga.cs.shopsync.utils.CallbackReceiver;
 import edu.uga.cs.shopsync.utils.ErrorHandle;
 import edu.uga.cs.shopsync.utils.Props;
+import edu.uga.cs.shopsync.utils.UtilMethods;
 
 /**
  * Activity for displaying a shop sync.
@@ -207,10 +208,9 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
 
         // set up button for settling the cost
         Button settleTheCostButton = findViewById(R.id.buttonSettleTheCost);
-        settleTheCostButton.setOnClickListener(v -> settleTheCost());
+        settleTheCostButton.setOnClickListener(v -> settleTheCost(shopSyncUid));
 
-        // set up the views for displaying the shop sync
-        // metadata
+        // set up the views for displaying the shop sync metadata
         shopSyncNameTextView =
                 findViewById(R.id.textViewShopSyncName);
         descriptionTextView = findViewById(R.id.textViewDescription);
@@ -293,13 +293,30 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         }
     }
 
-    private void settleTheCost() {
+    private void settleTheCost(String shopSyncUid) {
         Log.d(TAG, "settleTheCost: called");
 
         Consumer<List<PurchasedItemModel>> consumer = purchasedItems -> {
-            // TODO: calculate cost for each user
-            //  then display the cost for each user in a separate activity
-            //  and also email the results to each user
+            Log.d(TAG, "settleTheCost: purchased items size: " + purchasedItems.size());
+
+            double totalCost = 0d;
+
+            for (PurchasedItemModel purchasedItem : purchasedItems) {
+                double pricePerUnit = purchasedItem.getBasketItem().getPricePerUnit();
+                long quantity = purchasedItem.getBasketItem().getQuantity();
+                totalCost += pricePerUnit * quantity;
+            }
+
+            Log.d(TAG, "settleTheCost: total cost: " + totalCost);
+
+            Intent intent = new Intent(this, SettleTheCostActivity.class);
+            intent.putExtra(Constants.SHOP_SYNC_UID, shopSyncUid);
+
+            String totalCostString = UtilMethods.truncateToDecimalPlaces(totalCost, 2);
+            intent.putExtra(Constants.TOTAL_COST, totalCostString);
+            startActivity(intent);
+
+            finish();
         };
 
         onCallback(ACTION_INITIALIZE_PURCHASED_ITEMS, Props.of(

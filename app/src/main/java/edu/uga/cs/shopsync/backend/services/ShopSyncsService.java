@@ -550,7 +550,8 @@ public class ShopSyncsService {
      * @param uid         the uid of the purchased item
      * @return the task that attempts to get the purchased item with the given uid
      */
-    public Task<DataSnapshot> getPurchasedItemsWithUid(String shopSyncUid, String uid) {
+    public Task<DataSnapshot> getPurchasedItemsWithUid(@NonNull String shopSyncUid,
+                                                       @NonNull String uid) {
         Log.d(TAG, "getPurchasedItemsWithUid: getting purchased items with shop sync uid + (" +
                 shopSyncUid + ") and uid + ");
         return shopSyncsFirebaseReference.getPurchasedItemWithUid(shopSyncUid, uid);
@@ -562,7 +563,7 @@ public class ShopSyncsService {
      * @param shopSyncUid the shop sync uid
      * @return the task that attempts to get the purchased items with the given shop sync uid
      */
-    public Task<DataSnapshot> getPurchasedItemsWithShopSyncUid(String shopSyncUid) {
+    public Task<DataSnapshot> getPurchasedItemsWithShopSyncUid(@NonNull String shopSyncUid) {
         Log.d(TAG, "getPurchasedItemsWithShopSyncUid: getting purchased items with shop sync uid " +
                 "(" + shopSyncUid + ")");
         return shopSyncsFirebaseReference.getPurchasedItemsWithShopSyncUid(shopSyncUid);
@@ -575,7 +576,8 @@ public class ShopSyncsService {
      * @param userUid     the user uid
      * @return the task that attempts to get the purchased items with the given user uid
      */
-    public Task<DataSnapshot> getPurchasedItemsWithUserUid(String shopSyncUid, String userUid) {
+    public Task<DataSnapshot> getPurchasedItemsWithUserUid(@NonNull String shopSyncUid,
+                                                           @NonNull String userUid) {
         Log.d(TAG, "getPurchasedItemsWithUserUid: getting purchased items with shop sync uid " +
                 "(" + shopSyncUid + ") and user uid (" + userUid + ")");
         return shopSyncsFirebaseReference.getPurchasedItemsWithUserUid(shopSyncUid, userUid);
@@ -588,8 +590,8 @@ public class ShopSyncsService {
      * @param updatedPurchasedItem the updated purchased item
      * @return the task that attempts to update the purchased item with the given purchased item
      */
-    public Task<Void> updatePurchasedItem(String shopSyncUid,
-                                          PurchasedItemModel updatedPurchasedItem) {
+    public Task<Void> updatePurchasedItem(@NonNull String shopSyncUid,
+                                          @NonNull PurchasedItemModel updatedPurchasedItem) {
         Log.d(TAG, "updatePurchasedItem: updating purchased item with shop sync uid (" +
                 shopSyncUid + ") and purchased item uid (" + updatedPurchasedItem.getPurchasedItemUid() + ")");
         return shopSyncsFirebaseReference.updatePurchasedItem(shopSyncUid, updatedPurchasedItem);
@@ -602,29 +604,22 @@ public class ShopSyncsService {
      * @param purchasedItemId the item id
      * @return the task that attempts to delete the purchased item with the given item id
      */
-    public @NonNull Task<Void> deletePurchasedItem(String shopSyncUid, String purchasedItemId) {
+    public @NonNull Task<Void> deletePurchasedItem(@NonNull String shopSyncUid,
+                                                   @NonNull String purchasedItemId) {
         Log.d(TAG, "deletePurchasedItem: deleting purchased item with shop sync uid (" +
                 shopSyncUid + ") and item id (" + purchasedItemId + ")");
         return shopSyncsFirebaseReference.deletePurchasedItem(shopSyncUid, purchasedItemId);
     }
 
-    // TODO: un-purchase an item
-    /*
-    Currently, the old shopping item and basket item are in the purchased item model.
-    When a user un-purchases an item, he/she has three options:
-        - un-purchase and re-add to both basket and shopping items
-        - un-purchase and re-add only shopping items
-        - un-purchase and delete entirely
-
-    For the first option, the shopping item model contained in the purchased item model is added
-    to the db with a new uid; this new uid is then added to the basket item model contained in the
-    purchased item model. The basket item model is then added to the db with a new uid. The
-    purchased item model is then deleted from the db.
-
-    For the second option, the process outline in the first option is undergone except that the
-    basket item is not re-added to the db.
-
-    For the third option, the purchased item model and its children are deleted with nothing
-    added back to the db.
-    */
+    /**
+     * Returns the task that attempts to delete all purchased items with the given shop sync uid.
+     *
+     * @param shopSyncUid the shop sync uid
+     * @return the task that attempts to delete all purchased items with the given shop sync uid
+     */
+    public @NonNull Task<Void> deleteAllPurchasedItems(@NonNull String shopSyncUid) {
+        Log.d(TAG, "deleteAllPurchasedItems: deleting all purchased items with shop sync uid (" +
+                shopSyncUid + ")");
+        return shopSyncsFirebaseReference.deleteAllPurchasedItems(shopSyncUid);
+    }
 }

@@ -386,7 +386,7 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
 
                         // round to 2 decimal places
                         newPricePerUnit =
-                                Double.parseDouble(UtilMethods.roundToDecimalPlaces
+                                Double.parseDouble(UtilMethods.truncateToDecimalPlaces
                                 (newPricePerUnit, 2));
 
                         // update the new price per unit
@@ -441,7 +441,7 @@ public class BasketItemsFragment extends ChildEventListenerFragment {
                     }
 
                     // round to 2 decimal places
-                    newPricePerUnit = Double.parseDouble(UtilMethods.roundToDecimalPlaces
+                    newPricePerUnit = Double.parseDouble(UtilMethods.truncateToDecimalPlaces
                             (newPricePerUnit, 2));
 
                     Runnable onSuccess = () -> Toast.makeText(getContext(), "Basket item updated!",
