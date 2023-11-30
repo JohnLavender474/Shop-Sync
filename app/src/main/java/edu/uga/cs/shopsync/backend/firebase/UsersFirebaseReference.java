@@ -60,7 +60,8 @@ public class UsersFirebaseReference {
      * @param firebaseAuth    the firebase auth instance
      * @param usersCollection the user_profiles collection
      */
-    UsersFirebaseReference(FirebaseAuth firebaseAuth, DatabaseReference usersCollection) {
+    UsersFirebaseReference(@NonNull FirebaseAuth firebaseAuth,
+                           @NonNull DatabaseReference usersCollection) {
         this.firebaseAuth = firebaseAuth;
         this.usersCollection = usersCollection;
     }
@@ -70,7 +71,7 @@ public class UsersFirebaseReference {
      *
      * @param valueEventListener the value event listener.
      */
-    public void addValueEventListener(ValueEventListener valueEventListener) {
+    public void addValueEventListener(@NonNull ValueEventListener valueEventListener) {
         usersCollection.addValueEventListener(valueEventListener);
     }
 
@@ -184,7 +185,8 @@ public class UsersFirebaseReference {
      * @param password the user's password
      * @return the task that attempts to sign in the user
      */
-    public @NonNull Task<AuthResult> signInUser(String email, String password) {
+    public @NonNull Task<AuthResult> signInUser(@NonNull String email,
+                                                @NonNull String password) {
         Log.d(TAG, "signInUser: signing in user with email " + email);
         return firebaseAuth.signInWithEmailAndPassword(email, password);
     }
@@ -205,7 +207,7 @@ public class UsersFirebaseReference {
      * @param userUid the user's unique id.
      * @return the task that fetches the user profile.
      */
-    public @NonNull Task<DataSnapshot> getUserProfileWithUid(String userUid) {
+    public @NonNull Task<DataSnapshot> getUserProfileWithUid(@NonNull String userUid) {
         Log.d(TAG, "getUserProfileWithUid: getting user profile with uid (" + userUid + ")");
         return usersCollection.child(userUid).get();
     }
@@ -216,7 +218,7 @@ public class UsersFirebaseReference {
      * @param email the user's email.
      * @return the task that fetches the user profile.
      */
-    public Task<DataSnapshot> getUserProfileWithEmail(String email) {
+    public Task<DataSnapshot> getUserProfileWithEmail(@NonNull String email) {
         Log.d(TAG, "getUserProfileWithEmail: getting user profile with email (" + email + ")");
         return usersCollection.orderByChild(USER_EMAIL_FIELD).equalTo(email).get();
     }
@@ -294,11 +296,11 @@ public class UsersFirebaseReference {
      *
      * @param oldPassword              the user's old password
      * @param newPassword              the user's new password
-     * @param onUpdatePasswordListener the listener for when the update password task completes
+     * @param onUpdatePassword the listener for when the update password task completes
      * @param onFailureToAuthenticate  the listener for if the authentication task fails
      */
     public void changeUserPassword(@NonNull String oldPassword, @NonNull String newPassword,
-                                   @Nullable Runnable onUpdatePasswordListener,
+                                   @Nullable Runnable onUpdatePassword,
                                    @Nullable Runnable onFailureToAuthenticate) {
         Log.d(TAG, "changeUserPassword: changing user password");
 
@@ -308,7 +310,7 @@ public class UsersFirebaseReference {
             throw new IllegalStateException("Cannot change password if user is not logged in");
         }
 
-        reauthenticateAndUpdatePassword(user, oldPassword, newPassword, onUpdatePasswordListener,
+        reauthenticateAndUpdatePassword(user, oldPassword, newPassword, onUpdatePassword,
                                         onFailureToAuthenticate);
     }
 
@@ -321,7 +323,7 @@ public class UsersFirebaseReference {
      * @param password the password
      * @return the credential for the email and password
      */
-    AuthCredential getCredential(String email, String password) {
+    AuthCredential getCredential(@NonNull String email, @NonNull String password) {
         return EmailAuthProvider.getCredential(email, password);
     }
 
@@ -385,7 +387,7 @@ public class UsersFirebaseReference {
                              onFailureToAuthenticate);
     }
 
-    private void updatePassword(FirebaseUser user, String newPassword,
+    private void updatePassword(@NonNull FirebaseUser user, @NonNull String newPassword,
                                 @Nullable Runnable onUpdatePassword) {
         Log.d(TAG, "updatePassword: updating password for user with uid (" + user.getUid() + ")");
         Task<Void> updatePasswordTask = user.updatePassword(newPassword);
