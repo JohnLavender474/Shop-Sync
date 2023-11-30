@@ -55,6 +55,8 @@ public class SettleTheCostActivity extends BaseActivity {
         String totalCostText = "Total Cost: $" + totalCost;
         totalCostTextView.setText(totalCostText);
 
+        TextView averageCostTextView = findViewById(R.id.textViewAverageCost);
+
         userCostsTable = findViewById(R.id.tableUserCosts);
 
         Button backButton = findViewById(R.id.backButton);
@@ -89,6 +91,12 @@ public class SettleTheCostActivity extends BaseActivity {
 
                         shopSyncNameTextView.setText(shopSync.getName());
                         shopSyncDescriptionTextView.setText(shopSync.getDescription());
+
+                        String averageCost = UtilMethods.truncateToDecimalPlaces(
+                                Double.parseDouble(totalCost) / shopSync.getShoppingBaskets()
+                                        .size(), 2);
+                        String averageCostText = "Average Cost: $" + averageCost;
+                        averageCostTextView.setText(averageCostText);
 
                         computeTotalCosts(shopSync);
                     }

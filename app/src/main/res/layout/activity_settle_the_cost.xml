@@ -27,6 +27,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/textViewDescription"
         app:layout_constraintTop_toBottomOf="@+id/backButton" />
 
     <TextView
@@ -36,7 +37,7 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="8dp"
         android:text="@string/placeholder"
-        app:layout_constraintBottom_toTopOf="@+id/tableUserCosts"
+        app:layout_constraintBottom_toTopOf="@+id/textViewTotalCost"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewShopSyncName" />
 
@@ -47,10 +48,22 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="8dp"
         android:text="@string/placeholder"
-        app:layout_constraintBottom_toTopOf="@+id/tableUserCosts"
+        app:layout_constraintBottom_toTopOf="@+id/textViewAverageCost"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewDescription" />
+
+    <TextView
+        android:id="@+id/textViewAverageCost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/placeholder"
+        app:layout_constraintBottom_toTopOf="@+id/tableUserCosts"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTotalCost" />
 
     <TableLayout
         android:id="@+id/tableUserCosts"
@@ -60,7 +73,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTotalCost">
+        app:layout_constraintTop_toBottomOf="@+id/textViewAverageCost">
 
         <TableRow tools:ignore="UselessParent">
 
