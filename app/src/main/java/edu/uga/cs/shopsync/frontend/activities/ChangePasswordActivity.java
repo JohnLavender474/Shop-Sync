@@ -216,7 +216,7 @@ public class ChangePasswordActivity extends BaseActivity {
             oldPasswordNotSameAsNewPasswordTextView.setText(message);
             oldPasswordNotSameAsNewPasswordTextView.setVisibility(View.VISIBLE);
         } else {
-            oldPasswordNotSameAsNewPasswordTextView.setVisibility(View.INVISIBLE);
+            oldPasswordNotSameAsNewPasswordTextView.setVisibility(View.GONE);
         }
 
         // fetch confirm new password field
@@ -228,7 +228,7 @@ public class ChangePasswordActivity extends BaseActivity {
             confirmPasswordMatchesTextView.setText(message);
             confirmPasswordMatchesTextView.setVisibility(View.VISIBLE);
         } else {
-            confirmPasswordMatchesTextView.setVisibility(View.INVISIBLE);
+            confirmPasswordMatchesTextView.setVisibility(View.GONE);
         }
 
         // update password criteria text views

@@ -304,7 +304,7 @@ public class RegistrationActivity extends BaseActivity {
             textView.setText(message);
             textView.setVisibility(View.VISIBLE);
         } else {
-            textView.setVisibility(View.INVISIBLE);
+            textView.setVisibility(View.GONE);
         }
     }
 
@@ -559,7 +559,7 @@ public class RegistrationActivity extends BaseActivity {
             confirmPasswordMatchesTextView.setText(message);
             confirmPasswordMatchesTextView.setVisibility(View.VISIBLE);
         } else {
-            confirmPasswordMatchesTextView.setVisibility(View.INVISIBLE);
+            confirmPasswordMatchesTextView.setVisibility(View.GONE);
         }
 
         // check if username is valid
@@ -571,7 +571,7 @@ public class RegistrationActivity extends BaseActivity {
             confirmPasswordMatchesTextView.setText(message);
             confirmPasswordMatchesTextView.setVisibility(View.VISIBLE);
         } else {
-            confirmPasswordMatchesTextView.setVisibility(View.INVISIBLE);
+            confirmPasswordMatchesTextView.setVisibility(View.GONE);
         }
 
         // check if password matches confirm password
@@ -585,7 +585,7 @@ public class RegistrationActivity extends BaseActivity {
             confirmPasswordMatchesTextView.setText(message);
             confirmPasswordMatchesTextView.setVisibility(View.VISIBLE);
         } else {
-            confirmPasswordMatchesTextView.setVisibility(View.INVISIBLE);
+            confirmPasswordMatchesTextView.setVisibility(View.GONE);
         }
 
         // password criteria text views

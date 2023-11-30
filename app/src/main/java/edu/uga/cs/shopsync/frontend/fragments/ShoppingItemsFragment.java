@@ -257,7 +257,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                 Log.d(TAG, "ViewHolder: called");
 
                 errorTextView = itemView.findViewById(R.id.textViewError);
-                errorTextView.setVisibility(View.INVISIBLE);
+                errorTextView.setVisibility(View.GONE);
 
                 editTextItemName = itemView.findViewById(R.id.editTextItemName);
                 textViewInBasket = itemView.findViewById(R.id.textViewInBasket);
@@ -275,7 +275,7 @@ public class ShoppingItemsFragment extends ChildEventListenerFragment {
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
                         boolean error = charSequence.toString().isBlank();
-                        errorTextView.setVisibility(error ? View.VISIBLE : View.INVISIBLE);
+                        errorTextView.setVisibility(error ? View.VISIBLE : View.GONE);
                     }
                 };
                 editTextItemName.setText(item.getName());

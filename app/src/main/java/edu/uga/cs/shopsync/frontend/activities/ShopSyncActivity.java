@@ -375,7 +375,7 @@ public class ShopSyncActivity extends BaseActivity implements CallbackReceiver {
         String description = shopSync.getDescription();
         if (description == null || description.isBlank()) {
             Log.d(TAG, "populateMetaData: no description found for shop sync: " + shopSync);
-            descriptionTextView.setVisibility(View.INVISIBLE);
+            descriptionTextView.setVisibility(View.GONE);
         } else {
             String descriptionText = "Description: " + shopSync.getDescription();
             descriptionTextView.setText(descriptionText);
