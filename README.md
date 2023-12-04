@@ -1,5 +1,7 @@
 # ShopSync - Shared Shopping App
 
+Demonstration: https://drive.google.com/file/d/1qU911MSpUiOUN1ZYPFtK_6ZZd0DElzL_/view?usp=sharing
+
 ## Welcome to ShopSync!
 
 ShopSync is an Android app designed to streamline shared shopping experiences among roommates. With
