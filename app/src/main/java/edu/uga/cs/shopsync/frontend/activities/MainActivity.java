@@ -38,16 +38,6 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: remove after testing
-        /*
-        if (TemporaryStuff.testAddNewUser(applicationGraph)) {
-            return;
-        }
-         */
-        // TemporaryStuff.testFindByEmail(applicationGraph);
-        // TemporaryStuff.testAddShoppingItem(applicationGraph);
-        // TemporaryStuff.testAddShoppingItemToShoppingBasket(applicationGraph);
-
         // if the user is already signed in, then redirect to the my account activity
         if (applicationGraph.usersService().isCurrentUserSignedIn()) {
             Log.d(TAG, "onCreate: user already signed in, redirecting to my account activity");
